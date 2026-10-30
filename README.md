@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LifeBridge Lens
 
 Understand Japanese official notices: scan a paper notice with your phone and
@@ -64,3 +65,7 @@ Tests use mocked AI replies and need no API key.
 - Screenshots: *coming soon*
 - Demo video: *coming soon*
 - Live demo: *coming soon*
+=======
+# lifebridge-lens
+
+>>>>>>> 15afb719e7c90138ed387b6ca9b72292098f90cf
