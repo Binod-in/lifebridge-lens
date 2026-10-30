@@ -1,0 +1,4 @@
+# Bounded pins: install, then lock exact versions with `pip freeze`.
+flask>=3.0,<4
+# Production server (see server.py docstring). Windows-friendly.
+waitress>=2.0,<4
