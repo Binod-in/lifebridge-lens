@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Apply the saved theme before first paint (avoids a light-theme flash).
+        (function () {
+            var theme = "light";
+            try {
+                var saved = localStorage.getItem("lb_theme");
+                if (saved === "light" || saved === "dark") { theme = saved; }
+                else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) { theme = "dark"; }
+            } catch (e) { /* keep light */ }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>You are offline | LifeBridge Lens</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1261ff">
+</head>
+
+<body id="top">
+    <header class="site-header">
+        <div class="header-cnt">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-name">LifeBridge Lens</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main id="main-content" class="content-page">
+        <h1>You are offline</h1>
+        <p class="page-lead">Connect to the internet and try again.</p>
+        <p lang="ne">तपाईं अफलाइन हुनुहुन्छ। इन्टरनेट जोडेर फेरि प्रयास गर्नुहोस्।</p>
+        <p lang="vi">Bạn đang ngoại tuyến. Hãy kết nối internet rồi thử lại.</p>
+        <p lang="my">အင်တာနက် ပြတ်နေပါသည်။ ချိတ်ဆက်ပြီး ထပ်ကြိုးစားပါ။</p>
+        <p>
+            <button class="btn btn-prim" type="button" onclick="location.reload()">Try again</button>
+            <a class="btn" href="index.html">Home</a>
+        </p>
+    </main>
+</body>
+
+</html>

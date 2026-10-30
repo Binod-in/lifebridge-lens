@@ -1,0 +1,17 @@
+{
+  "name": "LifeBridge Lens",
+  "short_name": "Lens",
+  "description": "Scan Japanese notices and understand them in your language.",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f9ff",
+  "theme_color": "#1261ff",
+  "icons": [
+    {
+      "src": "icons/document.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
