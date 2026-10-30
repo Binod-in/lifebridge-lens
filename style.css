@@ -660,6 +660,11 @@ html[data-theme="dark"] .upload-area {
     border-color: #33456e;
 }
 
+html[data-theme="dark"] .explain-lead,
+html[data-theme="dark"] .upload-hint {
+    color: #c3cede;
+}
+
 html[data-theme="dark"] #language {
     background-color: #101d3d;
     border-color: #33456e;

@@ -165,6 +165,8 @@ class ExplainDarkTest(unittest.TestCase):
                          'html[data-theme="dark"] .eyebrow',
                          'html[data-theme="dark"] .card',
                          'html[data-theme="dark"] .upload-area',
+                         'html[data-theme="dark"] .explain-lead',
+                         'html[data-theme="dark"] .upload-hint',
                          'html[data-theme="dark"] #language',
                          'html[data-theme="dark"] .result-card',
                          'html[data-theme="dark"] .chip',
