@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Apply the saved theme before first paint (avoids a light-theme flash).
+        (function () {
+            var theme = "light";
+            try {
+                var saved = localStorage.getItem("lb_theme");
+                if (saved === "light" || saved === "dark") { theme = saved; }
+                else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) { theme = "dark"; }
+            } catch (e) { /* keep light */ }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="lens.title">LifeBridge Lens</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1261ff">
+</head>
+
+<body id="top"><a class="skip-link" href="#main-content" data-i18n="doc.skip">Skip to content</a>
+    <header class="site-header">
+        <div class="header-cnt">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-name">LifeBridge Lens</span>
+                    <span class="logo-tag" data-i18n="footer.tagline">Your everyday guide to living in Japan.</span>
+                </div>
+            </div>
+            <nav aria-label="Main navigation" class="main-nav" data-i18n-aria-label="doc.mainNavAria">
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+            <div class="header-act">
+                <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria-label="doc.langAria">
+                    <option value="en">English</option>
+                    <option value="ne">नेपाली</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="my">မြန်မာ</option>
+                </select>
+            </div>
+        </div>
+    </header>
+    <main id="main-content" class="content-page">
+        <h1>LifeBridge Lens</h1>
+        <p class="page-lead" data-i18n="lens.tagline">Understand Japanese official notices in your language.</p>
+        <div class="lens-actions">
+            <a class="btn btn-prim" href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+            <a class="btn btn-prim" href="dates.html" data-i18n="lens.dates">My deadlines</a>
+            <a class="btn btn-prim" href="tracker.html" data-i18n="lens.money">Money tracker</a>
+        </div>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span>LifeBridge Lens</span>
+                </div>
+                <p data-i18n="footer.tagline">Your everyday guide to living in Japan.</p>
+            </div>
+            <nav aria-label="Explore" class="footer-links" data-i18n-aria-label="doc.explore">
+                <h3 data-i18n="doc.explore">Explore</h3>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <small data-i18n="doc.copyright">© 2026 LifeBridge Lens · Built for newcomers in Japan</small>
+            <small data-i18n="footer.disclaimer">LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.</small>
+            <a href="#top" data-i18n="doc.backTop">Back to top ↑</a>
+        </div>
+    </footer>
+    <script src="i18n.js" defer></script>
+</body>
+
+</html>
