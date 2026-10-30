@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Apply the saved theme before first paint (avoids a light-theme flash).
+        (function () {
+            var theme = "light";
+            try {
+                var saved = localStorage.getItem("lb_theme");
+                if (saved === "light" || saved === "dark") { theme = saved; }
+                else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) { theme = "dark"; }
+            } catch (e) { /* keep light */ }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="explain.title">LifeBridge Lens</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1261ff">
+    <style>
+        /* Explain page styles — same tokens as the rest of the site. */
+        .page-hero {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5ecf5;
+            padding: 48px 20px 38px;
+        }
+
+        .page-hero-inner {
+            width: min(800px, 100%);
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 6px 14px;
+            margin-bottom: 14px;
+            background-color: #f3f8ff;
+            border: 1px solid #d5e5ff;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #13234b;
+        }
+
+        .page-hero h1 {
+            font-size: clamp(34px, 5vw, 48px);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+
+        .explain-lead {
+            color: #425473;
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 640px;
+        }
+
+        /* Main cards — same look as the site's other cards. */
+        .card {
+            width: min(800px, calc(100% - 40px));
+            margin: 24px auto;
+            padding: 24px 20px;
+            background-color: #ffffff;
+            border: 1px solid #e5ecf5;
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(19, 35, 75, 0.12);
+        }
+
+        @media (min-width: 600px) {
+            .card {
+                padding: 28px;
+            }
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        .step-label {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Big, friendly photo picker: a label wrapping the real file
+           input, which covers the whole area as one large tap target. */
+        .upload-area {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 190px;
+            padding: 32px 20px;
+            text-align: center;
+            background-color: #f3f8ff;
+            border: 2px dashed #9dbfff;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+
+        .upload-area:hover {
+            border-color: #1261ff;
+            background-color: #edf4ff;
+        }
+
+        .upload-area:focus-within {
+            outline: 3px solid #1261ff;
+            outline-offset: 4px;
+        }
+
+        .upload-area svg {
+            width: 44px;
+            height: 44px;
+            color: #1261ff;
+        }
+
+        .upload-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: #56647d;
+        }
+
+        #photo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        #preview {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            margin-top: 14px;
+            border-radius: 10px;
+            border: 1px solid #e5ecf5;
+            background-color: #f5f9ff;
+        }
+
+        #sample-btn {
+            margin-top: 12px;
+        }
+
+        #view-dates-btn {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        #sample-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: #BE123C;
+            color: #fff;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        #language {
+            width: 100%;
+            min-height: 52px;
+            padding: 13px 14px;
+            border: 1px solid #cbd9eb;
+            border-radius: 10px;
+            background-color: #ffffff;
+            color: #13234b;
+        }
+
+        #explain-btn {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(18, 97, 255, 0.3);
+            cursor: pointer;
+        }
+
+        #explain-btn:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        #status {
+            margin-top: 12px;
+            min-height: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #425473;
+        }
+
+        #result-card h2 {
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 700px) {
+            .result-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .result-card {
+            background-color: #f5f9ff;
+            border: 1px solid #d5e5ff;
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .result-card h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .result-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #425473;
+            white-space: pre-line;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .upload-area {
+                transition: none;
+            }
+        }
+        /* Follow-up questions. */
+        #followup-card h2 {
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .chip {
+            padding: 10px 14px;
+            background-color: #f3f8ff;
+            border: 1px solid #d5e5ff;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #13234b;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .chip:hover {
+            border-color: #1261ff;
+            background-color: #edf4ff;
+        }
+
+        .chip:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        #ask-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        @media (min-width: 600px) {
+            #ask-form {
+                flex-direction: row;
+            }
+        }
+
+        #ask-input {
+            flex: 1;
+            min-width: 0;
+            padding: 13px 18px;
+            border: 1px solid #cbd9eb;
+            border-radius: 20px;
+            background-color: #ffffff;
+            color: #13234b;
+        }
+
+        #ask-btn {
+            padding: 13px 24px;
+            white-space: nowrap;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #ask-btn:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        #chat-thread {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        #chat-thread:empty {
+            margin-top: 0;
+        }
+
+        .chat-q {
+            justify-self: end;
+            max-width: 90%;
+            padding: 10px 14px;
+            background-color: #1261ff;
+            color: #ffffff;
+            border-radius: 14px 14px 4px 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .chat-a {
+            justify-self: start;
+            max-width: 95%;
+            padding: 10px 14px;
+            background-color: #f5f9ff;
+            border: 1px solid #d5e5ff;
+            border-radius: 14px 14px 14px 4px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #425473;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        #ask-status {
+            margin-top: 10px;
+            min-height: 22px;
+            font-size: 13px;
+            color: #425473;
+        }
+    </style>
+</head>
+
+<body id="top">
+    <a class="skip-link" href="#main-content" data-i18n="doc.skip">Skip to content</a>
+    <header class="site-header">
+        <div class="header-cnt">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-name">LifeBridge Lens</span>
+                    <span class="logo-tag" data-i18n="footer.tagline">Your everyday guide to living in Japan.</span>
+                </div>
+            </div>
+            <nav aria-label="Main navigation" class="main-nav" data-i18n-aria-label="doc.mainNavAria">
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+            <div class="header-act">
+                <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria-label="doc.langAria">
+                    <option value="en">English</option>
+                    <option value="ne">नेपाली</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="my">မြန်မာ</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="page-hero">
+            <div class="page-hero-inner">
+                <p class="eyebrow" data-i18n="explain.eyebrow">Scan &amp; understand</p>
+                <h1 data-i18n="hero.explain">LifeBridge Lens</h1>
+                <p class="explain-lead" data-i18n="explain.lead">Take a photo of a Japanese letter or notice. LifeBridge Lens tells you what it is,
+                   why you got it, and what to do next — in simple words.</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <form id="explain-form">
+                <div class="field">
+                    <p class="step-label" data-i18n-html="explain.step1"><strong>1. Choose a photo of the notice</strong></p>
+                    <label class="upload-area">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span class="upload-title" data-i18n="explain.uploadTitle">Tap to take or choose a photo</span>
+                        <span class="upload-hint" data-i18n="explain.uploadHint">A clear photo of the whole notice works best</span>
+                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+                    </label>
+                    <p class="upload-privacy" data-i18n="explain.privacyHint">Your photo is sent to Meta AI. Cover details you don't need, like your residence card number.</p>
+                    <button type="button" id="sample-btn" class="btn" data-i18n="explain.sampleBtn">Try a sample notice</button>
+                    <img id="preview" alt="" style="display:none;">
+                </div>
+
+                <div class="field">
+                    <label class="step-label" for="language" data-i18n-html="explain.step2"><strong>2. Choose your language</strong></label>
+                    <select id="language" name="language">
+                        <option value="ne" data-i18n="explain.optNepali">Nepali</option>
+                        <option value="en" data-i18n="explain.optEnglish">English</option>
+                        <option value="ja" data-i18n="topic.japanese.title">Japanese</option>
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="my">မြန်မာ</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-prim" id="explain-btn" data-i18n="explain.submit">Scan notice</button>
+                    <a href="dates.html" class="btn" id="view-dates-btn" data-i18n="explain.viewDatesPage">View Important Dates</a>
+                </div>
+                <p id="status" role="status"></p>
+            </form>
+        </section>
+
+        <section class="card" id="result-card" style="display:none;">
+            <h2><span data-i18n="explain.resultTitle">Your explanation</span> <span id="sample-tag" data-i18n="explain.sampleTag" style="display:none;">Sample</span></h2>
+            <div class="result-grid">
+                <article class="result-card">
+                    <h3 data-i18n="explain.hWhat">What is this?</h3>
+                    <p id="result-what"></p>
+                </article>
+                <article class="result-card">
+                    <h3 data-i18n="explain.hWhy">Why did you get it?</h3>
+                    <p id="result-why"></p>
+                </article>
+                <article class="result-card">
+                    <h3 data-i18n="explain.hImportance">How important is it?</h3>
+                    <p id="result-importance"></p>
+                </article>
+                <article class="result-card">
+                    <h3 data-i18n="explain.hNext">What to do next</h3>
+                    <p id="result-next"></p>
+                </article>
+                <article class="result-card">
+                    <h3 data-i18n="explain.hDeadline">Deadline</h3>
+                    <p id="result-deadline"></p>
+                    <button type="button" id="save-date-btn" class="btn" data-i18n="explain.saveDate" style="display:none;">Save to Important Dates</button>
+                    <p id="save-date-msg" role="status"></p>
+                    <div id="save-date-confirm" style="display:none;">
+                        <p data-i18n="explain.checkDate">Check this date against the letter before saving.</p>
+                        <input type="date" id="save-date-input" data-i18n-aria-label="explain.saveDateLabel" aria-label="Date to save">
+                        <button type="button" id="save-date-confirm-btn" class="btn" data-i18n="explain.confirmSave">Confirm</button>
+                    </div>
+                </article>
+                <article class="result-card">
+                    <h3 data-i18n="explain.hCheck">Things to check</h3>
+                    <p id="result-check"></p>
+                </article>
+            </div>
+        </section>
+
+        <section class="card" id="followup-card" style="display:none;">
+            <h2 data-i18n="explain.followTitle">Ask a follow-up question</h2>
+            <div class="chip-row">
+                <button type="button" class="chip" data-i18n="explain.qDeadline">What happens if I miss the deadline?</button>
+                <button type="button" class="chip" data-i18n="explain.qWhere">Where do I pay or do this?</button>
+                <button type="button" class="chip" data-i18n="explain.qDocs">What documents do I need?</button>
+                <button type="button" class="chip" data-i18n="explain.qUrgent">Is this urgent?</button>
+            </div>
+            <form id="ask-form">
+                <label class="visually-hidden" for="ask-input" data-i18n="explain.askLabel">Ask something else about this notice</label>
+                <input type="text" id="ask-input" data-i18n-placeholder="explain.askPlaceholder" placeholder="Ask something else about this notice..." autocomplete="off">
+                <button type="submit" class="btn btn-prim" id="ask-btn" data-i18n="explain.ask">Ask</button>
+            </form>
+            <div id="chat-thread" aria-live="polite"></div>
+            <p id="ask-status" role="status"></p>
+        </section>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span>LifeBridge Lens</span>
+                </div>
+                <p data-i18n="footer.tagline">Your everyday guide to living in Japan.</p>
+            </div>
+            <nav aria-label="Explore" class="footer-links" data-i18n-aria-label="doc.explore">
+                <h3 data-i18n="doc.explore">Explore</h3>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <small data-i18n="doc.copyright">© 2026 LifeBridge Lens · Built for newcomers in Japan</small>
+            <small data-i18n="footer.disclaimer">LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.</small>
+            <a href="#top" data-i18n="doc.backTop">Back to top ↑</a>
+        </div>
+    </footer>
+    <script src="i18n.js" defer></script>
+    <!-- Publishes window.LB_API_TOKEN. Every visitor can read it: it blocks casual scripts only, NOT real authentication. -->
+    <script src="lb-config.js"></script>
+    <script>
+        const HEADERS = [
+            ["What is this?", "result-what"],
+            ["Why did you get it?", "result-why"],
+            ["How important is it?", "result-importance"],
+            ["What to do next", "result-next"],
+            ["Deadline", "result-deadline"],
+            ["Things to check", "result-check"]
+        ];
+
+        const form = document.getElementById("explain-form"); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); if (saveDateState) renderSaveDateMsg(); }); } else { document.addEventListener("lb:lang", function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); if (saveDateState) renderSaveDateMsg(); }); }
+        const photoInput = document.getElementById("photo");
+        const sampleBtn = document.getElementById("sample-btn");
+        const preview = document.getElementById("preview");
+        const status = document.getElementById("status");
+        const btn = document.getElementById("explain-btn"); function t(key, fallback) { try { if (window.LBT && typeof window.LBT.t === "function") { var v = window.LBT.t(key); if (typeof v === "string" && v !== "" && v !== key) return v; } } catch (e) {} return fallback; } var lastStatusKey = null, lastStatusFb = "", lastStatusMsg = ""; function setStatus(key, fb, msg) { lastStatusKey = key; lastStatusFb = fb; lastStatusMsg = msg || ""; status.textContent = t(key, fb).replace("{msg}", lastStatusMsg); }
+
+        // Explain language follows the site language (lb_lang), Nepali if unset.
+        try {
+            var savedLbLang = window.localStorage.getItem("lb_lang");
+            document.getElementById("language").value = savedLbLang || "ne";
+        } catch (e) {
+            document.getElementById("language").value = "ne";
+        }
+
+        // Follow later site-language changes too; the selector stays manually changeable.
+        document.addEventListener("lb:lang", function (event) {
+            var lang = null;
+            try {
+                if (event && event.detail && event.detail.lang) lang = event.detail.lang;
+            } catch (e) { /* fall through to storage */ }
+            try {
+                if (!lang) lang = window.localStorage.getItem("lb_lang");
+            } catch (e) { /* keep unset */ }
+            if (lang === "en" || lang === "ne" || lang === "vi" || lang === "my") {
+                document.getElementById("language").value = lang;
+            }
+        });
+
+        function lbTokenHeaders(extra) {
+            var headers = extra || {};
+            try {
+                if (window.LB_API_TOKEN) headers["X-LB-Token"] = window.LB_API_TOKEN;
+            } catch (e) { /* no token configured */ }
+            return headers;
+        }
+
+        // The AI usually answers in a few seconds; stop waiting after 45.
+        const AI_TIMEOUT_MS = 45000;
+
+        // fetch() plus JSON read under one timeout: the timer keeps running
+        // until the body is fully read and parsed, so a stalled body also
+        // gives up instead of hanging forever.
+        async function fetchWithTimeout(url, options) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);
+            const opts = Object.assign({}, options, { signal: ctrl.signal });
+            try {
+                const res = await fetch(url, opts);
+                const json = await readApiJson(res);
+                return { res: res, json: json };
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        // Read an API reply as JSON. A proxy answers 502/504 with an HTML
+        // page, not JSON: report that as a clean server error instead of
+        // leaking a parse error like "Unexpected token '<'".
+        async function readApiJson(res) {
+            let type = "";
+            try { type = res.headers.get("content-type") || ""; } catch (e) { /* treat as non-JSON */ }
+            if (type.indexOf("application/json") !== -1) {
+                try {
+                    const json = await res.json();
+                    if (json && typeof json === "object") return json;
+                } catch (e) { /* fall through to the clean error */ }
+            }
+            const err = new Error("Bad server reply");
+            err.lbServerError = true;
+            throw err;
+        }
+
+        let lastPhotoB64 = "";
+        let lastPhotoMime = "image/jpeg";
+        let lastExplanation = "";
+        let chatHistory = [];
+        let scanEpoch = 0; // Rises on every successful scan; late follow-up replies check it.
+        let lastDeadlineDate = "";
+        let sampleShowing = false;
+        let saveDateState = "";
+        const askForm = document.getElementById("ask-form");
+        const askInput = document.getElementById("ask-input");
+        const askBtn = document.getElementById("ask-btn");
+        const thread = document.getElementById("chat-thread");
+        const askStatus = document.getElementById("ask-status");
+        let asking = false;
+
+        photoInput.addEventListener("change", () => {
+            const file = photoInput.files[0];
+            if (!file) return;
+            // Show the preview from the resized image, so it is the
+            // same photo that gets uploaded.
+            shrinkPhoto(file).then((small) => {
+                if (photoInput.files[0] !== file) return;
+                preview.src = URL.createObjectURL(small);
+                preview.style.display = "block";
+            });
+        });
+
+        function splitSections(text) {
+            const out = {};
+            let current = null;
+            for (const line of text.split(/\r?\n/)) {
+                const clean = line.replace(/^[#*\s]+/, "").replace(/:$/, "").trim();
+                const hit = HEADERS.find(([h]) => clean.toLowerCase() === h.toLowerCase());
+                if (hit) {
+                    current = hit[1];
+                    out[current] = "";
+                } else if (current) {
+                    out[current] += line + "\n";
+                }
+            }
+            for (const key of Object.keys(out)) out[key] = out[key].trim();
+            return out;
+        }
+
+        // Always redraw the photo on a canvas (longest side 1600px, JPEG
+        // quality 0.85), even when it is already small: /explain accepts a
+        // large PNG upload, but the base64 copy sent to /ask would then
+        // exceed the size limit, so both endpoints get the same small JPEG.
+        function shrinkPhoto(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const longest = Math.max(img.width, img.height) || 1;
+                        const scale = Math.min(1, 1600 / longest);
+                        const canvas = document.createElement("canvas");
+                        canvas.width = Math.max(1, Math.round(img.width * scale));
+                        canvas.height = Math.max(1, Math.round(img.height * scale));
+                        const ctx = canvas.getContext("2d");
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob((blob) => resolve(blob || file), "image/jpeg", 0.85);
+                    } catch (e) { resolve(file); }
+                };
+                img.onerror = () => resolve(file);
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function blobToB64(blob) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const url = String(reader.result || "");
+                    const i = url.indexOf(",");
+                    resolve(i >= 0 ? url.slice(i + 1) : "");
+                };
+                reader.onerror = () => resolve("");
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Remove markdown leftovers like **bold**, ## headers and * bullets.
+        // Lists become numbered lines, objects become one value per line.
+        function cleanText(value) {
+            if (Array.isArray(value)) {
+                const lines = [];
+                for (let i = 0; i < value.length; i++) {
+                    lines.push((i + 1) + ". " + cleanText(value[i]));
+                }
+                return lines.join("\n");
+            }
+            if (value !== null && typeof value === "object") {
+                const lines = [];
+                for (const key of Object.keys(value)) {
+                    lines.push(cleanText(value[key]));
+                }
+                return lines.join("\n");
+            }
+            return String(value || "")
+                .replace(/\*\*/g, "")
+                .replace(/^#+\s?/gm, "")
+                .replace(/^\s*\*\s?/gm, "")
+                .trim();
+        }
+
+        // Parse the AI reply: JSON first, old headers next, raw text last.
+        // Returns { elementId: text } for the six result cards.
+        function parseExplainReply(text) {
+            const raw = String(text || "").trim();
+            if (!raw) return {};
+            const keys = { what: "result-what", why: "result-why", importance: "result-importance", next_steps: "result-next", deadline: "result-deadline", check: "result-check" };
+            const fenced = raw.replace(/^```[a-zA-Z]*/, "").replace(/```\s*$/, "").trim();
+            let data = null;
+            try {
+                data = JSON.parse(fenced);
+            } catch (e) {
+                // Maybe the model added words around the JSON.
+                // Try again with only the text between the first { and the last }.
+                const first = fenced.indexOf("{");
+                const last = fenced.lastIndexOf("}");
+                if (first >= 0 && last > first) {
+                    try {
+                        data = JSON.parse(fenced.slice(first, last + 1));
+                    } catch (e2) { data = null; }
+                }
+            }
+            if (data !== null && typeof data === "object") {
+                const out = {};
+                for (const key of Object.keys(keys)) {
+                    const value = cleanText(data[key]);
+                    if (value) out[keys[key]] = value;
+                }
+                if (Object.keys(out).length > 0) return out;
+            }
+            const found = splitSections(raw);
+            const cleaned = {};
+            for (const id of Object.keys(found)) {
+                const value = cleanText(found[id]);
+                if (value) cleaned[id] = value;
+            }
+            if (Object.keys(cleaned).length > 0) return cleaned;
+            return { "result-what": cleanText(raw) || raw };
+        }
+
+        const saveDateBtn = document.getElementById("save-date-btn");
+        const saveDateMsg = document.getElementById("save-date-msg");
+        const saveDateConfirm = document.getElementById("save-date-confirm");
+        const saveDateInput = document.getElementById("save-date-input");
+        const saveDateConfirmBtn = document.getElementById("save-date-confirm-btn");
+
+        // A real calendar date: 2027-02-30 must fail, not roll over.
+        function isRealDate(text) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text || "");
+            if (!m) return false;
+            const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+            return d.getFullYear() === Number(m[1]) && d.getMonth() === Number(m[2]) - 1 && d.getDate() === Number(m[3]);
+        }
+
+        // Show the Save button only for a real YYYY-MM-DD date.
+        function updateSaveButton() {
+            saveDateState = "";
+            saveDateMsg.replaceChildren();
+            saveDateConfirm.style.display = "none";
+            saveDateBtn.style.display = isRealDate(lastDeadlineDate) ? "" : "none";
+        }
+
+        // Draw the save message again (used after clicks and language changes).
+        function renderSaveDateMsg() {
+            saveDateMsg.replaceChildren();
+            if (saveDateState === "saved") {
+                saveDateMsg.textContent = t("explain.dateSaved", "Saved to Important Dates.");
+            } else if (saveDateState === "exists") {
+                saveDateMsg.textContent = t("explain.dateExists", "Already in Important Dates.");
+            } else if (saveDateState === "failed") {
+                saveDateMsg.textContent = t("tracker.saveFailed", "Could not save. Your browser storage may be full or blocked.");
+                return;
+            } else {
+                return;
+            }
+            saveDateMsg.appendChild(document.createTextNode(" "));
+            const link = document.createElement("a");
+            link.href = "dates.html";
+            link.textContent = t("explain.viewDates", "View in Important Dates");
+            saveDateMsg.appendChild(link);
+        }
+
+        saveDateBtn.addEventListener("click", () => {
+            // Ask the user to check the date before anything is saved.
+            saveDateState = "";
+            saveDateMsg.replaceChildren();
+            saveDateInput.value = lastDeadlineDate;
+            saveDateBtn.style.display = "none";
+            saveDateConfirm.style.display = "";
+        });
+
+        saveDateConfirmBtn.addEventListener("click", () => {
+            const picked = saveDateInput.value;
+            if (!isRealDate(picked)) {
+                saveDateMsg.textContent = t("explain.badDate", "Please pick a real date from the calendar.");
+                return;
+            }
+            const title = (document.getElementById("result-what").textContent || "").trim().slice(0, 60);
+            let items = [];
+            try {
+                const saved = JSON.parse(window.localStorage.getItem("lb_dates") || "[]");
+                if (Array.isArray(saved)) items = saved;
+            } catch (e) { items = []; }
+            // Keep only valid items.
+            items = items.filter(function (d) {
+                return d && typeof d.id === "string" && typeof d.title === "string" &&
+                    /^\d{4}-\d{2}-\d{2}$/.test(d.date);
+            });
+            const dup = items.some(function (d) { return d.title === title && d.date === picked; });
+            if (dup) {
+                saveDateState = "exists";
+            } else {
+                items.push({id: Date.now() + "-" + Math.floor(Math.random() * 100000), title: title, date: picked});
+                saveDateState = "saved";
+                try { window.localStorage.setItem("lb_dates", JSON.stringify(items)); } catch (e) { saveDateState = "failed"; }
+            }
+            saveDateConfirm.style.display = "none";
+            saveDateBtn.style.display = "";
+            renderSaveDateMsg();
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (typeof navigator !== "undefined" && navigator.onLine === false) {
+                setStatus("net.offline", "You are offline. Connect to the internet and try again.");
+                return;
+            }
+            if (!photoInput.files[0]) {
+                setStatus("explain.needPhoto", "Please choose a photo first.");
+                return;
+            }
+            btn.disabled = true;
+            sampleBtn.disabled = true;
+            askInput.disabled = true;
+            askBtn.disabled = true;
+            document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
+            const originalBtnText = btn.textContent;
+            btn.textContent = t("explain.explaining", "Reading your notice...");
+            setStatus("explain.reading", "Reading your notice... this can take a few seconds.");
+            const smallPhoto = await shrinkPhoto(photoInput.files[0]);
+            const newPhotoB64 = await blobToB64(smallPhoto);
+            const newPhotoMime = smallPhoto.type || "image/jpeg";
+            const data = new FormData();
+            data.append("photo", smallPhoto, photoInput.files[0].name || "photo.jpg");
+            data.append("language", document.getElementById("language").value);
+            try {
+                const call = await fetchWithTimeout("/explain", { method: "POST", body: data, headers: lbTokenHeaders() });
+                const res = call.res;
+                const json = call.json;
+                if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
+                const sections = parseExplainReply(json.text || "");
+                if (Object.keys(sections).length === 0) {
+                    setStatus("explain.badFormat", "The reply was unclear. Please try again with a clearer photo of the whole notice.");
+                    return;
+                }
+                for (const [, id] of HEADERS) {
+                    document.getElementById(id).textContent = sections[id] || "—";
+                }
+                document.getElementById("result-card").style.display = "block";
+                document.getElementById("sample-tag").style.display = "none";
+                sampleShowing = false;
+                // The new photo + explanation replace the stored pair only now, on success.
+                lastPhotoB64 = newPhotoB64;
+                lastPhotoMime = newPhotoMime;
+                lastExplanation = json.text || "";
+                chatHistory = [];
+                scanEpoch++;
+                lastDeadlineDate = "";
+                const dateHit = /"deadline_date"\s*:\s*"([^"]*)"/.exec(json.text || "");
+                if (dateHit) lastDeadlineDate = dateHit[1];
+                updateSaveButton();
+                thread.innerHTML = "";
+                askStatus.textContent = "";
+                document.getElementById("followup-card").style.display = "block";
+                lastStatusKey = null; status.textContent = "";
+            } catch (err) {
+                if (err && err.name === "AbortError") {
+                    setStatus("explain.tooSlow", "The AI took too long — please try again.");
+                } else if (err && err.lbServerError) {
+                    setStatus("explain.serverError", "Server error — please try again.");
+                } else {
+                    setStatus("explain.failed", "Sorry, it did not work: {msg}", err.message);
+                }
+            } finally {
+                btn.textContent = originalBtnText;
+                btn.disabled = false;
+                sampleBtn.disabled = false;
+                askInput.disabled = false;
+                askBtn.disabled = false;
+                document.querySelectorAll(".chip").forEach((c) => { c.disabled = false; });
+            }
+        });
+
+        function addMsg(cls, text) {
+            const div = document.createElement("div");
+            div.className = cls;
+            div.textContent = text;
+            thread.appendChild(div);
+            div.scrollIntoView({ block: "nearest" });
+        }
+
+        async function askQuestion(question) {
+            question = (question || "").trim();
+            if (!question || asking || !lastExplanation) return;
+            asking = true;
+            askBtn.disabled = true;
+            const askLabel = askBtn.textContent;
+            askBtn.textContent = t("explain.asking", "Asking...");
+            document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
+            askStatus.textContent = "";
+            addMsg("chat-q", question);
+            const myEpoch = scanEpoch; // Drop this reply if a new scan lands first.
+            try {
+                const call = await fetchWithTimeout("/ask", {
+                    method: "POST",
+                    headers: lbTokenHeaders({ "Content-Type": "application/json" }),
+                    body: JSON.stringify({
+                        question: question,
+                        language: document.getElementById("language").value,
+                        image: lastPhotoB64 ? ("data:" + lastPhotoMime + ";base64," + lastPhotoB64) : "",
+                        explanation: lastExplanation,
+                        history: chatHistory.slice(-10)
+                    })
+                });
+                const res = call.res;
+                const json = call.json;
+                if (myEpoch !== scanEpoch) return; // A new scan won the race: drop this reply.
+                if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
+                const answer = json.answer || "—";
+                addMsg("chat-a", answer);
+                chatHistory.push({role: "user", content: question});
+                chatHistory.push({role: "assistant", content: answer.slice(0, 8000)});
+            } catch (err) {
+                if (err && err.name === "AbortError") {
+                    askStatus.textContent = t("explain.tooSlow", "The AI took too long — please try again.");
+                } else if (err && err.lbServerError) {
+                    askStatus.textContent = t("explain.serverError", "Server error — please try again.");
+                } else {
+                    askStatus.textContent = t("explain.failed", "Sorry, it did not work: {msg}").replace("{msg}", err.message);
+                }
+            } finally {
+                askBtn.textContent = askLabel;
+                askBtn.disabled = false;
+                document.querySelectorAll(".chip").forEach((c) => { c.disabled = false; });
+                asking = false;
+            }
+        }
+
+        askForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            askQuestion(askInput.value);
+            askInput.value = "";
+        });
+
+        document.querySelectorAll(".chip").forEach((chip) => {
+            chip.addEventListener("click", () => askQuestion(chip.textContent));
+        });
+
+        // Demo sample: fills the cards without calling the API.
+        function fillSampleCards() {
+            document.getElementById("result-what").textContent = t("explain.sample.what", "City notice: resident tax (住民税) payment notice");
+            document.getElementById("result-why").textContent = t("explain.sample.why", "Yearly resident tax bill from the city office.");
+            document.getElementById("result-importance").textContent = t("explain.sample.importance", "High. Pay before the due date to avoid a late fee.");
+            document.getElementById("result-next").textContent = t("explain.sample.next", "1. Check the amount and due date.\n2. Pay at a bank or convenience store.\n3. Keep the receipt.");
+            document.getElementById("result-deadline").textContent = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
+            document.getElementById("result-check").textContent = t("explain.sample.check", "Your name and address. The amount and due date.");
+        }
+
+        sampleBtn.addEventListener("click", () => {
+            fillSampleCards();
+            document.getElementById("result-card").style.display = "block";
+            document.getElementById("sample-tag").style.display = "";
+            lastDeadlineDate = "2027-02-01";
+            updateSaveButton();
+            // No follow-up chat for the sample.
+            lastExplanation = "";
+            chatHistory = [];
+            thread.innerHTML = "";
+            document.getElementById("followup-card").style.display = "none";
+            sampleShowing = true;
+            lastStatusKey = null; status.textContent = "";
+        });
+    </script>
+</body>
+
+</html>
