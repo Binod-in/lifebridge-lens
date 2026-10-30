@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Apply the saved theme before first paint (avoids a light-theme flash).
+        (function () {
+            var theme = "light";
+            try {
+                var saved = localStorage.getItem("lb_theme");
+                if (saved === "light" || saved === "dark") { theme = saved; }
+                else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) { theme = "dark"; }
+            } catch (e) { /* keep light */ }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="dates.title">Important Dates | LifeBridge Lens</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1261ff">
+</head>
+
+<body id="top"><a class="skip-link" href="#main-content" data-i18n="doc.skip">Skip to content</a>
+    <header class="site-header">
+        <div class="header-cnt">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-name">LifeBridge Lens</span>
+                    <span class="logo-tag" data-i18n="footer.tagline">Your everyday guide to living in Japan.</span>
+                </div>
+            </div>
+            <nav aria-label="Main navigation" class="main-nav" data-i18n-aria-label="doc.mainNavAria">
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+            <div class="header-act">
+                <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria-label="doc.langAria">
+                    <option value="en">English</option>
+                    <option value="ne">नेपाली</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="my">မြန်မာ</option>
+                </select>
+            </div>
+        </div>
+    </header>
+    <main id="main-content" class="content-page"><a class="saved-back" href="index.html" data-i18n="doc.back">← Home</a>
+        <h1 data-i18n="journey.nav.dates">Important Dates</h1>
+        <p class="page-lead" data-i18n="dates.lead">Keep appointments and deadlines in one place. Dates are stored on this browser; notifications are not sent.</p>
+        <ul id="date-list" class="date-list"></ul>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span>LifeBridge Lens</span>
+                </div>
+                <p data-i18n="footer.tagline">Your everyday guide to living in Japan.</p>
+            </div>
+            <nav aria-label="Explore" class="footer-links" data-i18n-aria-label="doc.explore">
+                <h3 data-i18n="doc.explore">Explore</h3>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <small data-i18n="doc.copyright">© 2026 LifeBridge Lens · Built for newcomers in Japan</small>
+            <small data-i18n="footer.disclaimer">LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.</small>
+            <a href="#top" data-i18n="doc.backTop">Back to top ↑</a>
+        </div>
+    </footer>
+    <script src="i18n.js" defer></script>
+    <script>
+        // My Deadlines: shows the "lb_dates" list saved from Lens.
+        var DATES_KEY = "lb_dates";
+
+        function t(key, fallback) {
+            try {
+                if (window.LBT && typeof window.LBT.t === "function") {
+                    var v = window.LBT.t(key);
+                    if (typeof v === "string" && v !== "" && v !== key) return v;
+                }
+            } catch (e) { /* fall through */ }
+            return fallback;
+        }
+
+        function readDates() {
+            var items = [];
+            try {
+                var saved = JSON.parse(window.localStorage.getItem(DATES_KEY) || "[]");
+                if (Array.isArray(saved)) items = saved;
+            } catch (e) { items = []; }
+            return items.filter(function (d) {
+                return d && typeof d.id === "string" && typeof d.title === "string" &&
+                    /^\d{4}-\d{2}-\d{2}$/.test(d.date);
+            });
+        }
+
+        function showDates() {
+            var list = document.getElementById("date-list");
+            list.replaceChildren();
+            var items = readDates().sort(function (a, b) {
+                return a.date < b.date ? -1 : 1;
+            });
+            if (items.length === 0) {
+                var empty = document.createElement("li");
+                empty.textContent = t("app.noDates", "No dates added yet.");
+                list.appendChild(empty);
+                return;
+            }
+            items.forEach(function (item) {
+                var row = document.createElement("li");
+                var text = document.createElement("span");
+                text.textContent = item.date + " · " + item.title;
+                var remove = document.createElement("button");
+                remove.type = "button";
+                remove.className = "btn";
+                remove.textContent = t("app.remove", "Remove");
+                remove.setAttribute("aria-label", t("app.removeDate", "Remove {t}").replace("{t}", item.title));
+                remove.addEventListener("click", function () {
+                    var kept = readDates().filter(function (d) { return d.id !== item.id; });
+                    try {
+                        window.localStorage.setItem(DATES_KEY, JSON.stringify(kept));
+                    } catch (e) { /* storage blocked: keep showing the list */ }
+                    showDates();
+                });
+                row.appendChild(text);
+                row.appendChild(remove);
+                list.appendChild(row);
+            });
+        }
+
+        showDates();
+        document.addEventListener("lb:lang", showDates);
+    </script>
+</body>
+
+</html>
