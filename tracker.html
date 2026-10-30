@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Apply the saved theme before first paint (avoids a light-theme flash).
+        (function () {
+            var theme = "light";
+            try {
+                var saved = localStorage.getItem("lb_theme");
+                if (saved === "light" || saved === "dark") { theme = saved; }
+                else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) { theme = "dark"; }
+            } catch (e) { /* keep light */ }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="tracker.title">Money Tracker | LifeBridge Lens</title>
+    <link rel="stylesheet" href="style.css"><link rel="manifest" href="site.webmanifest"><meta name="theme-color" content="#1261ff">
+    <style>
+        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+        @media (min-width: 640px) { .summary-grid { grid-template-columns: repeat(4, 1fr); } }
+        .summary-box { background: #f2f6ff; border: 1px solid #d7e3ff; border-radius: 12px; padding: 14px; }
+        .summary-box span { display: block; font-size: 0.85rem; color: #44506b; }
+        .summary-box strong { font-size: 1.25rem; color: #12224d; }
+        .entry-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e4e9f5; }
+        .entry-row .grow { flex: 1; }
+        .entry-row small { display: block; color: #66738f; }
+        .tag { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+        .tag-income { background: #e2f7e6; color: #166534; }
+        .tag-expense { background: #fde8e8; color: #991b1b; }
+        .tag-saving { background: #e6e9fd; color: #3730a3; }
+        .progress { background: #e4e9f5; border-radius: 999px; height: 12px; overflow: hidden; margin: 6px 0 4px; }
+        .progress > div { background: #2f6bff; height: 100%; }
+        .form-grid { display: grid; gap: 10px; }
+        .form-grid label { font-weight: 600; font-size: 0.9rem; }
+        .form-grid input, .form-grid select { width: 100%; padding: 10px; border: 1px solid #c3cee6; border-radius: 8px; font: inherit; }
+        .del-btn { border: 1px solid #e2b6b6; background: #fff; color: #991b1b; border-radius: 8px; padding: 10px 14px; min-height: 44px; cursor: pointer; }
+    </style>
+</head>
+
+<body id="top"><a class="skip-link" href="#main-content" data-i18n="doc.skip">Skip to content</a>
+    <header class="site-header">
+        <div class="header-cnt">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-name">LifeBridge Lens</span>
+                    <span class="logo-tag" data-i18n="footer.tagline">Your everyday guide to living in Japan.</span>
+                </div>
+            </div>
+            <nav aria-label="Main navigation" class="main-nav" data-i18n-aria-label="doc.mainNavAria">
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+            <div class="header-act">
+                <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria-label="doc.langAria">
+                    <option value="en">English</option>
+                    <option value="ne">नेपाली</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="my">မြန်မာ</option>
+                </select>
+                
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="content-page"><a class="saved-back" href="index.html" data-i18n="doc.back">← Home</a>
+        <h1 data-i18n="money.trackerTitle">Money Tracker</h1>
+        <p class="page-lead" data-i18n="tracker.lead">A simple record of what you earn, spend and save each month — and what you are saving for. Everything stays in this browser on your device.</p>
+
+        <article class="detail-card">
+            <h2 data-i18n="tracker.thisMonth">This month</h2>
+            <label for="month" data-i18n-html="tracker.monthLabel"><strong>Month</strong></label>
+            <input type="month" id="month">
+            <div class="summary-grid">
+                <div class="summary-box"><span data-i18n="tracker.earned">Earned</span><strong id="sum-income">¥0</strong></div>
+                <div class="summary-box"><span data-i18n="tracker.spent">Spent</span><strong id="sum-expense">¥0</strong></div>
+                <div class="summary-box"><span data-i18n="tracker.saved">Saved</span><strong id="sum-saving">¥0</strong></div>
+                <div class="summary-box"><span data-i18n="tracker.left">Left</span><strong id="sum-left">¥0</strong></div>
+            </div>
+        </article>
+
+        <article class="detail-card">
+            <h2 data-i18n="tracker.addEntry">Add an entry</h2>
+            <form id="entry-form" class="form-grid">
+                <div>
+                    <label for="type" data-i18n="tracker.type">Type</label>
+                    <select id="type">
+                        <option value="income" data-i18n="tracker.optIncome">Income (earned)</option>
+                        <option value="expense" selected data-i18n="tracker.optExpense">Expense (spent)</option>
+                        <option value="saving" data-i18n="tracker.optSaving">Saving (put aside)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="amount" data-i18n="tracker.amount">Amount (¥)</label>
+                    <input type="number" id="amount" min="1" step="1" required placeholder="e.g. 1500">
+                </div>
+                <div>
+                    <label for="note" data-i18n="tracker.noteLabel">What is it?</label>
+                    <input type="text" id="note" placeholder="e.g. Sukiya salary, Rent, Food, Train" data-i18n-placeholder="tracker.notePlaceholder">
+                </div>
+                <div id="goal-row" style="display:none;">
+                    <label for="goal-select" data-i18n="tracker.savingFor">Saving for</label>
+                    <select id="goal-select"></select>
+                </div>
+                <div>
+                    <label for="date" data-i18n="dates.dateLabel">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <button type="submit" class="btn btn-prim" data-i18n="tracker.addEntryBtn">Add entry</button>
+                <p role="status" id="form-status"></p>
+            </form>
+        </article>
+
+        <article class="detail-card">
+            <h2 data-i18n="tracker.goalsTitle">Savings goals</h2>
+            <div id="goals-list"></div>
+            <form id="goal-form" class="form-grid" style="margin-top:14px;">
+                <div>
+                    <label for="goal-name" data-i18n="tracker.newGoal">New goal — what are you saving for?</label>
+                    <input type="text" id="goal-name" required placeholder="e.g. Ticket to Nepal, New laptop" data-i18n-placeholder="tracker.goalPlaceholder">
+                </div>
+                <div>
+                    <label for="goal-target" data-i18n="tracker.target">Target amount (¥)</label>
+                    <input type="number" id="goal-target" min="1" step="1" required placeholder="e.g. 120000">
+                </div>
+                <button type="submit" class="btn" data-i18n="tracker.addGoal">Add goal</button><p role="status" id="goal-status"></p>
+            </form>
+        </article>
+
+        <article class="detail-card">
+            <h2 data-i18n="tracker.entries">Entries</h2>
+            <div id="entries-list"></div>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span>LifeBridge Lens</span>
+                </div>
+                <p data-i18n="footer.tagline">Your everyday guide to living in Japan.</p>
+            </div>
+            <nav aria-label="Explore" data-i18n-aria-label="doc.explore" class="footer-links">
+                <h3 data-i18n="doc.explore">Explore</h3>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
+                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
+                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <small data-i18n="doc.copyright">© 2026 LifeBridge Lens · Built for newcomers in Japan</small>
+            <small data-i18n="footer.disclaimer">LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.</small>
+            <a href="#top" data-i18n="doc.backTop">Back to top ↑</a>
+        </div>
+    </footer>
+
+    <script src="i18n.js" defer></script>
+    <script>
+        // Money Tracker — all data stays in this browser (localStorage).
+        const ENTRIES_KEY = "lb_money_entries";
+        const GOALS_KEY = "lb_money_goals";
+
+        const load = (key, fallback) => {
+            try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+            catch { return fallback; }
+        };
+        // Save to browser storage. Returns false when saving fails
+        // (for example when storage is full or blocked).
+        const save = (key, value) => {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (err) {
+                return false;
+            }
+        };
+        const yen = n => "¥" + Number(n || 0).toLocaleString("ja-JP"); function t(key, fallback) { try { if (window.LBT && typeof window.LBT.t === "function") { var v = window.LBT.t(key); if (typeof v === "string" && v !== "" && v !== key) return v; } } catch (e) {} return fallback; }
+
+        // Skip broken entries (missing date, amount or type) so one bad
+        // record cannot break the whole page.
+        function cleanEntries(list) {
+            if (!Array.isArray(list)) return [];
+            return list.filter(e => e && e.date && typeof e.amount === "number" && (e.type === "income" || e.type === "expense" || e.type === "saving"));
+        }
+
+        // Skip broken goals the same way, so one bad goal cannot break the page.
+        function cleanGoals(list) {
+            if (!Array.isArray(list)) return [];
+            return list.filter(g => g && typeof g.id === "string" && typeof g.name === "string" && typeof g.target === "number" && g.target > 0);
+        }
+
+        let entries = cleanEntries(load(ENTRIES_KEY, []));
+        let goals = cleanGoals(load(GOALS_KEY, []));
+
+        const monthInput = document.getElementById("month");
+        // Local date as YYYY-MM-DD (toISOString uses UTC, which is
+        // yesterday in Japan before 9 AM).
+        function localDateStr(when) {
+            const y = when.getFullYear();
+            const m = String(when.getMonth() + 1).padStart(2, "0");
+            const d = String(when.getDate()).padStart(2, "0");
+            return y + "-" + m + "-" + d;
+        }
+        const today = new Date();
+        monthInput.value = localDateStr(new Date()).slice(0, 7);
+        document.getElementById("date").value = localDateStr(new Date());
+
+        const typeSelect = document.getElementById("type");
+        const goalRow = document.getElementById("goal-row");
+        const goalSelect = document.getElementById("goal-select");
+
+        function refreshGoalOptions() {
+            goalSelect.innerHTML = "";
+            const general = document.createElement("option");
+            general.value = "";
+            general.textContent = t("tracker.generalSavings", "General savings");
+            goalSelect.appendChild(general);
+            for (const g of goals) {
+                const opt = document.createElement("option");
+                opt.value = g.id;
+                opt.textContent = g.name;
+                goalSelect.appendChild(opt);
+            }
+        }
+        typeSelect.addEventListener("change", () => {
+            goalRow.style.display = typeSelect.value === "saving" ? "block" : "none";
+        });
+
+        function render() {
+            const month = monthInput.value;
+            const inMonth = entries.filter(e => e.date.startsWith(month));
+            const sum = t => inMonth.filter(e => e.type === t).reduce((a, e) => a + e.amount, 0);
+            const income = sum("income"), expense = sum("expense"), saving = sum("saving");
+            document.getElementById("sum-income").textContent = yen(income);
+            document.getElementById("sum-expense").textContent = yen(expense);
+            document.getElementById("sum-saving").textContent = yen(saving);
+            document.getElementById("sum-left").textContent = yen(income - expense - saving);
+
+            // Goals progress uses ALL savings ever tagged to the goal.
+            const goalsList = document.getElementById("goals-list");
+            goalsList.innerHTML = goals.length ? "" : "<p>" + t("tracker.noGoals", "No goals yet. Add one below — for example a ticket home or a new laptop.") + "</p>";
+            for (const g of goals) {
+                const savedAmt = entries
+                    .filter(e => e.type === "saving" && e.goalId === g.id)
+                    .reduce((a, e) => a + e.amount, 0);
+                const pct = g.target > 0 ? Math.min(100, Math.round(savedAmt / g.target * 100)) : 0;
+                const wrap = document.createElement("div");
+                wrap.innerHTML = `<strong></strong> — ` + t("tracker.goalProgress", "{saved} of {target} ({pct}%)").replace("{saved}", yen(savedAmt)).replace("{target}", yen(g.target)).replace("{pct}", pct) + `
+                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div style="width:${pct}%"></div></div>`;
+                wrap.querySelector("strong").textContent = g.name; wrap.querySelector(".progress").setAttribute("aria-label", g.name);
+                const delGoal = document.createElement("button");
+                delGoal.className = "del-btn";
+                delGoal.textContent = t("tracker.deleteGoal", "Delete goal");
+                delGoal.addEventListener("click", () => {
+                    if (!confirm(t("tracker.deleteGoalConfirm", "Delete this goal? Your savings entries will stay."))) return;
+                    const prevGoals = goals;
+                    goals = goals.filter(x => x.id !== g.id);
+                    if (!save(GOALS_KEY, goals)) {
+                        goals = prevGoals; // Storage failed, so undo the in-memory delete too.
+                        document.getElementById("goal-status").textContent = t("tracker.saveFailed", "Could not save. Your browser storage may be full or blocked.");
+                    }
+                    render();
+                });
+                wrap.appendChild(delGoal);
+                goalsList.appendChild(wrap);
+            }
+
+            const list = document.getElementById("entries-list");
+            list.innerHTML = inMonth.length ? "" : "<p>" + t("tracker.noEntries", "No entries for this month yet.") + "</p>";
+            [...inMonth].sort((a, b) => b.date.localeCompare(a.date)).forEach(e => {
+                const goal = goals.find(g => g.id === e.goalId);
+                const row = document.createElement("div");
+                row.className = "entry-row";
+                const label = { income: t("tracker.tagIncome", "Income"), expense: t("tracker.tagExpense", "Expense"), saving: t("tracker.tagSaving", "Saving") }[e.type];
+                row.innerHTML = `<span class="tag tag-${e.type}">${label}</span>
+                    <div class="grow"><strong>${yen(e.amount)}</strong> <span class="entry-note"></span>
+                    <small><span class="entry-date"></span><span class="entry-goal"></span></small></div>`;
+                row.querySelector(".entry-date").textContent = e.date;
+                if (goal) {
+                    row.querySelector(".entry-goal").textContent = t("tracker.forGoal", " · For: {name}").replace("{name}", goal.name);
+                }
+                row.querySelector(".entry-note").textContent = e.note || "";
+                const del = document.createElement("button");
+                del.className = "del-btn";
+                del.textContent = t("tracker.delete", "Delete");
+                del.addEventListener("click", () => {
+                    if (!confirm(t("tracker.deleteConfirm", "Delete this entry?"))) return; const prevEntries = entries; entries = entries.filter(x => x.id !== e.id);
+                    if (!save(ENTRIES_KEY, entries)) {
+                        entries = prevEntries; // Storage failed, so undo the in-memory delete too.
+                        document.getElementById("form-status").textContent = t("tracker.saveFailed", "Could not save. Your browser storage may be full or blocked.");
+                    }
+                    render();
+                });
+                row.appendChild(del);
+                list.appendChild(row);
+            });
+            refreshGoalOptions();
+        }
+
+        document.getElementById("entry-form").addEventListener("submit", ev => {
+            ev.preventDefault();
+            const amount = parseInt(document.getElementById("amount").value, 10);
+            if (!amount || amount <= 0) return;
+            entries.push({
+                id: Date.now().toString(),
+                type: typeSelect.value,
+                amount,
+                note: document.getElementById("note").value.trim(),
+                goalId: typeSelect.value === "saving" ? goalSelect.value : "",
+                date: document.getElementById("date").value
+            });
+            if (!save(ENTRIES_KEY, entries)) {
+                entries.pop(); // Storage failed, so undo the in-memory add too.
+                document.getElementById("form-status").textContent = t("tracker.saveFailed", "Could not save. Your browser storage may be full or blocked.");
+                return;
+            }
+            document.getElementById("amount").value = "";
+            document.getElementById("note").value = "";
+            document.getElementById("form-status").textContent = t("tracker.added", "Added ✔");
+            render();
+        });
+
+        document.getElementById("goal-form").addEventListener("submit", ev => {
+            ev.preventDefault();
+            const name = document.getElementById("goal-name").value.trim();
+            const target = parseInt(document.getElementById("goal-target").value, 10);
+            const goalStatus = document.getElementById("goal-status"); if (!name || !target || target <= 0) { goalStatus.textContent = t("tracker.goalError", "Please enter a goal name and a target amount."); return; }
+            goals.push({ id: Date.now().toString(), name, target });
+            if (!save(GOALS_KEY, goals)) {
+                goals.pop(); // Storage failed, so undo the in-memory add too.
+                document.getElementById("goal-status").textContent = t("tracker.saveFailed", "Could not save. Your browser storage may be full or blocked.");
+                return;
+            }
+            document.getElementById("goal-name").value = "";
+            document.getElementById("goal-target").value = ""; goalStatus.textContent = "";
+            render();
+        });
+
+        monthInput.addEventListener("change", render); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { render(); }); } else { document.addEventListener("lb:lang", function () { render(); }); }
+        render();
+    </script>
+</body>
+
+</html>
