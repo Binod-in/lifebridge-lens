@@ -1,0 +1,677 @@
+/* LifeBridge Lens stylesheet, written for these pages only.
+ * Mobile first: base styles fit a phone, the media query at the
+ * end widens things on bigger screens.
+ */
+
+/* --- Base --- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    color: #1c2b4a;
+    background-color: #f5f9ff;
+}
+
+h1, h2, h3 {
+    line-height: 1.3;
+    color: #12224d;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Skip link: hidden until keyboard users tab to it. */
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    padding: 8px 12px;
+    background: #ffffff;
+    color: #1261ff;
+    border: 1px solid #1261ff;
+    border-radius: 8px;
+    z-index: 60;
+}
+
+.skip-link:focus {
+    top: 8px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* --- Header --- */
+.site-header {
+    background: #ffffff;
+    border-bottom: 1px solid #d7e3ff;
+}
+
+.header-cnt {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-name {
+    font-weight: 700;
+    color: #12224d;
+}
+
+.logo-tag {
+    font-size: 0.8rem;
+    color: #5a6478;
+}
+
+/* Phone: the menu hides behind a Menu button (added by i18n.js). */
+.menu-btn {
+    margin-left: auto;
+    padding: 8px 12px;
+    border: 1px solid #1261ff;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1261ff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.main-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.main-nav.open {
+    display: flex;
+}
+
+.main-nav a {
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #1c2b4a;
+    text-decoration: none;
+}
+
+.main-nav a.active {
+    background: #e3edff;
+    font-weight: 700;
+}
+
+.header-act {
+    margin-left: auto;
+}
+
+.menu-btn + .main-nav + .header-act {
+    margin-left: 0;
+}
+
+.lang-select {
+    padding: 8px 10px;
+    border: 1px solid #c3cee6;
+    border-radius: 8px;
+    font: inherit;
+    background: #ffffff;
+}
+
+/* --- Page content --- */
+.content-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px 16px 96px;
+}
+
+.page-lead {
+    color: #44506b;
+}
+
+.saved-back {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #1261ff;
+    text-decoration: none;
+}
+
+.detail-card {
+    background: #ffffff;
+    border: 1px solid #d7e3ff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.form-actions {
+    margin-top: 12px;
+}
+
+/* Sunken note under the photo upload box. */
+.upload-privacy {
+    font-size: 0.85rem;
+    color: #5a6478;
+}
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 10px 16px;
+    border: 1px solid #1261ff;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1261ff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-prim {
+    background: #1261ff;
+    color: #ffffff;
+}
+
+.btn-prim:hover {
+    background: #0b4fd0;
+}
+
+/* Small suggestion chips under question boxes and in chat. */
+.chip {
+    padding: 8px 12px;
+    border: 1px solid #c3cee6;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #1c2b4a;
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.chip:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+/* --- Forms --- */
+label {
+    font-weight: 600;
+}
+
+input, select, textarea {
+    font: inherit;
+    padding: 10px;
+    border: 1px solid #c3cee6;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1c2b4a;
+    max-width: 100%;
+}
+
+/* --- Landing page big buttons --- */
+.lens-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.lens-actions .btn {
+    padding: 16px 20px;
+    font-size: 1.1rem;
+}
+
+/* --- Deadlines list --- */
+.date-list {
+    list-style: none;
+    margin: 16px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.date-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #d7e3ff;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+/* --- Money tracker rows (boxes live in tracker.html) --- */
+.entry-date {
+    color: #5a6478;
+    font-size: 0.85rem;
+}
+
+.entry-note {
+    color: #44506b;
+}
+
+.entry-goal {
+    font-size: 0.85rem;
+    color: #1261ff;
+}
+
+/* --- Footer --- */
+.site-footer {
+    background: #ffffff;
+    border-top: 1px solid #d7e3ff;
+    padding: 20px 16px 110px;
+}
+
+.footer-grid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.footer-logo {
+    font-weight: 700;
+    color: #12224d;
+}
+
+.footer-brand p {
+    color: #5a6478;
+    font-size: 0.9rem;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.footer-links h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+}
+
+.footer-links a {
+    color: #1c2b4a;
+    text-decoration: none;
+}
+
+.footer-bottom {
+    max-width: 960px;
+    margin: 16px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #5a6478;
+    font-size: 0.85rem;
+}
+
+.footer-bottom a {
+    color: #1261ff;
+}
+
+/* --- Bottom navigation (added on every page by i18n.js) --- */
+.bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    background: #ffffff;
+    border-top: 1px solid #d7e3ff;
+    z-index: 40;
+}
+
+.bottom-nav a {
+    flex: 1;
+    padding: 10px 4px 12px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #44506b;
+    text-decoration: none;
+}
+
+.bottom-nav a[aria-current="page"] {
+    color: #1261ff;
+    font-weight: 700;
+}
+
+.bottom-nav a.bottom-nav-main {
+    color: #ffffff;
+    background: #1261ff;
+    font-weight: 700;
+}
+
+/* --- Offline banner (added by i18n.js, hidden while online) --- */
+.net-banner {
+    padding: 8px 16px;
+    background: #fff4d6;
+    border-bottom: 1px solid #e8c95a;
+    color: #5a4a12;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* --- Chatbot (UI built by chatbot.js) --- */
+.chat-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 76px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    background: #1261ff;
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 45;
+}
+
+.chat-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 34, 77, 0.45);
+    z-index: 46;
+}
+
+.chat-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-height: 75vh;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #d7e3ff;
+    border-radius: 12px;
+    z-index: 47;
+    overflow: hidden;
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #1261ff;
+    color: #ffffff;
+}
+
+.chat-avatar {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #1261ff;
+    font-weight: 700;
+}
+
+.chat-head-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-status {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.chat-close {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.chat-msgs {
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-msg-user {
+    align-self: flex-end;
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 12px 12px 4px 12px;
+    background: #1261ff;
+    color: #ffffff;
+}
+
+.chat-msg-bot {
+    align-self: flex-start;
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: 12px 12px 12px 4px;
+    background: #eef3ff;
+    color: #1c2b4a;
+}
+
+.chat-time {
+    font-size: 0.75rem;
+    color: #5a6478;
+}
+
+.chat-time.user {
+    align-self: flex-end;
+}
+
+.chat-time.bot {
+    align-self: flex-start;
+}
+
+.chat-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chat-link {
+    color: #1261ff;
+}
+
+.chat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 12px 8px;
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px 12px;
+}
+
+.chat-form input {
+    flex: 1;
+}
+
+/* Lock the page behind an open chat panel. */
+html.chat-open body {
+    position: fixed;
+    width: 100%;
+}
+
+/* --- Dark theme --- */
+html[data-theme="dark"] body {
+    color: #e6ecf7;
+    background-color: #0e1830;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3 {
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .detail-card,
+html[data-theme="dark"] .date-list li,
+html[data-theme="dark"] .chat-panel {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .logo-name,
+html[data-theme="dark"] .footer-logo,
+html[data-theme="dark"] .footer-links a,
+html[data-theme="dark"] .main-nav a {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .logo-tag,
+html[data-theme="dark"] .page-lead,
+html[data-theme="dark"] .footer-brand p,
+html[data-theme="dark"] .footer-bottom,
+html[data-theme="dark"] .entry-date,
+html[data-theme="dark"] .entry-note,
+html[data-theme="dark"] .upload-privacy,
+html[data-theme="dark"] .chat-time {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .main-nav a.active {
+    background: #26355c;
+}
+
+html[data-theme="dark"] .btn,
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .menu-btn {
+    background: transparent;
+    border-color: #9dbcff;
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .btn-prim {
+    background: #1261ff;
+    border-color: #1261ff;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .lang-select {
+    background-color: #101d3d;
+    border-color: #33456e;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .chat-msg-bot {
+    background: #26355c;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .chat-link,
+html[data-theme="dark"] .footer-bottom a,
+html[data-theme="dark"] .saved-back,
+html[data-theme="dark"] .entry-goal {
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .net-banner {
+    background: #3a2f10;
+    border-color: #8a6f1f;
+    color: #f0dfa8;
+}
+
+html[data-theme="dark"] .bottom-nav {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .bottom-nav a {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .bottom-nav a[aria-current="page"] {
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .bottom-nav a.bottom-nav-main {
+    color: #ffffff;
+    background: #1261ff;
+}
+
+/* Tracker summary tiles live in tracker.html; their dark
+ * colors live here so one file owns the whole dark theme. */
+html[data-theme="dark"] .summary-box {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .summary-box span {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .summary-box strong {
+    color: #ffffff;
+}
+
+/* --- Wider screens --- */
+@media (min-width: 720px) {
+    .menu-btn {
+        display: none;
+    }
+
+    .main-nav {
+        display: flex;
+        width: auto;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .header-act {
+        margin-left: auto;
+    }
+
+    .footer-grid {
+        flex-direction: row;
+        gap: 32px;
+    }
+
+    .lens-actions {
+        flex-direction: row;
+    }
+
+    .lens-actions .btn {
+        flex: 1;
+    }
+
+    .chat-panel {
+        left: auto;
+        right: 16px;
+        bottom: 76px;
+        width: 380px;
+    }
+}
