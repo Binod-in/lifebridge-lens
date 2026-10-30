@@ -38,5 +38,24 @@ class ManifestTest(unittest.TestCase):
             self.assertIn('"%s"' % icon["src"], sw)
 
 
+
+class IconFilesTest(unittest.TestCase):
+    def test_pwa_png_icons_present(self):
+        manifest = json.loads(_read("site.webmanifest"))
+        by_src = {icon["src"]: icon for icon in manifest["icons"]}
+        for src, size in (("icons/icon-192.png", "192x192"),
+                          ("icons/icon-512.png", "512x512")):
+            self.assertIn(src, by_src)
+            self.assertEqual(by_src[src]["sizes"], size)
+            self.assertEqual(by_src[src]["type"], "image/png")
+
+    def test_every_icon_file_is_used(self):
+        refs = _read("site.webmanifest") + _read("sw.js")
+        names = sorted(os.listdir(os.path.join(ROOT, "icons")))
+        self.assertTrue(names)
+        for name in names:
+            self.assertIn("icons/" + name, refs, name)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2,7 +2,7 @@
  * Registered on every page by i18n.js. Version the CACHE name to update.
  * Every CORE entry must exist, or the whole install fails.
  */
-const CACHE = "lens-v1";
+const CACHE = "lens-v2";
 const CORE = [
     "/",
     "offline.html",
@@ -14,7 +14,9 @@ const CORE = [
     "i18n.js",
     "chatbot.js",
     "site.webmanifest",
-    "icons/document.svg"
+    "icons/document.svg",
+    "icons/icon-192.png",
+    "icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {

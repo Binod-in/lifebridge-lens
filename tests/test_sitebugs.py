@@ -144,5 +144,35 @@ class ChatScrollTest(unittest.TestCase):
         self.assertIn('classList.remove("chat-open")', self.js)
 
 
+
+class ChatHiddenTest(unittest.TestCase):
+    """A hidden chat panel and backdrop stay invisible."""
+
+    def test_hidden_chat_has_no_display(self):
+        css = _read("style.css")
+        self.assertRegex(
+            css, r"\.chat-panel\[hidden\][^{]*\{[^}]*?display: none;")
+        self.assertRegex(
+            css, r"\.chat-backdrop\[hidden\][^{]*\{[^}]*?display: none;")
+
+
+class ExplainDarkTest(unittest.TestCase):
+    """Dark theme covers every Lens page surface."""
+
+    def test_dark_lens_selectors_covered(self):
+        css = _read("style.css")
+        for selector in ('html[data-theme="dark"] .page-hero',
+                         'html[data-theme="dark"] .eyebrow',
+                         'html[data-theme="dark"] .card',
+                         'html[data-theme="dark"] .upload-area',
+                         'html[data-theme="dark"] #language',
+                         'html[data-theme="dark"] .result-card',
+                         'html[data-theme="dark"] .chip',
+                         'html[data-theme="dark"] #sample-btn',
+                         'html[data-theme="dark"] #view-dates-btn',
+                         'html[data-theme="dark"] .upload-privacy'):
+            self.assertIn(selector, css)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -156,5 +156,37 @@ class ChatbotIntentTest(unittest.TestCase):
         self.assertEqual(self._intent_id("earthquake"), "earthquake")
 
 
+
+class AnswerWordingTest(unittest.TestCase):
+    """Greeting and fallback describe offline answers, not saved guides."""
+
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(ROOT, "chatbot.js"), encoding="utf-8") as f:
+            cls.src = f.read()
+        cls.kb = {intent["id"]: intent for intent in load_kb()}
+
+    def test_no_saved_guides_wording(self):
+        for old in ("from the saved guides",
+                    "सेभ गरिएका गाइडबाट",
+                    "hướng dẫn đã lưu",
+                    "သိမ်းထားသော လမ်းညွှန်များမှ",
+                    "Details are in the Emergency guide.",
+                    "विवरण Emergency गाइडमा छ।",
+                    "Chi tiết trong hướng dẫn Emergency.",
+                    "အသေးစိတ်ကို Emergency လမ်းညွှန်တွင် ကြည့်ပါ။"):
+            self.assertNotIn(old, self.src)
+
+    def test_offline_answers_in_all_languages(self):
+        new = {"en": "I answer common questions, even offline",
+               "ne": "सामान्य प्रश्नहरूको जवाफ दिन्छु, अफलाइन पनि",
+               "vi": "Tôi trả lời các câu hỏi thường gặp, kể cả khi ngoại tuyến",
+               "my": "အမေးများသော မေးခွန်းများကို ဖြေပေးပါတယ်၊ အော့ဖ်လိုင်းလည်း ရပါတယ်"}
+        for intent_id in ("greeting", "fallback"):
+            answers = self.kb[intent_id]["answers"]
+            for lang, text in new.items():
+                self.assertIn(text, answers[lang], intent_id + " " + lang)
+
+
 if __name__ == "__main__":
     unittest.main()

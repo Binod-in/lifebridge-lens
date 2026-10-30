@@ -146,11 +146,25 @@ class ServiceWorkerTest(unittest.TestCase):
             "/", "offline.html", "index.html", "explain.html",
             "tracker.html", "dates.html", "style.css", "i18n.js",
             "chatbot.js", "site.webmanifest", "icons/document.svg",
+            "icons/icon-192.png", "icons/icon-512.png",
         })
         for entry in entries:
             if entry == "/":
                 continue
             self.assertTrue(os.path.isfile(os.path.join(ROOT, entry)), entry)
+
+
+
+class TaglineTest(unittest.TestCase):
+    def test_tagline_in_all_languages(self):
+        src = _read("i18n.js")
+        self.assertEqual(src.count('"footer.tagline"'), 4)
+        for text in ("Understand Japanese notices in your own language.",
+                     "जापानी सूचनाहरू आफ्नै भाषामा बुझ्नुहोस्।",
+                     "Hiểu các thông báo tiếng Nhật bằng ngôn ngữ của bạn.",
+                     "ဂျပန်အသိပေးစာများကို သင့်ဘာသာစကားဖြင့် နားလည်ပါ။"):
+            self.assertIn('"footer.tagline": "%s"' % text, src)
+        self.assertNotIn("Your everyday guide to living in Japan.", src)
 
 
 if __name__ == "__main__":

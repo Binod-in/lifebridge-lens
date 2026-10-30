@@ -17,7 +17,7 @@
     var I18N = {
         en: {
             "nav.home": "Home",
-            "footer.tagline": "Your everyday guide to living in Japan.",
+            "footer.tagline": "Understand Japanese notices in your own language.",
             "hero.explain": "LifeBridge Lens",
             "topic.japanese.title": "Japanese",
             "journey.nav.dates": "Important Dates",
@@ -146,7 +146,7 @@
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
-            "footer.tagline": "जापानमा तपाईंको दैनिक जीवनका लागि मार्गदर्शक।",
+            "footer.tagline": "जापानी सूचनाहरू आफ्नै भाषामा बुझ्नुहोस्।",
             "hero.explain": "LifeBridge Lens",
             "topic.japanese.title": "जापानी",
             "journey.nav.dates": "महत्त्वपूर्ण मितिहरू",
@@ -275,7 +275,7 @@
         },
         vi: {
             "nav.home": "Trang chủ",
-            "footer.tagline": "Người bạn đồng hành mỗi ngày của bạn tại Nhật Bản.",
+            "footer.tagline": "Hiểu các thông báo tiếng Nhật bằng ngôn ngữ của bạn.",
             "hero.explain": "LifeBridge Lens",
             "topic.japanese.title": "Tiếng Nhật",
             "journey.nav.dates": "Ngày quan trọng",
@@ -404,7 +404,7 @@
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
-            "footer.tagline": "ဂျပန်နိုင်ငံရှိ သင့်နေ့စဉ်ဘဝအတွက် လမ်းညွှန်။",
+            "footer.tagline": "ဂျပန်အသိပေးစာများကို သင့်ဘာသာစကားဖြင့် နားလည်ပါ။",
             "hero.explain": "LifeBridge Lens",
             "topic.japanese.title": "ဂျပန်စာ",
             "journey.nav.dates": "အရေးကြီးသော ရက်စွဲများ",

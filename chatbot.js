@@ -1,5 +1,5 @@
 /* LifeBridge Japan offline chatbot.
- * Rule-based answers from the saved guides. No network needed.
+ * Rule-based answers to common questions. No network needed.
  * Loaded on every page by i18n.js (deferred, cached by the service worker).
  * The knowledge base below is JSON-compatible (double quotes only) so the
  * Python test suite can parse and validate it. Keep it that way.
@@ -20,10 +20,10 @@
                 "ja": ["こんにちは"]
             },
             "answers": {
-                "en": "Hello! Ask me about address, bank, jobs, health, transport, or emergencies. I answer from the saved guides, even offline.",
-                "ne": "नमस्ते! ठेगाना, बैंक, काम, स्वास्थ्य, यातायात वा आपतकालबारे सोध्नुहोस्। सेभ गरिएका गाइडबाट जवाफ दिन्छु, अफलाइन पनि।",
-                "vi": "Xin chào! Hãy hỏi về địa chỉ, ngân hàng, việc làm, sức khỏe, giao thông hoặc khẩn cấp. Tôi trả lời từ hướng dẫn đã lưu, kể cả khi ngoại tuyến.",
-                "my": "မင်္ဂလာပါ! လိပ်စာ၊ ဘဏ်၊ အလုပ်၊ ကျန်းမာရေး၊ သယ်ယူပို့ဆောင်ရေး သို့မဟုတ် အရေးပေါ်အကြောင်း မေးပါ။ သိမ်းထားသော လမ်းညွှန်များမှ ဖြေပေးပါတယ်၊ အော့ဖ်လိုင်းလည်း ရပါတယ်။"
+                "en": "Hello! Ask me about address, bank, jobs, health, transport, or emergencies. I answer common questions, even offline.",
+                "ne": "नमस्ते! ठेगाना, बैंक, काम, स्वास्थ्य, यातायात वा आपतकालबारे सोध्नुहोस्। सामान्य प्रश्नहरूको जवाफ दिन्छु, अफलाइन पनि।",
+                "vi": "Xin chào! Hãy hỏi về địa chỉ, ngân hàng, việc làm, sức khỏe, giao thông hoặc khẩn cấp. Tôi trả lời các câu hỏi thường gặp, kể cả khi ngoại tuyến.",
+                "my": "မင်္ဂလာပါ! လိပ်စာ၊ ဘဏ်၊ အလုပ်၊ ကျန်းမာရေး၊ သယ်ယူပို့ဆောင်ရေး သို့မဟုတ် အရေးပေါ်အကြောင်း မေးပါ။ အမေးများသော မေးခွန်းများကို ဖြေပေးပါတယ်၊ အော့ဖ်လိုင်းလည်း ရပါတယ်။"
             }
         },
         {
@@ -71,10 +71,10 @@
                 "ja": ["緊急", "警察", "救急"]
             },
             "answers": {
-                "en": "Police: 110. Ambulance or fire: 119. Medical advice: #7119. Foreign residents can call FRESC: 0570-011000 (weekdays). For visa/residence questions: 0570-013904. Details are in the Emergency guide.",
-                "ne": "प्रहरी: ११०। एम्बुलेन्स वा दमकल: ११९। चिकित्सा सल्लाह: #7119। विदेशी बासिन्दाले FRESC मा फोन गर्न सक्छन्: 0570-011000 (हप्ताका दिन)। भिसा/बसोबासका प्रश्नका लागि: 0570-013904। विवरण Emergency गाइडमा छ।",
-                "vi": "Cảnh sát: 110. Cấp cứu hoặc cứu hỏa: 119. Tư vấn y tế: #7119. Người nước ngoài cư trú có thể gọi FRESC: 0570-011000 (các ngày trong tuần). Câu hỏi về visa/cư trú: 0570-013904. Chi tiết trong hướng dẫn Emergency.",
-                "my": "ရဲ - ၁၁၀။ လူနာတင် သို့မဟုတ် မီးသတ် - ၁၁၉။ ဆေးဘက်ဆိုင်ရာ အကြံဉာဏ် - #7119။ နိုင်ငံခြားသား နေထိုင်သူများ FRESC သို့ ဖုန်းဆက်နိုင်ပါတယ် - 0570-011000 (တနင်္လာမှ သောကြာ)။ ဗီဇာ/နေထိုင်ခွင့်မေးခွန်းများ - 0570-013904။ အသေးစိတ်ကို Emergency လမ်းညွှန်တွင် ကြည့်ပါ။"
+                "en": "Police: 110. Ambulance or fire: 119. Medical advice: #7119. Foreign residents can call FRESC: 0570-011000 (weekdays). For visa/residence questions: 0570-013904.",
+                "ne": "प्रहरी: ११०। एम्बुलेन्स वा दमकल: ११९। चिकित्सा सल्लाह: #7119। विदेशी बासिन्दाले FRESC मा फोन गर्न सक्छन्: 0570-011000 (हप्ताका दिन)। भिसा/बसोबासका प्रश्नका लागि: 0570-013904।",
+                "vi": "Cảnh sát: 110. Cấp cứu hoặc cứu hỏa: 119. Tư vấn y tế: #7119. Người nước ngoài cư trú có thể gọi FRESC: 0570-011000 (các ngày trong tuần). Câu hỏi về visa/cư trú: 0570-013904.",
+                "my": "ရဲ - ၁၁၀။ လူနာတင် သို့မဟုတ် မီးသတ် - ၁၁၉။ ဆေးဘက်ဆိုင်ရာ အကြံဉာဏ် - #7119။ နိုင်ငံခြားသား နေထိုင်သူများ FRESC သို့ ဖုန်းဆက်နိုင်ပါတယ် - 0570-011000 (တနင်္လာမှ သောကြာ)။ ဗီဇာ/နေထိုင်ခွင့်မေးခွန်းများ - 0570-013904။"
             }
         },
         {
@@ -371,10 +371,10 @@
             "links": [],
             "keys": {},
             "answers": {
-                "en": "I answer from the saved guides. Try asking about address, bank, jobs, health, transport, or emergencies.",
-                "ne": "म सेभ गरिएका गाइडबाट जवाफ दिन्छु। ठेगाना, बैंक, काम, स्वास्थ्य, यातायात वा आपतकालबारे सोध्नुहोस्।",
-                "vi": "Tôi trả lời từ các hướng dẫn đã lưu. Hãy hỏi về địa chỉ, ngân hàng, việc làm, sức khỏe, giao thông hoặc khẩn cấp.",
-                "my": "သိမ်းထားသော လမ်းညွှန်များမှ ဖြေပေးပါတယ်။ လိပ်စာ၊ ဘဏ်၊ အလုပ်၊ ကျန်းမာရေး၊ သယ်ယူပို့ဆောင်ရေး သို့မဟုတ် အရေးပေါ်အကြောင်း မေးပါ။"
+                "en": "I answer common questions, even offline. Try asking about address, bank, jobs, health, transport, or emergencies.",
+                "ne": "म सामान्य प्रश्नहरूको जवाफ दिन्छु, अफलाइन पनि। ठेगाना, बैंक, काम, स्वास्थ्य, यातायात वा आपतकालबारे सोध्नुहोस्।",
+                "vi": "Tôi trả lời các câu hỏi thường gặp, kể cả khi ngoại tuyến. Hãy hỏi về địa chỉ, ngân hàng, việc làm, sức khỏe, giao thông hoặc khẩn cấp.",
+                "my": "အမေးများသော မေးခွန်းများကို ဖြေပေးပါတယ်၊ အော့ဖ်လိုင်းလည်း ရပါတယ်။ လိပ်စာ၊ ဘဏ်၊ အလုပ်၊ ကျန်းမာရေး၊ သယ်ယူပို့ဆောင်ရေး သို့မဟုတ် အရေးပေါ်အကြောင်း မေးပါ။"
             }
         }
     ];

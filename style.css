@@ -637,6 +637,57 @@ html[data-theme="dark"] .summary-box strong {
     color: #ffffff;
 }
 
+/* Lens page sections live in explain.html; their dark
+ * colors live here so one file owns the whole dark theme. */
+html[data-theme="dark"] .page-hero {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .eyebrow {
+    background: #26355c;
+    border-color: #33456e;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .card {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .upload-area {
+    background: #101d3d;
+    border-color: #33456e;
+}
+
+html[data-theme="dark"] #language {
+    background-color: #101d3d;
+    border-color: #33456e;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .result-card {
+    background: #26355c;
+    border-color: #33456e;
+}
+
+html[data-theme="dark"] .result-card p {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .chip {
+    background: transparent;
+    border-color: #9dbcff;
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] #sample-btn,
+html[data-theme="dark"] #view-dates-btn {
+    background: transparent;
+    border-color: #9dbcff;
+    color: #9dbcff;
+}
+
 /* --- Wider screens --- */
 @media (min-width: 720px) {
     .menu-btn {
@@ -674,4 +725,10 @@ html[data-theme="dark"] .summary-box strong {
         bottom: 76px;
         width: 380px;
     }
+}
+
+/* Hidden chat must stay hidden: without this rule, the panel's
+ * `display: flex` beats the browser's built-in [hidden] rule. */
+.chat-panel[hidden], .chat-backdrop[hidden] {
+    display: none;
 }
