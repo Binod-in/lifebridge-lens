@@ -72,6 +72,24 @@
             border-radius: 12px;
             box-shadow: 0 10px 28px rgba(19, 35, 75, 0.12);
         }
+        /* Compact page header: back link plus title, aligned with cards. */
+        .lens-top {
+            width: min(800px, calc(100% - 40px));
+            margin: 24px auto 0;
+        }
+        .lens-top h1 {
+            margin: 8px 0 0;
+        }
+        /* Small subheadings inside the merged How to pay card. */
+        .pay-sub {
+            font-weight: 700;
+            font-size: 14px;
+            margin: 12px 0 4px;
+        }
+        /* Consequences line inside the importance card. */
+        .consequence-line {
+            margin-top: 8px;
+        }
 
         @media (min-width: 600px) {
             .card {
@@ -391,14 +409,10 @@
     </header>
 
     <main id="main-content">
-        <section class="page-hero">
-            <div class="page-hero-inner">
-                <p class="eyebrow" data-i18n="explain.eyebrow">Scan &amp; understand</p>
-                <h1 data-i18n="hero.explain">LifeBridge Lens</h1>
-                <p class="explain-lead" data-i18n="explain.lead">Take a photo of a Japanese letter or notice. LifeBridge Lens tells you what it is,
-                   why you got it, and what to do next, in simple words.</p>
-            </div>
-        </section>
+        <div class="lens-top">
+            <a class="saved-back" href="index.html" data-i18n="doc.back">← Home</a>
+            <h1 data-i18n="lens.title">Scan &amp; understand</h1>
+        </div>
 
         <section class="card">
             <form id="explain-form">
@@ -487,6 +501,16 @@
                     <span class="summary-label" data-i18n="explain.hAmount">Amount</span>
                     <strong class="summary-big" id="summary-amount"></strong>
                 </div>
+                <div class="summary-save">
+                    <button type="button" id="save-date-btn" class="btn btn-prim" data-i18n="explain.saveDate" style="display:none;">Save to Important Dates</button>
+                    <button type="button" id="save-date-cal" class="btn" data-i18n="explain.addToCal" style="display:none;">Add to calendar</button>
+                </div>
+                <p id="save-date-msg" role="status"></p>
+                <div id="save-date-confirm" style="display:none;">
+                    <p data-i18n="explain.checkDate">Check this date against the letter before saving.</p>
+                    <input type="date" id="save-date-input" data-i18n-aria-label="explain.saveDateLabel" aria-label="Date to save">
+                    <button type="button" id="save-date-confirm-btn" class="btn" data-i18n="explain.confirmSave">Confirm</button>
+                </div>
             </div>
             <div class="result-grid">
                 <article class="result-card">
@@ -500,43 +524,11 @@
                 <article class="result-card">
                     <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v5M12 18.5h.01"/></svg><span data-i18n="explain.hImportance">How important is it?</span></h3>
                     <p id="result-importance"></p>
+                    <p id="result-consequences" class="consequence-line"></p>
                 </article>
                 <article class="result-card">
                     <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-i18n="explain.hNext">What to do next</span></h3>
                     <ol id="result-next" class="check-list"></ol>
-                </article>
-                <article class="result-card">
-                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="explain.hDeadline">Deadline</span></h3>
-                    <p id="result-deadline"></p>
-                    <p class="muted-text" id="result-era"></p>
-                    <button type="button" id="save-date-btn" class="btn" data-i18n="explain.saveDate" style="display:none;">Save to Important Dates</button>
-                    <p id="save-date-msg" role="status"></p>
-                    <button type="button" id="save-date-cal" class="btn" data-i18n="explain.addToCal" style="display:none;">Add to calendar</button>
-                    <div id="save-date-confirm" style="display:none;">
-                        <p data-i18n="explain.checkDate">Check this date against the letter before saving.</p>
-                        <input type="date" id="save-date-input" data-i18n-aria-label="explain.saveDateLabel" aria-label="Date to save">
-                        <button type="button" id="save-date-confirm-btn" class="btn" data-i18n="explain.confirmSave">Confirm</button>
-                    </div>
-                </article>
-                <article class="result-card">
-                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.5"/></svg><span data-i18n="explain.hAmount">Amount</span></h3>
-                    <p id="result-amount"></p>
-                </article>
-                <article class="result-card">
-                    <h3><span data-i18n="explain.hPayment">How to pay</span></h3>
-                    <p id="result-payment"></p>
-                </article>
-                <article class="result-card">
-                    <h3><span data-i18n="explain.hCodes">Codes on this slip</span></h3>
-                    <p id="result-codes"></p>
-                </article>
-                <article class="result-card">
-                    <h3><span data-i18n="explain.hPaySteps">Pay step by step</span></h3>
-                    <p id="result-paysteps"></p>
-                </article>
-                <article class="result-card">
-                    <h3><span data-i18n="explain.hConsequences">If you miss the deadline</span></h3>
-                    <p id="result-consequences"></p>
                 </article>
                 <article class="result-card staff-card">
                     <h3><span data-i18n="explain.hStaff">Show this to the staff</span></h3>
@@ -550,6 +542,15 @@
                         <p class="staff-practice-title"><strong data-i18n="explain.variations">Practice these</strong></p>
                         <ul id="result-variations" class="staff-vars"></ul>
                     </div>
+                </article>
+                <article class="result-card">
+                    <h3><span data-i18n="explain.hPayment">How to pay</span></h3>
+                    <p class="pay-sub" data-i18n="explain.hMethods">Ways to pay</p>
+                    <p id="result-payment"></p>
+                    <p class="pay-sub" data-i18n="explain.hCodes">Codes on this slip</p>
+                    <p id="result-codes"></p>
+                    <p class="pay-sub" data-i18n="explain.hPaySteps">Pay step by step</p>
+                    <p id="result-paysteps"></p>
                 </article>
                 <article class="result-card check-card">
                     <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="explain.hCheck">Things to check</span></h3>
@@ -606,8 +607,6 @@
             ["Why did you get it?", "result-why"],
             ["How important is it?", "result-importance"],
             ["What to do next", "result-next"],
-            ["Deadline", "result-deadline"],
-            ["Amount", "result-amount"],
             ["Payment methods", "result-payment"],
             ["Payment codes", "result-codes"],
             ["Pay step by step", "result-paysteps"],
@@ -694,6 +693,8 @@
         let chatHistory = [];
         let scanEpoch = 0; // Rises on every successful scan; late follow-up replies check it.
         let lastDeadlineDate = "";
+        let lastDeadlineText = "";
+        let lastAmountText = "";
         let sampleShowing = false;
         let saveDateState = "";
         const askForm = document.getElementById("ask-form");
@@ -796,7 +797,8 @@
         }
 
         // Parse the AI reply: JSON first, old headers next, raw text last.
-        // Returns { elementId: text } for the eleven result cards.
+        // Returns { elementId: text } for the nine result cards.
+        // Deadline and amount are parsed too, but shown in the summary box.
         function parseExplainReply(text) {
             const raw = String(text || "").trim();
             if (!raw) return {};
@@ -1014,7 +1016,7 @@
                 return;
             }
             const title = (document.getElementById("result-what").textContent || "").trim().slice(0, 60);
-            const amount = (document.getElementById("result-amount").textContent || "").trim().slice(0, 60);
+            const amount = (lastAmountText || "").trim().slice(0, 60);
             let items = [];
             try {
                 const saved = JSON.parse(window.localStorage.getItem("lb_dates") || "[]");
@@ -1140,17 +1142,13 @@
             if (!isRealDate(lastDeadlineDate)) {
                 bar.style.display = "none";
                 document.getElementById("summary-era").textContent = "";
-                document.getElementById("result-era").textContent = "";
                 return;
             }
-            document.getElementById("summary-deadline").textContent =
-                document.getElementById("result-deadline").textContent;
-            document.getElementById("summary-amount").textContent =
-                document.getElementById("result-amount").textContent;
+            document.getElementById("summary-deadline").textContent = lastDeadlineText;
+            document.getElementById("summary-amount").textContent = lastAmountText;
             const era = toEraDate(lastDeadlineDate);
             const eraText = era ? t("explain.eraLabel", "Japanese date") + ": " + era : "";
             document.getElementById("summary-era").textContent = eraText;
-            document.getElementById("result-era").textContent = eraText;
             const n = daysUntil(lastDeadlineDate);
             const daysEl = document.getElementById("summary-days");
             bar.classList.remove("soon", "passed");
@@ -1265,6 +1263,8 @@
                 for (const [, id] of HEADERS) {
                     fillCard(id, sections[id] || t("explain.notShown", "Not shown"));
                 }
+                lastDeadlineText = sections["result-deadline"] || t("explain.notShown", "Not shown");
+                lastAmountText = sections["result-amount"] || t("explain.notShown", "Not shown");
                 const staff = staffFromReply(json.text || "");
                 fillStaff(staff.phrase, staff.meaning);
                 const practice = practiceFromReply(json.text || "");
@@ -1379,8 +1379,8 @@
             document.getElementById("result-why").textContent = t("explain.sample.why", "Yearly resident tax bill from the city office.");
             document.getElementById("result-importance").textContent = t("explain.sample.importance", "High. Pay before the due date to avoid a late fee.");
             fillCard("result-next", t("explain.sample.next", "1. Check the amount and due date.\n2. Pay at a bank or convenience store.\n3. Keep the receipt."));
-            document.getElementById("result-deadline").textContent = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
-            document.getElementById("result-amount").textContent = t("explain.sample.amount", "12,340 yen");
+            lastDeadlineText = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
+            lastAmountText = t("explain.sample.amount", "12,340 yen");
             document.getElementById("result-payment").textContent = t("explain.sample.payment", "Pay at a bank or convenience store with this slip. Keep the receipt.");
             document.getElementById("result-codes").textContent = t("explain.sample.codes", "Barcode at the bottom for the store cashier. Customer number on the right for bank transfer.");
             document.getElementById("result-paysteps").textContent = t("explain.sample.paysteps", "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt.");

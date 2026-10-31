@@ -290,12 +290,16 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertIn('"explain.privacyHint"', self.page)
         self.assertIn("residence card number", self.page)
 
-    def test_amount_card(self):
-        self.assertIn('id="result-amount"', self.page)
+    def test_amount_in_summary_box(self):
+        # No separate amount card: the reply is parsed, stored, and shown
+        # only in the amber summary box.
+        self.assertNotIn('id="result-amount"', self.page)
+        self.assertNotIn('id="result-deadline"', self.page)
+        self.assertIn('id="summary-amount"', self.page)
         self.assertIn('"explain.hAmount"', self.page)
         self.assertIn('amount: "result-amount"', self.page)
-        self.assertIn('["Amount", "result-amount"]', self.page)
         self.assertIn('"explain.sample.amount"', self.page)
+        self.assertIn("lastAmountText", self.page)
 
     def test_scan_state_updates_atomically(self):
         # The new photo must wait in locals until the reply succeeds, so a

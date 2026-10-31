@@ -215,7 +215,8 @@
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
             "explain.sample.variations": "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)",
             "chat.source": "Source",
-            "chat.general": "General guidance"
+            "chat.general": "General guidance",
+            "explain.hMethods": "Ways to pay"
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
@@ -417,7 +418,8 @@
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
             "explain.sample.variations": "いくらですか。(कति हो?)\nいつまでですか。(कहिलेसम्म हो?)\nどこではらえますか。(कहाँ तिर्न सक्छु?)",
             "chat.source": "स्रोत",
-            "chat.general": "सामान्य जानकारी"
+            "chat.general": "सामान्य जानकारी",
+            "explain.hMethods": "तिर्ने तरिका"
         },
         vi: {
             "nav.home": "Trang chủ",
@@ -619,7 +621,8 @@
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
             "explain.sample.variations": "いくらですか。(Bao nhiêu tiền?)\nいつまでですか。(Đến khi nào?)\nどこではらえますか。(Tôi nộp ở đâu?)",
             "chat.source": "Nguồn",
-            "chat.general": "Hướng dẫn chung"
+            "chat.general": "Hướng dẫn chung",
+            "explain.hMethods": "Các cách nộp"
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
@@ -821,7 +824,8 @@
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
             "explain.sample.variations": "いくらですか。(ဘယ်လောက်လဲ?)\nいつまでですか。(ဘယ်တော့အထိလဲ?)\nどこではらえますか。(ဘယ်မှာပေးလို့ရလဲ?)",
             "chat.source": "အရင်းအမြစ်",
-            "chat.general": "အထွေထွေလမ်းညွှန်ချက်"
+            "chat.general": "အထွေထွေလမ်းညွှန်ချက်",
+            "explain.hMethods": "ပေးနိုင်သောနည်းများ"
         }
     };
 

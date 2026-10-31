@@ -105,7 +105,8 @@ class Phase1FrontendTest(unittest.TestCase):
         self.assertIn('id="result-payment"', self.page)
         self.assertIn('id="result-consequences"', self.page)
         self.assertIn('"explain.hPayment"', self.page)
-        self.assertIn('"explain.hConsequences"', self.page)
+        # Consequences has no own card: one line in the importance card.
+        self.assertIn('class="consequence-line"', self.page)
 
     def test_parser_maps_new_keys(self):
         self.assertIn('payment_methods: "result-payment"', self.page)
@@ -120,9 +121,10 @@ class Phase1FrontendTest(unittest.TestCase):
         self.assertIn('"explain.sample.consequences"', self.page)
 
     def test_icon_card_count_unchanged(self):
-        # The two new cards use plain headings so the icon count stays 7.
+        # The new cards use plain headings; deadline and amount cards
+        # were removed, so the icon count is 5.
         found = re.findall(r'<h3><svg class="card-icon"', self.page)
-        self.assertEqual(len(found), 7)
+        self.assertEqual(len(found), 5)
 
 
 class Phase1TranslationTest(unittest.TestCase):

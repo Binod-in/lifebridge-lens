@@ -907,6 +907,18 @@ html.chat-open body {
     color: #92400e;
 }
 
+/* Save buttons side by side inside the summary box. */
+.summary-save {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.summary-save .btn {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 .summary-days-line {
     display: flex;
     align-items: center;

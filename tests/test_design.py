@@ -147,8 +147,10 @@ class ExplainDesignTest(unittest.TestCase):
         self.assertIn("border-left: 4px solid #b45309;", _read("style.css"))
 
     def test_card_title_icons(self):
+        # What, why, importance, next steps, check. Deadline and amount
+        # live only in the summary box, without their own cards.
         found = re.findall(r'<h3><svg class="card-icon"', self.page)
-        self.assertEqual(len(found), 7)
+        self.assertEqual(len(found), 5)
 
     def test_loading_steps(self):
         self.assertIn('id="scan-steps"', self.page)

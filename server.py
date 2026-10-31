@@ -437,8 +437,7 @@ def explain():
         "- If the reader must pay, apply, or visit an office, remind them to "
         "confirm the details with the issuing office.\n"
         "- Convert Japanese era years to Western years in brackets, "
-        'for example \u4ee4\u548c8\u5e74 becomes "'
-        '"Reiwa 8 (2026)".\n"'
+        "for example \u4ee4\u548c8\u5e74 becomes \"Reiwa 8 (2026)\".\n"
         "- Keep each value short. Do not use markdown. "
         "No text outside the JSON object."
     )

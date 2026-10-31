@@ -124,9 +124,10 @@ class Phase3FrontendTest(unittest.TestCase):
         self.assertIn('"explain.sample.paysteps"', self.page)
 
     def test_icon_card_count_unchanged(self):
-        # The new cards use plain headings so the icon count stays 7.
+        # The new cards use plain headings; deadline and amount cards
+        # were removed, so the icon count is 5.
         found = re.findall(r'<h3><svg class="card-icon"', self.page)
-        self.assertEqual(len(found), 7)
+        self.assertEqual(len(found), 5)
 
 
 class Phase3TranslationTest(unittest.TestCase):

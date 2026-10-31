@@ -136,7 +136,7 @@ class DeadlineMathTest(unittest.TestCase):
     def test_era_shown_with_deadline(self):
         text = _read("explain.html")
         self.assertIn('id="summary-era"', text)
-        self.assertIn('id="result-era"', text)
+        self.assertNotIn('id="result-era"', text)
         self.assertIn('"explain.eraLabel"', text)
 
 
