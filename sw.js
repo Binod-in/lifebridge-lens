@@ -2,7 +2,7 @@
  * Registered on every page by i18n.js. Version the CACHE name to update.
  * Every CORE entry must exist, or the whole install fails.
  */
-const CACHE = "lens-v6";
+const CACHE = "lens-v7";
 const CORE = [
     "/",
     "offline.html",

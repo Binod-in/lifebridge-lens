@@ -198,7 +198,11 @@
             "explain.modeForm": "Form to fill in",
             "explain.modeSign": "Sign or poster",
             "explain.markersTitle": "What to look at",
-            "explain.markedPhotoAlt": "Your photo with numbered markers"
+            "explain.markedPhotoAlt": "Your photo with numbered markers",
+            "explain.hCodes": "Codes on this slip",
+            "explain.hPaySteps": "Pay step by step",
+            "explain.sample.codes": "Barcode at the bottom for the store cashier. Customer number on the right for bank transfer.",
+            "explain.sample.paysteps": "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt."
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
@@ -383,7 +387,11 @@
             "explain.modeForm": "भर्नुपर्ने फारम",
             "explain.modeSign": "साइन वा पोस्टर",
             "explain.markersTitle": "के हेर्ने",
-            "explain.markedPhotoAlt": "नम्बर लगाइएको तपाईंको फोटो"
+            "explain.markedPhotoAlt": "नम्बर लगाइएको तपाईंको फोटो",
+            "explain.hCodes": "यस पर्चीका कोडहरू",
+            "explain.hPaySteps": "चरणबद्ध तिर्नुहोस्",
+            "explain.sample.codes": "पसल क्यासियरका लागि तल बारकोड। बैंक ट्रान्सफरका लागि दायाँ ग्राहक नम्बर।",
+            "explain.sample.paysteps": "पसल: 1. यो पर्ची कुनै पनि सुविधा पसलमा लैजानुहोस्। 2. क्यासियरमा तिर्नुहोस्। 3. रसिद राख्नुहोस्।"
         },
         vi: {
             "nav.home": "Trang chủ",
@@ -568,7 +576,11 @@
             "explain.modeForm": "Mẫu đơn cần điền",
             "explain.modeSign": "Biển hiệu hoặc áp phích",
             "explain.markersTitle": "Những điểm cần nhìn",
-            "explain.markedPhotoAlt": "Ảnh của bạn với các điểm đánh số"
+            "explain.markedPhotoAlt": "Ảnh của bạn với các điểm đánh số",
+            "explain.hCodes": "Các mã trên phiếu",
+            "explain.hPaySteps": "Nộp tiền từng bước",
+            "explain.sample.codes": "Mã vạch ở cuối phiếu cho thu ngân cửa hàng. Mã khách hàng bên phải để chuyển khoản ngân hàng.",
+            "explain.sample.paysteps": "Cửa hàng: 1. Mang phiếu này đến bất kỳ cửa hàng tiện lợi nào. 2. Nộp tại quầy thu ngân. 3. Giữ lại biên lai."
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
@@ -753,7 +765,11 @@
             "explain.modeForm": "ဖြည့်ရမည့်ပုံစံ",
             "explain.modeSign": "ဆိုင်းဘုတ် (သို့) ပိုစတာ",
             "explain.markersTitle": "ကြည့်ရမည့်နေရာများ",
-            "explain.markedPhotoAlt": "နံပါတ်ပါသော သင့်ဓာတ်ပုံ"
+            "explain.markedPhotoAlt": "နံပါတ်ပါသော သင့်ဓာတ်ပုံ",
+            "explain.hCodes": "ဤစာရွက်ပေါ်က ကုဒ်များ",
+            "explain.hPaySteps": "အဆင့်ဆင့်ပေးပါ",
+            "explain.sample.codes": "ဆိုင်ကောင်တာအတွက် အောက်ခြေက ဘားကုဒ်။ ဘဏ်လွှဲအတွက် ညာဘက်က ဖောက်သည်နံပါတ်။",
+            "explain.sample.paysteps": "ဆိုင်: 1. ဤစာရွက်ကို ကွန်ဘိနိတစ်ခုခုသို့ ယူသွားပါ။ 2. ကောင်တာတွင် ပေးပါ။ 3. ပြေစာသိမ်းပါ။"
         }
     };
 

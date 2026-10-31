@@ -380,6 +380,7 @@ def explain():
         '"staff_phrase": "...", "staff_phrase_meaning": "...", '
         '"payment_methods": "...", "consequences": "...", '
         '"markers": [{"x": 50, "y": 30, "label": "..."}], '
+        '"payment_codes": "...", "payment_steps": "...", '
         '"check": "...", "deadline_date": "..."}\n\n'
         "Rules:\n"
         "- 'what': what kind of notice this is.\n"
@@ -399,6 +400,16 @@ def explain():
         "- 'consequences': what can happen if the deadline is missed, in "
         "general terms (for example reminders or a late fee). Never invent "
         "a specific fine amount unless it is printed on the notice.\n"
+        "- 'payment_codes': which payment codes are printed on the notice: "
+        "barcode, QR code, customer number, or slip number. Explain what "
+        "each code is used for. List only codes actually visible on the "
+        "notice. Never invent code numbers.\n"
+        "- 'payment_steps': numbered steps for each payment method this "
+        "notice supports: convenience store, bank or ATM, and online. Base "
+        "steps only on methods the notice supports or that are standard "
+        "for this slip type. Never assume every slip supports every "
+        "method: if a method is not supported, say so instead of giving "
+        "steps for it.\n"
         "- 'markers': at most 5 markers pointing at visible parts the user "
         "must find or press. Each marker has x and y from 0 to 100 "
         "(percentages from the top-left of the photo) and a short label. "

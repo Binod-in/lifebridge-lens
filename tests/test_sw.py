@@ -1,4 +1,4 @@
-"""Service worker tests: lens-v6 cache, offline fallback matching.
+"""Service worker tests: lens-v7 cache, offline fallback matching.
 
 Run from the project root:
     python -m unittest tests.test_sw -v
@@ -20,7 +20,7 @@ class ServiceWorkerFetchTest(unittest.TestCase):
         cls.sw = _read("sw.js")
 
     def test_cache_version_is_lens_v1(self):
-        self.assertIn('const CACHE = "lens-v6";', self.sw)
+        self.assertIn('const CACHE = "lens-v7";', self.sw)
 
     def test_html_fallback_ignores_query_string(self):
         # A cached page must still match when a query string is added.

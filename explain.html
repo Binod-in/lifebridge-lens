@@ -527,6 +527,14 @@
                     <p id="result-payment"></p>
                 </article>
                 <article class="result-card">
+                    <h3><span data-i18n="explain.hCodes">Codes on this slip</span></h3>
+                    <p id="result-codes"></p>
+                </article>
+                <article class="result-card">
+                    <h3><span data-i18n="explain.hPaySteps">Pay step by step</span></h3>
+                    <p id="result-paysteps"></p>
+                </article>
+                <article class="result-card">
                     <h3><span data-i18n="explain.hConsequences">If you miss the deadline</span></h3>
                     <p id="result-consequences"></p>
                 </article>
@@ -595,6 +603,8 @@
             ["Deadline", "result-deadline"],
             ["Amount", "result-amount"],
             ["Payment methods", "result-payment"],
+            ["Payment codes", "result-codes"],
+            ["Pay step by step", "result-paysteps"],
             ["Consequences", "result-consequences"],
             ["Things to check", "result-check"]
         ];
@@ -780,11 +790,11 @@
         }
 
         // Parse the AI reply: JSON first, old headers next, raw text last.
-        // Returns { elementId: text } for the nine result cards.
+        // Returns { elementId: text } for the eleven result cards.
         function parseExplainReply(text) {
             const raw = String(text || "").trim();
             if (!raw) return {};
-            const keys = { what: "result-what", why: "result-why", importance: "result-importance", next_steps: "result-next", deadline: "result-deadline", amount: "result-amount", payment_methods: "result-payment", consequences: "result-consequences", check: "result-check" };
+            const keys = { what: "result-what", why: "result-why", importance: "result-importance", next_steps: "result-next", deadline: "result-deadline", amount: "result-amount", payment_methods: "result-payment", payment_codes: "result-codes", payment_steps: "result-paysteps", consequences: "result-consequences", check: "result-check" };
             const fenced = raw.replace(/^```[a-zA-Z]*/, "").replace(/```\s*$/, "").trim();
             let data = null;
             try {
@@ -1309,6 +1319,8 @@
             document.getElementById("result-deadline").textContent = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
             document.getElementById("result-amount").textContent = t("explain.sample.amount", "12,340 yen");
             document.getElementById("result-payment").textContent = t("explain.sample.payment", "Pay at a bank or convenience store with this slip. Keep the receipt.");
+            document.getElementById("result-codes").textContent = t("explain.sample.codes", "Barcode at the bottom for the store cashier. Customer number on the right for bank transfer.");
+            document.getElementById("result-paysteps").textContent = t("explain.sample.paysteps", "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt.");
             document.getElementById("result-consequences").textContent = t("explain.sample.consequences", "A late fee may be added. If you cannot pay on time, ask the city office for advice.");
             fillStaff(t("explain.sample.staff", "この保険料の支払いについて相談したいです。"), t("explain.sample.staffMeaning", "I want to ask about paying this insurance bill."));
             document.getElementById("result-check").textContent = t("explain.sample.check", "Your name and address. The amount and due date.");
