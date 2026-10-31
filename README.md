@@ -17,18 +17,18 @@ get a plain-language explanation, follow-up answers, and saved deadlines.
 
 ## Features
 
-- 🔍 Lens: photograph a Japanese notice and get a plain-language explanation
-- 💬 Follow-up chat: ask questions about the same notice, with memory of earlier questions
-- 📅 Save deadline: check the due date and add it to My Deadlines in one tap
-- 📴 Offline pages + offline chatbot: core pages and keyword answers work without internet
-- 💰 Money tracker: income, spending and savings goals, stored in your browser
-- 🌐 4-language UI: English, Nepali, Vietnamese and Burmese
-- 🌙 Dark mode
+- Lens: photograph a Japanese notice and get a plain-language explanation
+- Follow-up chat: ask questions about the same notice, with memory of earlier questions
+- Save deadline: check the due date and add it to My Deadlines in one tap
+- Offline pages + offline chatbot: core pages and keyword answers work without internet
+- Money tracker: income, spending and savings goals, stored in your browser
+- 4-language UI: English, Nepali, Vietnamese and Burmese
+- Dark mode
 
 ## How LifeBridge uses Meta AI
 
 - The **muse-spark-1.3** vision model reads the notice photo and its Japanese text.
-- The model must reply in strict JSON with 7 fields (`what`, `why`, `importance`, `next_steps`, `deadline`, `check`, `deadline_date`) — the due date always comes back as `YYYY-MM-DD`.
+- The model must reply in strict JSON with 12 fields (`what`, `why`, `importance`, `next_steps`, `deadline`, `amount`, `staff_phrase`, `staff_phrase_meaning`, `payment_methods`, `consequences`, `check`, `deadline_date`) — the due date always comes back as `YYYY-MM-DD`.
 - Follow-up chat sends the photo again with the explanation and the earlier questions, so every question stays about the same notice.
 - The prompt forbids guessing: unclear amounts and dates come back empty with a note to check, never invented.
 - Answers come in 5 languages: English, Nepali, Vietnamese, Burmese and Japanese.
@@ -44,7 +44,7 @@ copy .env.example .env
 python server.py
 ```
 
-Then open http://127.0.0.1:5000/ — the AI features need `META_API_KEY`,
+Then open http://127.0.0.1:5000/. The AI features need `META_API_KEY`,
 everything else works without it.
 
 LB_API_TOKEN (optional) only blocks casual scripts. It is sent to every

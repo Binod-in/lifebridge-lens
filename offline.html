@@ -16,7 +16,10 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>You are offline | LifeBridge Lens</title>
+    <title data-i18n="offline.title">You are offline | LifeBridge Lens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#1261ff">
@@ -26,6 +29,7 @@
     <header class="site-header">
         <div class="header-cnt">
             <div class="logo">
+                <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg></span>
                 <div class="logo-text">
                     <span class="logo-name">LifeBridge Lens</span>
                 </div>
@@ -33,16 +37,14 @@
         </div>
     </header>
     <main id="main-content" class="content-page">
-        <h1>You are offline</h1>
-        <p class="page-lead">Connect to the internet and try again.</p>
-        <p lang="ne">तपाईं अफलाइन हुनुहुन्छ। इन्टरनेट जोडेर फेरि प्रयास गर्नुहोस्।</p>
-        <p lang="vi">Bạn đang ngoại tuyến. Hãy kết nối internet rồi thử lại.</p>
-        <p lang="my">အင်တာနက် ပြတ်နေပါသည်။ ချိတ်ဆက်ပြီး ထပ်ကြိုးစားပါ။</p>
+        <h1 data-i18n="offline.title">You are offline</h1>
+        <p class="page-lead" data-i18n="offline.lead">Connect to the internet and try again.</p>
         <p>
-            <button class="btn btn-prim" type="button" onclick="location.reload()">Try again</button>
-            <a class="btn" href="index.html">Home</a>
+            <button class="btn btn-prim" type="button" onclick="location.reload()" data-i18n="offline.retry">Try again</button>
+            <a class="btn" href="index.html" data-i18n="nav.home">Home</a>
         </p>
     </main>
+    <script src="i18n.js" defer></script>
 </body>
 
 </html>

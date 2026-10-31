@@ -8,17 +8,21 @@
     box-sizing: border-box;
 }
 
+html {
+    font-size: 17px;
+}
+
 body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    line-height: 1.6;
-    color: #1c2b4a;
-    background-color: #f5f9ff;
+    font-family: "Noto Sans", "Noto Sans Devanagari", "Noto Sans JP", "Noto Sans Myanmar", system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.7;
+    color: #2c3a55;
+    background-color: #f6f8fb;
 }
 
 h1, h2, h3 {
     line-height: 1.3;
-    color: #12224d;
+    color: #13203f;
 }
 
 img {
@@ -54,7 +58,7 @@ img {
 /* --- Header --- */
 .site-header {
     background: #ffffff;
-    border-bottom: 1px solid #d7e3ff;
+    border-bottom: 1px solid #e3e8f0;
 }
 
 .header-cnt {
@@ -67,6 +71,29 @@ img {
     flex-wrap: wrap;
 }
 
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-mark {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #1261ff;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-mark svg {
+    width: 20px;
+    height: 20px;
+}
+
 .logo-text {
     display: flex;
     flex-direction: column;
@@ -74,18 +101,19 @@ img {
 
 .logo-name {
     font-weight: 700;
-    color: #12224d;
+    color: #13203f;
 }
 
 .logo-tag {
     font-size: 0.8rem;
-    color: #5a6478;
+    color: #5b6880;
 }
 
 /* Phone: the menu hides behind a Menu button (added by i18n.js). */
 .menu-btn {
     margin-left: auto;
     padding: 8px 12px;
+    min-height: 48px;
     border: 1px solid #1261ff;
     border-radius: 8px;
     background: #ffffff;
@@ -106,9 +134,12 @@ img {
 }
 
 .main-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
     padding: 8px 10px;
     border-radius: 8px;
-    color: #1c2b4a;
+    color: #2c3a55;
     text-decoration: none;
 }
 
@@ -127,6 +158,7 @@ img {
 
 .lang-select {
     padding: 8px 10px;
+    min-height: 48px;
     border: 1px solid #c3cee6;
     border-radius: 8px;
     font: inherit;
@@ -141,11 +173,13 @@ img {
 }
 
 .page-lead {
-    color: #44506b;
+    color: #5b6880;
 }
 
 .saved-back {
     display: inline-block;
+    min-height: 48px;
+    line-height: 48px;
     margin-bottom: 8px;
     color: #1261ff;
     text-decoration: none;
@@ -153,7 +187,7 @@ img {
 
 .detail-card {
     background: #ffffff;
-    border: 1px solid #d7e3ff;
+    border: 1px solid #e3e8f0;
     border-radius: 12px;
     padding: 16px;
     margin: 16px 0;
@@ -166,13 +200,14 @@ img {
 /* Sunken note under the photo upload box. */
 .upload-privacy {
     font-size: 0.85rem;
-    color: #5a6478;
+    color: #5b6880;
 }
 
 /* --- Buttons --- */
 .btn {
     display: inline-block;
     padding: 10px 16px;
+    min-height: 48px;
     border: 1px solid #1261ff;
     border-radius: 8px;
     background: #ffffff;
@@ -193,13 +228,24 @@ img {
     background: #0b4fd0;
 }
 
+/* Visible keyboard focus on every interactive element. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #1261ff;
+    outline-offset: 2px;
+}
+
 /* Small suggestion chips under question boxes and in chat. */
 .chip {
-    padding: 8px 12px;
+    padding: 12px 16px;
+    min-height: 48px;
     border: 1px solid #c3cee6;
-    border-radius: 999px;
-    background: #ffffff;
-    color: #1c2b4a;
+    border-radius: 8px;
+    background: #eef3fb;
+    color: #2c3a55;
     font: inherit;
     font-size: 0.9rem;
     cursor: pointer;
@@ -218,10 +264,11 @@ label {
 input, select, textarea {
     font: inherit;
     padding: 10px;
+    min-height: 48px;
     border: 1px solid #c3cee6;
     border-radius: 8px;
     background: #ffffff;
-    color: #1c2b4a;
+    color: #2c3a55;
     max-width: 100%;
 }
 
@@ -234,8 +281,35 @@ input, select, textarea {
 }
 
 .lens-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding: 16px 20px;
     font-size: 1.1rem;
+}
+
+/* Full-width scan button on Home. */
+.scan-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 56px;
+    font-size: 1.1rem;
+    margin-top: 20px;
+}
+
+.scan-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* The scan button sits inside .lens-actions, so it needs no own margin. */
+.lens-actions .scan-btn {
+    margin-top: 0;
+    width: 100%;
 }
 
 /* --- Deadlines list --- */
@@ -250,23 +324,158 @@ input, select, textarea {
 
 .date-list li {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.row-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* One deadline card: title, date chip, countdown, amount, buttons. */
+.deadline-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #13203f;
+    overflow-wrap: anywhere;
+}
+
+.deadline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.deadline-count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #5b6880;
+}
+
+.deadline-count.soon {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.deadline-amount {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #13203f;
+}
+
+.deadline-amount:empty {
+    display: none;
+}
+
+.dates-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0 4px;
+    font-size: 1.1rem;
+}
+
+.dates-count {
+    padding: 2px 10px;
+    border-radius: 8px;
+    background: #eef3fb;
+    color: #2c3a55;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* --- Month calendar on the deadlines page --- */
+.cal {
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.cal-nav {
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    background: #ffffff;
-    border: 1px solid #d7e3ff;
-    border-radius: 10px;
-    padding: 12px 14px;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cal-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #13203f;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.cal-dow {
+    padding: 6px 0;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #5b6880;
+}
+
+.cal-day {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #2c3a55;
+}
+
+.cal-day.blank {
+    visibility: hidden;
+}
+
+.cal-day.today {
+    outline: 2px solid #1261ff;
+    outline-offset: -2px;
+    font-weight: 700;
+}
+
+.cal-day.has {
+    background: #eef3fb;
+    font-weight: 700;
+}
+
+.cal-day.soon {
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.cal-day.done-mark {
+    color: #5b6880;
+    text-decoration: line-through;
 }
 
 /* --- Money tracker rows (boxes live in tracker.html) --- */
 .entry-date {
-    color: #5a6478;
+    color: #5b6880;
     font-size: 0.85rem;
 }
 
 .entry-note {
-    color: #44506b;
+    color: #2c3a55;
 }
 
 .entry-goal {
@@ -277,7 +486,7 @@ input, select, textarea {
 /* --- Footer --- */
 .site-footer {
     background: #ffffff;
-    border-top: 1px solid #d7e3ff;
+    border-top: 1px solid #e3e8f0;
     padding: 20px 16px 110px;
 }
 
@@ -291,11 +500,11 @@ input, select, textarea {
 
 .footer-logo {
     font-weight: 700;
-    color: #12224d;
+    color: #13203f;
 }
 
 .footer-brand p {
-    color: #5a6478;
+    color: #5b6880;
     font-size: 0.9rem;
 }
 
@@ -311,7 +520,10 @@ input, select, textarea {
 }
 
 .footer-links a {
-    color: #1c2b4a;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    color: #2c3a55;
     text-decoration: none;
 }
 
@@ -321,7 +533,7 @@ input, select, textarea {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #5a6478;
+    color: #5b6880;
     font-size: 0.85rem;
 }
 
@@ -337,27 +549,37 @@ input, select, textarea {
     bottom: 0;
     display: flex;
     background: #ffffff;
-    border-top: 1px solid #d7e3ff;
+    border-top: 1px solid #e3e8f0;
     z-index: 40;
 }
 
 .bottom-nav a {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    min-height: 48px;
     padding: 10px 4px 12px;
     text-align: center;
     font-size: 0.8rem;
-    color: #44506b;
+    color: #5b6880;
     text-decoration: none;
+}
+
+.bottom-nav .nav-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.bottom-nav .nav-icon svg {
+    width: 24px;
+    height: 24px;
 }
 
 .bottom-nav a[aria-current="page"] {
     color: #1261ff;
-    font-weight: 700;
-}
-
-.bottom-nav a.bottom-nav-main {
-    color: #ffffff;
-    background: #1261ff;
     font-weight: 700;
 }
 
@@ -379,7 +601,7 @@ input, select, textarea {
     width: 56px;
     height: 56px;
     border: none;
-    border-radius: 50%;
+    border-radius: 8px;
     background: #1261ff;
     color: #ffffff;
     cursor: pointer;
@@ -402,7 +624,7 @@ input, select, textarea {
     display: flex;
     flex-direction: column;
     background: #ffffff;
-    border: 1px solid #d7e3ff;
+    border: 1px solid #e3e8f0;
     border-radius: 12px;
     z-index: 47;
     overflow: hidden;
@@ -440,6 +662,8 @@ input, select, textarea {
 
 .chat-close {
     margin-left: auto;
+    min-width: 48px;
+    min-height: 48px;
     border: none;
     background: transparent;
     color: #ffffff;
@@ -470,13 +694,13 @@ input, select, textarea {
     max-width: 85%;
     padding: 8px 12px;
     border-radius: 12px 12px 12px 4px;
-    background: #eef3ff;
-    color: #1c2b4a;
+    background: #eef3fb;
+    color: #2c3a55;
 }
 
 .chat-time {
     font-size: 0.75rem;
-    color: #5a6478;
+    color: #5b6880;
 }
 
 .chat-time.user {
@@ -520,16 +744,466 @@ html.chat-open body {
     width: 100%;
 }
 
+/* --- Landing hero, example and steps --- */
+.hero-text {
+    max-width: 640px;
+}
+
+.home-title {
+    font-size: 28px;
+}
+
+.home-sub {
+    color: #2c3a55;
+}
+
+.ai-note {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #5b6880;
+}
+
+.example-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.example-before,
+.example-after {
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.example-before {
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+}
+
+.example-after {
+    background: #eaf1ff;
+    border: 1px solid #c9dbff;
+    color: #2c3a55;
+}
+
+.example-before p {
+    margin: 0 0 4px;
+}
+
+.example-before p:last-child {
+    margin-bottom: 0;
+    font-weight: 700;
+}
+
+.steps {
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 48px;
+}
+
+.step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.step-title {
+    font-weight: 700;
+    color: #13203f;
+}
+
+.step-desc {
+    font-size: 0.9rem;
+    color: #5b6880;
+}
+
+.step-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #eef3fb;
+    color: #1261ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-icon.amber {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.step-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.card-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    vertical-align: -3px;
+    margin-right: 6px;
+    color: #1261ff;
+}
+
+.card-icon.warn {
+    color: #b45309;
+}
+
+/* --- Result summary bar (Deadline + Amount) --- */
+.summary-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #fef3c7;
+    border: 1px solid #f6d77a;
+    color: #92400e;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+}
+
+.summary-big {
+    font-size: 22px;
+    font-weight: 700;
+    color: #13203f;
+    line-height: 1.4;
+}
+
+.summary-days {
+    font-weight: 600;
+    color: #92400e;
+}
+
+.summary-days-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.summary-days-line svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.summary-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.summary-sub {
+    font-size: 0.85rem;
+    color: #92400e;
+}
+
+.summary-sub:empty {
+    display: none;
+}
+
+.summary-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.summary-bar.soon {
+    background: #fee2e2;
+    border-color: #f0a3a3;
+    color: #7a1212;
+}
+
+.summary-bar.soon .summary-days {
+    color: #b91c1c;
+}
+
+.summary-bar.passed {
+    background: #eef1f6;
+    border-color: #c3cee6;
+    color: #44506b;
+}
+
+.summary-bar.passed .summary-days {
+    color: #5b6880;
+}
+
+.summary-bar.soon .summary-sub {
+    color: #7a1212;
+}
+
+.summary-bar.passed .summary-sub {
+    color: #5b6880;
+}
+
+/* --- Numbered checklist for the next-steps card --- */
+.check-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2c3a55;
+}
+
+.check-list li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.check-list li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    border-radius: 8px;
+    background: #1261ff;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Things-to-check card: amber left edge so it stands out. */
+.check-card {
+    border-left: 4px solid #b45309;
+}
+
+/* Staff card: thick primary border, big Japanese sentence. */
+.staff-card {
+    border: 2px solid #1261ff;
+}
+
+.staff-phrase {
+    font-family: "Noto Sans JP", "Noto Sans", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.staff-meaning {
+    color: #5b6880;
+}
+
+/* --- Loading card shown while a scan runs --- */
+.load-card {
+    margin-top: 16px;
+}
+
+.loading-file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.loading-file img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e3e8f0;
+    flex-shrink: 0;
+}
+
+.loading-file p {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.muted-text {
+    color: #5b6880;
+    font-size: 0.85rem;
+}
+
+.load-steps {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #5b6880;
+}
+
+.load-steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+}
+
+.load-dot {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #c3cee6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.load-check {
+    display: none;
+    width: 14px;
+    height: 14px;
+}
+
+.load-steps li.load-done {
+    color: #2c3a55;
+}
+
+.load-steps li.load-done .load-dot {
+    background: #1261ff;
+    border-color: #1261ff;
+    color: #ffffff;
+}
+
+.load-steps li.load-done .load-check {
+    display: block;
+}
+
+.load-steps li.load-current {
+    border-color: #1261ff;
+    color: #2c3a55;
+}
+
+.spinner {
+    display: none;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    border-radius: 50%;
+    border: 2px solid #c9dbff;
+    border-top-color: #1261ff;
+    animation: spin 1s linear infinite;
+}
+
+.load-steps li.load-current .spinner {
+    display: block;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.load-privacy {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #5b6880;
+}
+
+/* --- Scan progress steps (lit one by one while a scan runs) --- */
+.scan-steps {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #5b6880;
+}
+
+.scan-steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+}
+
+.scan-steps li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #c3cee6;
+}
+
+.scan-steps li.on {
+    border-color: #1261ff;
+    color: #2c3a55;
+    font-weight: 600;
+}
+
+.scan-steps li.on::before {
+    background: #1261ff;
+    border-color: #1261ff;
+}
+
+/* --- Deadline urgency badges --- */
+.due {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #b45309;
+    font-weight: 600;
+}
+
+.due-soon {
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.due-passed {
+    background: transparent;
+    color: #5a6478;
+}
+
 /* --- Dark theme --- */
 html[data-theme="dark"] body {
     color: #e6ecf7;
-    background-color: #0e1830;
+    background-color: #0f1a33;
 }
 
 html[data-theme="dark"] h1,
 html[data-theme="dark"] h2,
 html[data-theme="dark"] h3 {
-    color: #ffffff;
+    color: #e6ecf7;
 }
 
 html[data-theme="dark"] .site-header,
@@ -555,8 +1229,9 @@ html[data-theme="dark"] .footer-bottom,
 html[data-theme="dark"] .entry-date,
 html[data-theme="dark"] .entry-note,
 html[data-theme="dark"] .upload-privacy,
-html[data-theme="dark"] .chat-time {
-    color: #c3cede;
+html[data-theme="dark"] .chat-time,
+html[data-theme="dark"] .ai-note {
+    color: #aab6ca;
 }
 
 html[data-theme="dark"] .main-nav a.active {
@@ -587,7 +1262,7 @@ html[data-theme="dark"] .lang-select {
 }
 
 html[data-theme="dark"] .chat-msg-bot {
-    background: #26355c;
+    background: #1d2f5c;
     color: #e6ecf7;
 }
 
@@ -610,16 +1285,11 @@ html[data-theme="dark"] .bottom-nav {
 }
 
 html[data-theme="dark"] .bottom-nav a {
-    color: #c3cede;
+    color: #aab6ca;
 }
 
 html[data-theme="dark"] .bottom-nav a[aria-current="page"] {
     color: #9dbcff;
-}
-
-html[data-theme="dark"] .bottom-nav a.bottom-nav-main {
-    color: #ffffff;
-    background: #1261ff;
 }
 
 /* Tracker summary tiles live in tracker.html; their dark
@@ -672,12 +1342,20 @@ html[data-theme="dark"] #language {
 }
 
 html[data-theme="dark"] .result-card {
-    background: #26355c;
-    border-color: #33456e;
+    background: #1d2f5c;
+    border-color: #26355c;
 }
 
 html[data-theme="dark"] .result-card p {
-    color: #c3cede;
+    color: #d3dbe8;
+}
+
+html[data-theme="dark"] .staff-card {
+    border-color: #9dbcff;
+}
+
+html[data-theme="dark"] .staff-meaning {
+    color: #aab6ca;
 }
 
 html[data-theme="dark"] .chip {
@@ -691,6 +1369,219 @@ html[data-theme="dark"] #view-dates-btn {
     background: transparent;
     border-color: #9dbcff;
     color: #9dbcff;
+}
+
+html[data-theme="dark"] .home-title,
+html[data-theme="dark"] .home-sub {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .example-before,
+html[data-theme="dark"] .steps li {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .example-after {
+    background: #1d2f5c;
+    border-color: #33456e;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .card-icon {
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .card-icon.warn {
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .step-icon {
+    background: #1d2f5c;
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .step-icon.amber {
+    background: #3a2a08;
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .summary-bar {
+    background: #3a2a08;
+    border-color: #6b4e12;
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .summary-big {
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .summary-days,
+html[data-theme="dark"] .summary-sub {
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .summary-bar.soon {
+    background: #3d1414;
+    border-color: #8a2a2a;
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .summary-bar.soon .summary-days {
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .summary-bar.passed {
+    background: #1a2340;
+    border-color: #33456e;
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .summary-bar.passed .summary-days {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .check-list {
+    color: #d3dbe8;
+}
+
+html[data-theme="dark"] .load-steps,
+html[data-theme="dark"] .muted-text,
+html[data-theme="dark"] .load-privacy {
+    color: #aab6ca;
+}
+
+html[data-theme="dark"] .load-steps li.load-done,
+html[data-theme="dark"] .load-steps li.load-current {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .load-steps li.load-current {
+    border-color: #9dbcff;
+}
+
+html[data-theme="dark"] .due {
+    background: #3a2a08;
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .due-soon {
+    background: #3d1414;
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .due-passed {
+    background: transparent;
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .hero-text {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .step-title {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .step-desc {
+    color: #aab6ca;
+}
+
+html[data-theme="dark"] .scan-steps {
+    color: #aab6ca;
+}
+
+html[data-theme="dark"] .scan-steps li.on {
+    border-color: #9dbcff;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .scan-steps li.on::before {
+    background: #9dbcff;
+    border-color: #9dbcff;
+}
+
+html[data-theme="dark"] .check-card {
+    border-left-color: #fcd34d;
+}
+
+html[data-theme="dark"] .deadline-title,
+html[data-theme="dark"] .deadline-amount,
+html[data-theme="dark"] .cal-title {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .deadline-count {
+    color: #aab6ca;
+}
+
+html[data-theme="dark"] .deadline-count.soon {
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .dates-count {
+    background: #26355c;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .cal {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .cal-dow {
+    color: #aab6ca;
+}
+
+html[data-theme="dark"] .cal-day {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .cal-day.today {
+    outline-color: #9dbcff;
+}
+
+html[data-theme="dark"] .cal-day.has {
+    background: #1d2f5c;
+}
+
+html[data-theme="dark"] .cal-day.soon {
+    background: #3d1414;
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .cal-day.done-mark {
+    color: #aab6ca;
+}
+
+/* Tracker rows, tags, progress and delete buttons in the dark theme. */
+html[data-theme="dark"] .entry-row {
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .tag-income {
+    background: #12351f;
+    color: #8fe3a6;
+}
+
+html[data-theme="dark"] .tag-expense {
+    background: #3d1414;
+    color: #f3c1c1;
+}
+
+html[data-theme="dark"] .tag-saving {
+    background: #1d2f5c;
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .progress {
+    background: #26355c;
+}
+
+html[data-theme="dark"] .del-btn {
+    background: transparent;
+    border-color: #8a5a5a;
+    color: #f3c1c1;
 }
 
 /* --- Wider screens --- */
@@ -718,9 +1609,30 @@ html[data-theme="dark"] #view-dates-btn {
 
     .lens-actions {
         flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .lens-actions .btn {
+        flex: 1;
+    }
+
+    .lens-actions .scan-btn {
+        flex: 1 1 100%;
+    }
+
+    .example-grid {
+        flex-direction: row;
+    }
+
+    .example-grid > div {
+        flex: 1;
+    }
+
+    .steps {
+        flex-direction: row;
+    }
+
+    .steps li {
         flex: 1;
     }
 
@@ -736,4 +1648,10 @@ html[data-theme="dark"] #view-dates-btn {
  * `display: flex` beats the browser's built-in [hidden] rule. */
 .chat-panel[hidden], .chat-backdrop[hidden] {
     display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation: none;
+    }
 }

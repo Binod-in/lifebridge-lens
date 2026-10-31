@@ -341,24 +341,47 @@ def explain():
     prompt = (
         "You are helping a newcomer in Japan understand an official Japanese notice "
         "shown in the photo. Explain it in simple, friendly words.\n\n"
-        f"Write the values in {lang_name}.\n"
+        f"Write every value only in {lang_name}. Do not mix English words "
+        "into Nepali, Vietnamese, Burmese or Japanese answers, except "
+        "names and the era-year format below.\n"
         "Reply with ONLY a JSON object (no other text) with exactly these keys:\n"
         '{"what": "...", "why": "...", "importance": "...", '
-        '"next_steps": "...", "deadline": "...", "check": "...", '
-        '"deadline_date": "..."}\n\n'
+        '"next_steps": "...", "deadline": "...", "amount": "...", '
+        '"staff_phrase": "...", "staff_phrase_meaning": "...", '
+        '"payment_methods": "...", "consequences": "...", '
+        '"check": "...", "deadline_date": "..."}\n\n'
         "Rules:\n"
         "- 'what': what kind of notice this is.\n"
         "- 'why': why the person got it.\n"
         "- 'importance': how important or urgent it is.\n"
         "- 'next_steps': clear steps in order.\n"
-        "- 'deadline': the exact date or amount from the notice if shown.\n"
-        "- 'deadline_date': the due date in YYYY-MM-DD format if the notice "
+        "- 'deadline': the exact due date from the notice if shown, "
+        "nothing else.\n"
+        "- 'amount': the amount to pay exactly as written on the notice "
+        '(for example "12,340 yen"), otherwise an empty string. '
+        "Never guess an amount.\n"
+        "- 'payment_methods': how this notice can be paid (for example "
+        "convenience store, bank, ATM, or online), based only on what the "
+        "notice shows or what is standard for this slip type. If the notice "
+        "shows no payment information, use an empty string. Never invent a "
+        "QR code, barcode, or payment number.\n"
+        "- 'consequences': what can happen if the deadline is missed, in "
+        "general terms (for example reminders or a late fee). Never invent "
+        "a specific fine amount unless it is printed on the notice.\n"
+        "- 'staff_phrase': ONE short, polite Japanese sentence the user can "
+        "show at the office counter about THIS notice, or an empty string.\n"
+        f"- 'staff_phrase_meaning': what 'staff_phrase' means, in {lang_name}.\n"
+        "- 'deadline_date': the due date in YYYY-MM-DD format "
+        "if the notice "
         "clearly shows one, otherwise an empty string. Never guess a date.\n"
         "- 'check': things to double-check. If any detail is unclear or "
         "unreadable, say so here instead of guessing. "
         "Never invent amounts, dates, or names.\n"
         "- If the reader must pay, apply, or visit an office, remind them to "
         "confirm the details with the issuing office.\n"
+        "- Convert Japanese era years to Western years in brackets, "
+        'for example \u4ee4\u548c8\u5e74 becomes "'
+        '"Reiwa 8 (2026)".\n"'
         "- Keep each value short. Do not use markdown. "
         "No text outside the JSON object."
     )

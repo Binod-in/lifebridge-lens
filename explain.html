@@ -17,11 +17,14 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="explain.title">LifeBridge Lens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#1261ff">
     <style>
-        /* Explain page styles — same tokens as the rest of the site. */
+        /* Explain page styles: same tokens as the rest of the site. */
         .page-hero {
             background-color: #ffffff;
             border-bottom: 1px solid #e5ecf5;
@@ -39,7 +42,7 @@
             margin-bottom: 14px;
             background-color: #f3f8ff;
             border: 1px solid #d5e5ff;
-            border-radius: 999px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
             color: #13234b;
@@ -59,14 +62,14 @@
             max-width: 640px;
         }
 
-        /* Main cards — same look as the site's other cards. */
+        /* Main cards: same look as the site's other cards. */
         .card {
             width: min(800px, calc(100% - 40px));
             margin: 24px auto;
             padding: 24px 20px;
             background-color: #ffffff;
             border: 1px solid #e5ecf5;
-            border-radius: 16px;
+            border-radius: 12px;
             box-shadow: 0 10px 28px rgba(19, 35, 75, 0.12);
         }
 
@@ -100,7 +103,7 @@
             text-align: center;
             background-color: #f3f8ff;
             border: 2px dashed #9dbfff;
-            border-radius: 14px;
+            border-radius: 12px;
             cursor: pointer;
             transition: border-color 0.15s, background-color 0.15s;
         }
@@ -145,7 +148,7 @@
             max-height: 320px;
             object-fit: contain;
             margin-top: 14px;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #e5ecf5;
             background-color: #f5f9ff;
         }
@@ -162,7 +165,7 @@
         #sample-tag {
             display: inline-block;
             padding: 2px 10px;
-            border-radius: 999px;
+            border-radius: 4px;
             font-size: 12px;
             background: #BE123C;
             color: #fff;
@@ -175,7 +178,7 @@
             min-height: 52px;
             padding: 13px 14px;
             border: 1px solid #cbd9eb;
-            border-radius: 10px;
+            border-radius: 8px;
             background-color: #ffffff;
             color: #13234b;
         }
@@ -184,7 +187,7 @@
             width: 100%;
             padding: 16px 20px;
             font-size: 16px;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px rgba(18, 97, 255, 0.3);
             cursor: pointer;
         }
@@ -257,10 +260,11 @@
         }
 
         .chip {
-            padding: 10px 14px;
+            padding: 12px 16px;
+            min-height: 48px;
             background-color: #f3f8ff;
             border: 1px solid #d5e5ff;
-            border-radius: 20px;
+            border-radius: 8px;
             font-size: 14px;
             color: #13234b;
             cursor: pointer;
@@ -295,7 +299,7 @@
             min-width: 0;
             padding: 13px 18px;
             border: 1px solid #cbd9eb;
-            border-radius: 20px;
+            border-radius: 8px;
             background-color: #ffffff;
             color: #13234b;
         }
@@ -303,7 +307,7 @@
         #ask-btn {
             padding: 13px 24px;
             white-space: nowrap;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
         }
 
@@ -362,6 +366,7 @@
     <header class="site-header">
         <div class="header-cnt">
             <div class="logo">
+                <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg></span>
                 <div class="logo-text">
                     <span class="logo-name">LifeBridge Lens</span>
                     <span class="logo-tag" data-i18n="footer.tagline">Understand Japanese notices in your own language.</span>
@@ -390,7 +395,7 @@
                 <p class="eyebrow" data-i18n="explain.eyebrow">Scan &amp; understand</p>
                 <h1 data-i18n="hero.explain">LifeBridge Lens</h1>
                 <p class="explain-lead" data-i18n="explain.lead">Take a photo of a Japanese letter or notice. LifeBridge Lens tells you what it is,
-                   why you got it, and what to do next — in simple words.</p>
+                   why you got it, and what to do next, in simple words.</p>
             </div>
         </section>
 
@@ -431,30 +436,61 @@
             </form>
         </section>
 
+        <section class="card load-card" id="loading-card" style="display:none;" aria-live="polite">
+            <h2 data-i18n="explain.loadingTitle">Reading your notice</h2>
+            <div class="loading-file">
+                <img id="loading-thumb" alt="">
+                <div>
+                    <p id="loading-name"></p>
+                    <p class="muted-text" id="loading-lang"></p>
+                </div>
+            </div>
+            <ol class="scan-steps" id="scan-steps">
+                <li data-i18n="explain.load1">Reading the Japanese text</li>
+                <li data-i18n="explain.load2">Understanding the notice</li>
+                <li data-i18n="explain.load3">Writing it in your language</li>
+            </ol>
+            <p class="load-privacy" data-i18n="explain.loadPrivacy">Your photo is sent only to Meta AI and is not stored on our server.</p>
+        </section>
+
         <section class="card" id="result-card" style="display:none;">
             <h2><span data-i18n="explain.resultTitle">Your explanation</span> <span id="sample-tag" data-i18n="explain.sampleTag" style="display:none;">Sample</span></h2>
+            <div class="summary-bar" id="summary-bar" style="display:none;">
+                <div class="summary-item">
+                    <span class="summary-label" data-i18n="explain.hDeadline">Deadline</span>
+                    <strong class="summary-big" id="summary-deadline"></strong>
+                    <span class="summary-sub" id="summary-era"></span>
+                    <span class="summary-days" id="summary-days"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label" data-i18n="explain.hAmount">Amount</span>
+                    <strong class="summary-big" id="summary-amount"></strong>
+                </div>
+            </div>
             <div class="result-grid">
                 <article class="result-card">
-                    <h3 data-i18n="explain.hWhat">What is this?</h3>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg><span data-i18n="explain.hWhat">What is this?</span></h3>
                     <p id="result-what"></p>
                 </article>
                 <article class="result-card">
-                    <h3 data-i18n="explain.hWhy">Why did you get it?</h3>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg><span data-i18n="explain.hWhy">Why did you get it?</span></h3>
                     <p id="result-why"></p>
                 </article>
                 <article class="result-card">
-                    <h3 data-i18n="explain.hImportance">How important is it?</h3>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v5M12 18.5h.01"/></svg><span data-i18n="explain.hImportance">How important is it?</span></h3>
                     <p id="result-importance"></p>
                 </article>
                 <article class="result-card">
-                    <h3 data-i18n="explain.hNext">What to do next</h3>
-                    <p id="result-next"></p>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg><span data-i18n="explain.hNext">What to do next</span></h3>
+                    <ol id="result-next" class="check-list"></ol>
                 </article>
                 <article class="result-card">
-                    <h3 data-i18n="explain.hDeadline">Deadline</h3>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="explain.hDeadline">Deadline</span></h3>
                     <p id="result-deadline"></p>
+                    <p class="muted-text" id="result-era"></p>
                     <button type="button" id="save-date-btn" class="btn" data-i18n="explain.saveDate" style="display:none;">Save to Important Dates</button>
                     <p id="save-date-msg" role="status"></p>
+                    <button type="button" id="save-date-cal" class="btn" data-i18n="explain.addToCal" style="display:none;">Add to calendar</button>
                     <div id="save-date-confirm" style="display:none;">
                         <p data-i18n="explain.checkDate">Check this date against the letter before saving.</p>
                         <input type="date" id="save-date-input" data-i18n-aria-label="explain.saveDateLabel" aria-label="Date to save">
@@ -462,7 +498,26 @@
                     </div>
                 </article>
                 <article class="result-card">
-                    <h3 data-i18n="explain.hCheck">Things to check</h3>
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="11" rx="2"/><circle cx="12" cy="12.5" r="2.5"/></svg><span data-i18n="explain.hAmount">Amount</span></h3>
+                    <p id="result-amount"></p>
+                </article>
+                <article class="result-card">
+                    <h3><span data-i18n="explain.hPayment">How to pay</span></h3>
+                    <p id="result-payment"></p>
+                </article>
+                <article class="result-card">
+                    <h3><span data-i18n="explain.hConsequences">If you miss the deadline</span></h3>
+                    <p id="result-consequences"></p>
+                </article>
+                <article class="result-card staff-card">
+                    <h3><span data-i18n="explain.hStaff">Show this to the staff</span></h3>
+                    <p id="result-staff" class="staff-phrase" lang="ja"></p>
+                    <p id="result-staff-meaning" class="staff-meaning"></p>
+                    <button type="button" id="copy-staff-btn" class="btn" data-i18n="explain.copy">Copy</button>
+                    <span id="copy-staff-msg" role="status"></span>
+                </article>
+                <article class="result-card check-card">
+                    <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="explain.hCheck">Things to check</span></h3>
                     <p id="result-check"></p>
                 </article>
             </div>
@@ -517,10 +572,13 @@
             ["How important is it?", "result-importance"],
             ["What to do next", "result-next"],
             ["Deadline", "result-deadline"],
+            ["Amount", "result-amount"],
+            ["Payment methods", "result-payment"],
+            ["Consequences", "result-consequences"],
             ["Things to check", "result-check"]
         ];
 
-        const form = document.getElementById("explain-form"); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); if (saveDateState) renderSaveDateMsg(); }); } else { document.addEventListener("lb:lang", function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); if (saveDateState) renderSaveDateMsg(); }); }
+        const form = document.getElementById("explain-form"); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); if (saveDateState) renderSaveDateMsg(); }); } else { document.addEventListener("lb:lang", function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); if (saveDateState) renderSaveDateMsg(); }); }
         const photoInput = document.getElementById("photo");
         const sampleBtn = document.getElementById("sample-btn");
         const preview = document.getElementById("preview");
@@ -701,11 +759,11 @@
         }
 
         // Parse the AI reply: JSON first, old headers next, raw text last.
-        // Returns { elementId: text } for the six result cards.
+        // Returns { elementId: text } for the nine result cards.
         function parseExplainReply(text) {
             const raw = String(text || "").trim();
             if (!raw) return {};
-            const keys = { what: "result-what", why: "result-why", importance: "result-importance", next_steps: "result-next", deadline: "result-deadline", check: "result-check" };
+            const keys = { what: "result-what", why: "result-why", importance: "result-importance", next_steps: "result-next", deadline: "result-deadline", amount: "result-amount", payment_methods: "result-payment", consequences: "result-consequences", check: "result-check" };
             const fenced = raw.replace(/^```[a-zA-Z]*/, "").replace(/```\s*$/, "").trim();
             let data = null;
             try {
@@ -739,11 +797,39 @@
             return { "result-what": cleanText(raw) || raw };
         }
 
+        // Staff phrase: one polite Japanese sentence from the AI reply,
+        // plus what it means. Empty when the reply has neither.
+        function staffFromReply(text) {
+            const out = { phrase: "", meaning: "" };
+            const raw = String(text || "");
+            const first = raw.indexOf("{");
+            const last = raw.lastIndexOf("}");
+            if (first < 0 || last <= first) return out;
+            try {
+                const data = JSON.parse(raw.slice(first, last + 1));
+                out.phrase = cleanText(data.staff_phrase);
+                out.meaning = cleanText(data.staff_phrase_meaning);
+            } catch (e) { /* not JSON: leave both empty */ }
+            return out;
+        }
+
+        // Fill the staff card. A missing phrase shows "Not shown",
+        // like every other empty result card.
+        function fillStaff(phrase, meaning) {
+            document.getElementById("result-staff").textContent =
+                phrase || t("explain.notShown", "Not shown");
+            document.getElementById("result-staff-meaning").textContent = meaning || "";
+            document.getElementById("copy-staff-msg").textContent = "";
+        }
+
         const saveDateBtn = document.getElementById("save-date-btn");
         const saveDateMsg = document.getElementById("save-date-msg");
         const saveDateConfirm = document.getElementById("save-date-confirm");
         const saveDateInput = document.getElementById("save-date-input");
         const saveDateConfirmBtn = document.getElementById("save-date-confirm-btn");
+        const saveDateCal = document.getElementById("save-date-cal");
+        let lastSavedTitle = "";
+        let lastSavedDate = "";
 
         // A real calendar date: 2027-02-30 must fail, not roll over.
         function isRealDate(text) {
@@ -757,6 +843,7 @@
         function updateSaveButton() {
             saveDateState = "";
             saveDateMsg.replaceChildren();
+            saveDateCal.style.display = "none";
             saveDateConfirm.style.display = "none";
             saveDateBtn.style.display = isRealDate(lastDeadlineDate) ? "" : "none";
         }
@@ -797,6 +884,7 @@
                 return;
             }
             const title = (document.getElementById("result-what").textContent || "").trim().slice(0, 60);
+            const amount = (document.getElementById("result-amount").textContent || "").trim().slice(0, 60);
             let items = [];
             try {
                 const saved = JSON.parse(window.localStorage.getItem("lb_dates") || "[]");
@@ -811,14 +899,183 @@
             if (dup) {
                 saveDateState = "exists";
             } else {
-                items.push({id: Date.now() + "-" + Math.floor(Math.random() * 100000), title: title, date: picked});
+                items.push({id: Date.now() + "-" + Math.floor(Math.random() * 100000), title: title, date: picked, amount: amount});
                 saveDateState = "saved";
                 try { window.localStorage.setItem("lb_dates", JSON.stringify(items)); } catch (e) { saveDateState = "failed"; }
             }
             saveDateConfirm.style.display = "none";
             saveDateBtn.style.display = "";
             renderSaveDateMsg();
+            if (saveDateState === "saved" || saveDateState === "exists") {
+                lastSavedTitle = title;
+                lastSavedDate = picked;
+                saveDateCal.style.display = "";
+            }
         });
+
+        // Escape text for the .ics file (commas, semicolons, newlines).
+        function icsText(value) {
+            return String(value || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+        }
+
+        // UTC stamp like 20270115T093000Z for the .ics file.
+        function icsStamp(when) {
+            const p = (n) => (n < 10 ? "0" : "") + n;
+            return when.getUTCFullYear() + p(when.getUTCMonth() + 1) + p(when.getUTCDate()) + "T" + p(when.getUTCHours()) + p(when.getUTCMinutes()) + p(when.getUTCSeconds()) + "Z";
+        }
+
+        // Download an all-day calendar event with a 3-day reminder.
+        function downloadIcs(title, dateStr) {
+            const stamp = dateStr.replace(/-/g, "");
+            const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//LifeBridge Lens//Deadlines//EN", "BEGIN:VEVENT", "UID:" + Date.now() + "@lifebridge-lens", "DTSTAMP:" + icsStamp(new Date()), "DTSTART;VALUE=DATE:" + stamp, "SUMMARY:" + icsText(title), "BEGIN:VALARM", "TRIGGER:-P3D", "ACTION:DISPLAY", "DESCRIPTION:" + icsText(title), "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
+            const blob = new Blob([lines.join("\r\n")], { type: "text/calendar" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "deadline-" + stamp + ".ics";
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 1000);
+        }
+
+        saveDateCal.addEventListener("click", () => {
+            downloadIcs(lastSavedTitle, lastSavedDate);
+        });
+
+        // Copy the Japanese staff phrase to the clipboard.
+        document.getElementById("copy-staff-btn").addEventListener("click", () => {
+            const phrase = document.getElementById("result-staff").textContent;
+            const done = () => {
+                document.getElementById("copy-staff-msg").textContent = t("explain.copied", "Copied.");
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(phrase).then(done, done);
+            } else {
+                done();
+            }
+        });
+
+        // Fill one result card. Next steps become a numbered list.
+        function fillCard(id, text) {
+            const el = document.getElementById(id);
+            if (id !== "result-next") {
+                el.textContent = text;
+                return;
+            }
+            el.replaceChildren();
+            for (const line of String(text || "").split(/\n+/)) {
+                const clean = line.replace(/^\s*(?:\d+[.)]|[-*\u2022])\s*/, "").trim();
+                if (!clean) continue;
+                const li = document.createElement("li");
+                li.textContent = clean;
+                el.appendChild(li);
+            }
+            if (!el.children.length) {
+                const li = document.createElement("li");
+                li.textContent = t("explain.notShown", "Not shown");
+                el.appendChild(li);
+            }
+        }
+
+        // Whole days from today until a YYYY-MM-DD date. Negative = passed.
+        function daysUntil(dateStr) {
+            const parts = String(dateStr || "").split("-");
+            const day = Date.UTC(+parts[0], +parts[1] - 1, +parts[2]);
+            const now = new Date();
+            const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            return Math.round((day - today) / 86400000);
+        }
+
+        // Summary bar: big deadline + amount, plus the days left.
+        function updateSummary() {
+            const bar = document.getElementById("summary-bar");
+            if (!isRealDate(lastDeadlineDate)) {
+                bar.style.display = "none";
+                document.getElementById("summary-era").textContent = "";
+                document.getElementById("result-era").textContent = "";
+                return;
+            }
+            document.getElementById("summary-deadline").textContent =
+                document.getElementById("result-deadline").textContent;
+            document.getElementById("summary-amount").textContent =
+                document.getElementById("result-amount").textContent;
+            const era = toEraDate(lastDeadlineDate);
+            const eraText = era ? t("explain.eraLabel", "Japanese date") + ": " + era : "";
+            document.getElementById("summary-era").textContent = eraText;
+            document.getElementById("result-era").textContent = eraText;
+            const n = daysUntil(lastDeadlineDate);
+            const daysEl = document.getElementById("summary-days");
+            bar.classList.remove("soon", "passed");
+            if (n < 0) {
+                bar.classList.add("passed");
+                daysEl.textContent = t("explain.deadlinePassed", "Deadline passed");
+            } else if (n <= 7) {
+                bar.classList.add("soon");
+                daysEl.textContent = n === 1
+                    ? t("explain.dayLeft", "1 day left")
+                    : t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+            } else {
+                daysEl.textContent = t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+            }
+            bar.style.display = "";
+        }
+
+        // Loading card: thumbnail, file name and language first, then the
+        // steps light up one by one while a scan runs.
+        let scanStepTimer = null;
+        let loadingObjectUrl = "";
+        function startScanSteps() {
+            const file = photoInput.files[0];
+            const thumb = document.getElementById("loading-thumb");
+            if (loadingObjectUrl) {
+                URL.revokeObjectURL(loadingObjectUrl);
+                loadingObjectUrl = "";
+            }
+            if (preview.style.display !== "none" && preview.src) {
+                thumb.src = preview.src;
+            } else if (file) {
+                loadingObjectUrl = URL.createObjectURL(file);
+                thumb.src = loadingObjectUrl;
+            } else {
+                thumb.removeAttribute("src");
+            }
+            document.getElementById("loading-name").textContent = file ? file.name : "";
+            const langSelect = document.getElementById("language");
+            const langName = langSelect.options[langSelect.selectedIndex].textContent;
+            document.getElementById("loading-lang").textContent =
+                t("explain.loadingLang", "Language") + ": " + langName;
+            document.getElementById("loading-card").style.display = "block";
+            const box = document.getElementById("scan-steps");
+            const items = Array.from(box.querySelectorAll("li"));
+            items.forEach((li) => li.classList.remove("on"));
+            let i = 0;
+            const light = () => {
+                if (i < items.length) items[i].classList.add("on");
+                i++;
+            };
+            light();
+            scanStepTimer = setInterval(light, 4000);
+        }
+        function stopScanSteps() {
+            if (scanStepTimer) clearInterval(scanStepTimer);
+            scanStepTimer = null;
+            document.getElementById("loading-card").style.display = "none";
+            if (loadingObjectUrl) {
+                URL.revokeObjectURL(loadingObjectUrl);
+                loadingObjectUrl = "";
+            }
+        }
+
+        // Japanese era date: 2027-02-01 becomes "Reiwa 9 (2027)".
+        // Reiwa started May 1 2019, Heisei Jan 8 1989, Showa Dec 25 1926.
+        // YYYY-MM-DD strings compare in date order, so plain >= works.
+        function toEraDate(dateStr) {
+            if (!isRealDate(dateStr)) return "";
+            const year = +dateStr.slice(0, 4);
+            if (dateStr >= "2019-05-01") return "Reiwa " + (year - 2018) + " (" + year + ")";
+            if (dateStr >= "1989-01-08") return "Heisei " + (year - 1988) + " (" + year + ")";
+            if (dateStr >= "1926-12-25") return "Showa " + (year - 1925) + " (" + year + ")";
+            return "";
+        }
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -838,6 +1095,7 @@
             const originalBtnText = btn.textContent;
             btn.textContent = t("explain.explaining", "Reading your notice...");
             setStatus("explain.reading", "Reading your notice... this can take a few seconds.");
+            startScanSteps();
             const smallPhoto = await shrinkPhoto(photoInput.files[0]);
             const newPhotoB64 = await blobToB64(smallPhoto);
             const newPhotoMime = smallPhoto.type || "image/jpeg";
@@ -855,8 +1113,10 @@
                     return;
                 }
                 for (const [, id] of HEADERS) {
-                    document.getElementById(id).textContent = sections[id] || "—";
+                    fillCard(id, sections[id] || t("explain.notShown", "Not shown"));
                 }
+                const staff = staffFromReply(json.text || "");
+                fillStaff(staff.phrase, staff.meaning);
                 document.getElementById("result-card").style.display = "block";
                 document.getElementById("sample-tag").style.display = "none";
                 sampleShowing = false;
@@ -870,19 +1130,21 @@
                 const dateHit = /"deadline_date"\s*:\s*"([^"]*)"/.exec(json.text || "");
                 if (dateHit) lastDeadlineDate = dateHit[1];
                 updateSaveButton();
+                updateSummary();
                 thread.innerHTML = "";
                 askStatus.textContent = "";
                 document.getElementById("followup-card").style.display = "block";
                 lastStatusKey = null; status.textContent = "";
             } catch (err) {
                 if (err && err.name === "AbortError") {
-                    setStatus("explain.tooSlow", "The AI took too long — please try again.");
+                    setStatus("explain.tooSlow", "The AI took too long. Please try again.");
                 } else if (err && err.lbServerError) {
-                    setStatus("explain.serverError", "Server error — please try again.");
+                    setStatus("explain.serverError", "Server error. Please try again.");
                 } else {
                     setStatus("explain.failed", "Sorry, it did not work: {msg}", err.message);
                 }
             } finally {
+                stopScanSteps();
                 btn.textContent = originalBtnText;
                 btn.disabled = false;
                 sampleBtn.disabled = false;
@@ -927,15 +1189,15 @@
                 const json = call.json;
                 if (myEpoch !== scanEpoch) return; // A new scan won the race: drop this reply.
                 if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
-                const answer = json.answer || "—";
+                const answer = json.answer || t("explain.notShown", "Not shown");
                 addMsg("chat-a", answer);
                 chatHistory.push({role: "user", content: question});
                 chatHistory.push({role: "assistant", content: answer.slice(0, 8000)});
             } catch (err) {
                 if (err && err.name === "AbortError") {
-                    askStatus.textContent = t("explain.tooSlow", "The AI took too long — please try again.");
+                    askStatus.textContent = t("explain.tooSlow", "The AI took too long. Please try again.");
                 } else if (err && err.lbServerError) {
-                    askStatus.textContent = t("explain.serverError", "Server error — please try again.");
+                    askStatus.textContent = t("explain.serverError", "Server error. Please try again.");
                 } else {
                     askStatus.textContent = t("explain.failed", "Sorry, it did not work: {msg}").replace("{msg}", err.message);
                 }
@@ -962,8 +1224,12 @@
             document.getElementById("result-what").textContent = t("explain.sample.what", "City notice: resident tax (住民税) payment notice");
             document.getElementById("result-why").textContent = t("explain.sample.why", "Yearly resident tax bill from the city office.");
             document.getElementById("result-importance").textContent = t("explain.sample.importance", "High. Pay before the due date to avoid a late fee.");
-            document.getElementById("result-next").textContent = t("explain.sample.next", "1. Check the amount and due date.\n2. Pay at a bank or convenience store.\n3. Keep the receipt.");
+            fillCard("result-next", t("explain.sample.next", "1. Check the amount and due date.\n2. Pay at a bank or convenience store.\n3. Keep the receipt."));
             document.getElementById("result-deadline").textContent = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
+            document.getElementById("result-amount").textContent = t("explain.sample.amount", "12,340 yen");
+            document.getElementById("result-payment").textContent = t("explain.sample.payment", "Pay at a bank or convenience store with this slip. Keep the receipt.");
+            document.getElementById("result-consequences").textContent = t("explain.sample.consequences", "A late fee may be added. If you cannot pay on time, ask the city office for advice.");
+            fillStaff(t("explain.sample.staff", "この保険料の支払いについて相談したいです。"), t("explain.sample.staffMeaning", "I want to ask about paying this insurance bill."));
             document.getElementById("result-check").textContent = t("explain.sample.check", "Your name and address. The amount and due date.");
         }
 
@@ -973,6 +1239,7 @@
             document.getElementById("sample-tag").style.display = "";
             lastDeadlineDate = "2027-02-01";
             updateSaveButton();
+            updateSummary();
             // No follow-up chat for the sample.
             lastExplanation = "";
             chatHistory = [];

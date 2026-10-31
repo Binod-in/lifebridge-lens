@@ -13,8 +13,9 @@ import server
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-JSON_KEYS = ("what", "why", "importance", "next_steps", "deadline", "check",
-             "deadline_date")
+JSON_KEYS = ("what", "why", "importance", "next_steps", "deadline",
+             "amount", "staff_phrase", "staff_phrase_meaning",
+             "check", "deadline_date")
 
 
 def _image_file(name="notice.jpg", size=1024):
@@ -73,6 +74,27 @@ class ExplainPromptTest(unittest.TestCase):
     def test_prompt_keeps_no_guessing_rule(self):
         prompt = self._posted_prompt("en")
         self.assertIn("Never invent amounts, dates, or names.", prompt)
+
+    def test_prompt_converts_era_years(self):
+        prompt = self._posted_prompt("en")
+        self.assertIn("Reiwa 8 (2026)", prompt)
+
+    def test_prompt_keeps_single_language(self):
+        prompt = self._posted_prompt("ne")
+        self.assertIn("only in Nepali", prompt)
+        self.assertIn("Do not mix English words", prompt)
+
+    def test_prompt_amount_rule(self):
+        prompt = self._posted_prompt("en")
+        self.assertIn("exactly as written", prompt)
+        self.assertIn("12,340 yen", prompt)
+        self.assertIn("Never guess an amount", prompt)
+
+    def test_prompt_staff_phrase_rule(self):
+        prompt = self._posted_prompt("en")
+        self.assertIn("polite Japanese sentence", prompt)
+        self.assertIn("office counter", prompt)
+        self.assertIn("staff_phrase_meaning", prompt)
 
     def test_prompt_reminds_to_confirm_with_office(self):
         prompt = self._posted_prompt("en")
@@ -217,7 +239,7 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertRegex(self.page,
                          r'#sample-tag\s*\{[^}]*?background: #BE123C;')
         self.assertRegex(self.page,
-                         r'#sample-tag\s*\{[^}]*?border-radius: 999px;')
+                         r'#sample-tag\s*\{[^}]*?border-radius: 4px;')
 
     def test_save_date_message_rerenders_on_lang_change(self):
         self.assertIn("function renderSaveDateMsg()", self.page)
@@ -232,6 +254,17 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertIn('"explain.sample.what"', self.page)
         self.assertIn("if (sampleShowing) fillSampleCards();", self.page)
         self.assertNotIn("requestSubmit", self.page)
+
+    def test_sample_staff_phrase(self):
+        with open(os.path.join(ROOT, "i18n.js"), encoding="utf-8") as f:
+            i18n = f.read()
+        self.assertEqual(i18n.count("この保険料の支払いについて相談したいです。"), 4)
+        for text in ("I want to ask about paying this insurance bill.",
+                     "म यो बिमा शुल्क तिर्ने बारेमा सोध्न चाहन्छु।",
+                     "Tôi muốn hỏi về việc nộp khoản bảo hiểm này.",
+                     "ဒီအာမခံကြေးပေးချေရေးနဲ့ ပတ်သက်ပြီး မေးချင်ပါတယ်။",
+                     "12,340 yen", "12,340 येन", "12.340 yên", "12,340 ယန်း"):
+            self.assertIn(text, i18n)
 
     def test_sample_deadline_locked(self):
         # 4th resident-tax installment: Jan 31, 2027 is a Sunday, so Feb 1.
@@ -257,6 +290,13 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertIn('"explain.privacyHint"', self.page)
         self.assertIn("residence card number", self.page)
 
+    def test_amount_card(self):
+        self.assertIn('id="result-amount"', self.page)
+        self.assertIn('"explain.hAmount"', self.page)
+        self.assertIn('amount: "result-amount"', self.page)
+        self.assertIn('["Amount", "result-amount"]', self.page)
+        self.assertIn('"explain.sample.amount"', self.page)
+
     def test_scan_state_updates_atomically(self):
         # The new photo must wait in locals until the reply succeeds, so a
         # failed scan keeps the previous photo + explanation pair untouched.
@@ -280,6 +320,34 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertEqual(self.page.count("askBtn.disabled = false;"), 2)
         self.assertEqual(self.page.count("c.disabled = true;"), 2)
         self.assertEqual(self.page.count("c.disabled = false;"), 2)
+
+
+class CalendarDownloadTest(unittest.TestCase):
+    """Both pages build the same .ics file in JS."""
+
+    def _page(self, name):
+        with open(os.path.join(ROOT, name), encoding="utf-8") as f:
+            return f.read()
+
+    def test_ics_content(self):
+        for name in ("explain.html", "dates.html"):
+            page = self._page(name)
+            for snippet in ("BEGIN:VCALENDAR", "VERSION:2.0",
+                            "BEGIN:VEVENT", "END:VEVENT", "END:VCALENDAR",
+                            "DTSTART;VALUE=DATE:", "TRIGGER:-P3D",
+                            "BEGIN:VALARM", "END:VALARM", "ACTION:DISPLAY",
+                            '"text/calendar"', ".ics",
+                            "function downloadIcs(title, dateStr)"):
+                self.assertIn(snippet, page, name)
+
+    def test_add_to_calendar_buttons(self):
+        explain = self._page("explain.html")
+        self.assertIn('id="save-date-cal"', explain)
+        self.assertIn('"explain.addToCal"', explain)
+        self.assertIn("downloadIcs(lastSavedTitle, lastSavedDate)", explain)
+        dates = self._page("dates.html")
+        self.assertIn('"explain.addToCal"', dates)
+        self.assertIn("downloadIcs(item.title, item.date)", dates)
 
 
 if __name__ == "__main__":

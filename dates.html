@@ -17,6 +17,9 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="dates.title">Important Dates | LifeBridge Lens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#1261ff">
@@ -26,6 +29,7 @@
     <header class="site-header">
         <div class="header-cnt">
             <div class="logo">
+                <span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg></span>
                 <div class="logo-text">
                     <span class="logo-name">LifeBridge Lens</span>
                     <span class="logo-tag" data-i18n="footer.tagline">Understand Japanese notices in your own language.</span>
@@ -50,7 +54,27 @@
     <main id="main-content" class="content-page"><a class="saved-back" href="index.html" data-i18n="doc.back">← Home</a>
         <h1 data-i18n="journey.nav.dates">Important Dates</h1>
         <p class="page-lead" data-i18n="dates.lead">Keep appointments and deadlines in one place. Dates are stored on this browser; notifications are not sent.</p>
-        <ul id="date-list" class="date-list"></ul>
+        <section class="cal" aria-labelledby="cal-title">
+            <h2 class="visually-hidden" id="cal-title" data-i18n="dates.calendarTitle">Calendar</h2>
+            <div class="cal-nav">
+                <button type="button" class="btn" id="cal-prev" data-i18n-aria-label="dates.prevMonth" aria-label="Previous month">←</button>
+                <p class="cal-title" id="cal-label"></p>
+                <button type="button" class="btn" id="cal-next" data-i18n-aria-label="dates.nextMonth" aria-label="Next month">→</button>
+            </div>
+            <div class="cal-grid" id="cal-grid" role="grid"></div>
+        </section>
+        <section aria-labelledby="upcoming-h">
+            <h2 class="dates-group-title" id="upcoming-h"><span data-i18n="dates.upcoming">Upcoming</span> <span class="dates-count" id="count-upcoming">0</span></h2>
+            <ul id="date-upcoming" class="date-list"></ul>
+        </section>
+        <section aria-labelledby="past-h">
+            <h2 class="dates-group-title" id="past-h"><span data-i18n="dates.past">Past</span> <span class="dates-count" id="count-past">0</span></h2>
+            <ul id="date-past" class="date-list"></ul>
+        </section>
+        <section aria-labelledby="done-h">
+            <h2 class="dates-group-title" id="done-h"><span data-i18n="dates.completed">Completed</span> <span class="dates-count" id="count-done">0</span></h2>
+            <ul id="date-done" class="date-list"></ul>
+        </section>
     </main>
     <footer class="site-footer">
         <div class="footer-grid">
@@ -98,15 +122,145 @@
             return items.filter(function (d) {
                 return d && typeof d.id === "string" && typeof d.title === "string" &&
                     /^\d{4}-\d{2}-\d{2}$/.test(d.date);
+            }).map(function (d) {
+                // Older saves have no amount or done flag.
+                return {
+                    id: d.id, title: d.title, date: d.date,
+                    amount: typeof d.amount === "string" ? d.amount : "",
+                    done: d.done === true
+                };
             });
         }
 
-        function showDates() {
-            var list = document.getElementById("date-list");
-            list.replaceChildren();
-            var items = readDates().sort(function (a, b) {
-                return a.date < b.date ? -1 : 1;
+        function writeDates(items) {
+            try {
+                window.localStorage.setItem(DATES_KEY, JSON.stringify(items));
+            } catch (e) { /* storage blocked: keep showing the list */ }
+        }
+
+        // Whole days from today until a YYYY-MM-DD date. Negative = passed.
+        function daysUntil(dateStr) {
+            var parts = String(dateStr || "").split("-");
+            var day = Date.UTC(+parts[0], +parts[1] - 1, +parts[2]);
+            var now = new Date();
+            var today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            return Math.round((day - today) / 86400000);
+        }
+
+        // Amber normally, red when 7 days or less, grey when passed.
+        function dueClass(dateStr) {
+            var n = daysUntil(dateStr);
+            if (n < 0) return "due due-passed";
+            if (n <= 7) return "due due-soon";
+            return "due";
+        }
+
+        // Countdown words for a card. Red only within 7 days.
+        function countdownText(n) {
+            if (n < 0) return t("explain.deadlinePassed", "Deadline passed");
+            if (n === 0) return t("dates.today", "Today");
+            if (n === 1) return t("explain.dayLeft", "1 day left");
+            return t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+        }
+
+        function countdownClass(n) {
+            if (n >= 0 && n <= 7) return "deadline-count soon";
+            return "deadline-count";
+        }
+
+        // Escape text for the .ics file (commas, semicolons, newlines).
+        function icsText(value) {
+            return String(value || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+        }
+
+        // UTC stamp like 20270115T093000Z for the .ics file.
+        function icsStamp(when) {
+            function p(n) { return (n < 10 ? "0" : "") + n; }
+            return when.getUTCFullYear() + p(when.getUTCMonth() + 1) + p(when.getUTCDate()) + "T" + p(when.getUTCHours()) + p(when.getUTCMinutes()) + p(when.getUTCSeconds()) + "Z";
+        }
+
+        // Download an all-day calendar event with a 3-day reminder.
+        function downloadIcs(title, dateStr) {
+            var stamp = dateStr.replace(/-/g, "");
+            var lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//LifeBridge Lens//Deadlines//EN", "BEGIN:VEVENT", "UID:" + Date.now() + "@lifebridge-lens", "DTSTAMP:" + icsStamp(new Date()), "DTSTART;VALUE=DATE:" + stamp, "SUMMARY:" + icsText(title), "BEGIN:VALARM", "TRIGGER:-P3D", "ACTION:DISPLAY", "DESCRIPTION:" + icsText(title), "END:VALARM", "END:VEVENT", "END:VCALENDAR"];
+            var blob = new Blob([lines.join("\r\n")], { type: "text/calendar" });
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "deadline-" + stamp + ".ics";
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 1000);
+        }
+
+        // One deadline card: title, date chip, countdown, amount, buttons.
+        function buildCard(item) {
+            var row = document.createElement("li");
+            var title = document.createElement("p");
+            title.className = "deadline-title";
+            title.textContent = item.title;
+            row.appendChild(title);
+            var meta = document.createElement("div");
+            meta.className = "deadline-meta";
+            var chip = document.createElement("span");
+            chip.className = dueClass(item.date);
+            chip.textContent = item.date;
+            meta.appendChild(chip);
+            var n = daysUntil(item.date);
+            var count = document.createElement("span");
+            count.className = countdownClass(n);
+            count.textContent = countdownText(n);
+            meta.appendChild(count);
+            row.appendChild(meta);
+            if (item.amount) {
+                var amount = document.createElement("p");
+                amount.className = "deadline-amount";
+                amount.textContent = item.amount;
+                row.appendChild(amount);
+            }
+            var btns = document.createElement("div");
+            btns.className = "row-btns";
+            var cal = document.createElement("button");
+            cal.type = "button";
+            cal.className = "btn";
+            cal.textContent = t("explain.addToCal", "Add to calendar");
+            cal.addEventListener("click", function () {
+                downloadIcs(item.title, item.date);
             });
+            btns.appendChild(cal);
+            var doneBtn = document.createElement("button");
+            doneBtn.type = "button";
+            doneBtn.className = "btn";
+            doneBtn.textContent = item.done
+                ? t("dates.reopen", "Reopen")
+                : t("dates.markDone", "Mark done");
+            doneBtn.addEventListener("click", function () {
+                var items = readDates();
+                items.forEach(function (d) {
+                    if (d.id === item.id) d.done = !item.done;
+                });
+                writeDates(items);
+                showDates();
+            });
+            btns.appendChild(doneBtn);
+            var remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "btn";
+            remove.textContent = t("app.remove", "Remove");
+            remove.setAttribute("aria-label", t("app.removeDate", "Remove {t}").replace("{t}", item.title));
+            remove.addEventListener("click", function () {
+                var kept = readDates().filter(function (d) { return d.id !== item.id; });
+                writeDates(kept);
+                showDates();
+            });
+            btns.appendChild(remove);
+            row.appendChild(btns);
+            return row;
+        }
+
+        function showGroup(listId, countId, items) {
+            var list = document.getElementById(listId);
+            list.replaceChildren();
+            document.getElementById(countId).textContent = String(items.length);
             if (items.length === 0) {
                 var empty = document.createElement("li");
                 empty.textContent = t("app.noDates", "No dates added yet.");
@@ -114,26 +268,115 @@
                 return;
             }
             items.forEach(function (item) {
-                var row = document.createElement("li");
-                var text = document.createElement("span");
-                text.textContent = item.date + " · " + item.title;
-                var remove = document.createElement("button");
-                remove.type = "button";
-                remove.className = "btn";
-                remove.textContent = t("app.remove", "Remove");
-                remove.setAttribute("aria-label", t("app.removeDate", "Remove {t}").replace("{t}", item.title));
-                remove.addEventListener("click", function () {
-                    var kept = readDates().filter(function (d) { return d.id !== item.id; });
-                    try {
-                        window.localStorage.setItem(DATES_KEY, JSON.stringify(kept));
-                    } catch (e) { /* storage blocked: keep showing the list */ }
-                    showDates();
-                });
-                row.appendChild(text);
-                row.appendChild(remove);
-                list.appendChild(row);
+                list.appendChild(buildCard(item));
             });
         }
+
+        // Month calendar state. Starts on the current month.
+        var calShown = new Date();
+        calShown.setDate(1);
+
+        function calLocale() {
+            var lang = "en";
+            try {
+                if (window.LBT && typeof window.LBT.lang === "function") lang = window.LBT.lang();
+            } catch (e) { /* keep English */ }
+            if (lang === "ne" || lang === "vi" || lang === "my") return lang;
+            return "en";
+        }
+
+        function showCalendar(items) {
+            var grid = document.getElementById("cal-grid");
+            grid.replaceChildren();
+            var label = "";
+            try {
+                label = calShown.toLocaleString(calLocale(), { month: "long", year: "numeric" });
+            } catch (e) {
+                label = (calShown.getMonth() + 1) + "/" + calShown.getFullYear();
+            }
+            document.getElementById("cal-label").textContent = label;
+            var dowNames = [];
+            try {
+                for (var d = 0; d < 7; d++) {
+                    // 2026-02-01 was a Sunday, so this lists Sun..Sat.
+                    dowNames.push(new Date(2026, 1, 1 + d).toLocaleString(calLocale(), { weekday: "short" }));
+                }
+            } catch (e) { dowNames = ["S", "M", "T", "W", "T", "F", "S"]; }
+            dowNames.forEach(function (name) {
+                var head = document.createElement("span");
+                head.className = "cal-dow";
+                head.textContent = name;
+                grid.appendChild(head);
+            });
+            var year = calShown.getFullYear();
+            var month = calShown.getMonth();
+            var firstDow = new Date(year, month, 1).getDay();
+            var daysInMonth = new Date(year, month + 1, 0).getDate();
+            var today = new Date();
+            var todayStr = today.getFullYear() + "-" +
+                ("0" + (today.getMonth() + 1)).slice(-2) + "-" +
+                ("0" + today.getDate()).slice(-2);
+            var byDate = {};
+            items.forEach(function (item) {
+                if (!byDate[item.date]) byDate[item.date] = [];
+                byDate[item.date].push(item);
+            });
+            var i;
+            for (i = 0; i < firstDow; i++) {
+                var blank = document.createElement("span");
+                blank.className = "cal-day blank";
+                blank.textContent = "";
+                grid.appendChild(blank);
+            }
+            for (i = 1; i <= daysInMonth; i++) {
+                var key = year + "-" + ("0" + (month + 1)).slice(-2) + "-" + ("0" + i).slice(-2);
+                var cell = document.createElement("span");
+                cell.className = "cal-day";
+                cell.textContent = String(i);
+                if (key === todayStr) cell.className += " today";
+                var dayItems = byDate[key] || [];
+                if (dayItems.length > 0) {
+                    var open = dayItems.filter(function (d) { return !d.done; });
+                    if (open.length === 0) {
+                        cell.className += " done-mark";
+                    } else {
+                        cell.className += " has";
+                        var urgent = open.some(function (d) {
+                            var n = daysUntil(d.date);
+                            return n >= 0 && n <= 7;
+                        });
+                        if (urgent) cell.className += " soon";
+                    }
+                    cell.title = dayItems.map(function (d) { return d.title; }).join(", ");
+                }
+                grid.appendChild(cell);
+            }
+        }
+
+        function showDates() {
+            var items = readDates().sort(function (a, b) {
+                return a.date < b.date ? -1 : 1;
+            });
+            showGroup("date-upcoming", "count-upcoming", items.filter(function (d) {
+                return !d.done && daysUntil(d.date) >= 0;
+            }));
+            showGroup("date-past", "count-past", items.filter(function (d) {
+                return !d.done && daysUntil(d.date) < 0;
+            }));
+            showGroup("date-done", "count-done", items.filter(function (d) {
+                return d.done;
+            }));
+            showCalendar(items);
+        }
+
+        document.getElementById("cal-prev").addEventListener("click", function () {
+            calShown = new Date(calShown.getFullYear(), calShown.getMonth() - 1, 1);
+            showCalendar(readDates());
+        });
+        document.getElementById("cal-next").addEventListener("click", function () {
+            calShown = new Date(calShown.getFullYear(), calShown.getMonth() + 1, 1);
+            showCalendar(readDates());
+        });
 
         showDates();
         document.addEventListener("lb:lang", showDates);

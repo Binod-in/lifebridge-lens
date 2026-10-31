@@ -105,10 +105,10 @@
                 "ja": ["年金"]
             },
             "answers": {
-                "en": "Almost everyone must join the pension system (nenkin). Employees pay through their company; others pay at banks and other financial institutions, post offices, or convenience stores with the payment slip, or by bank transfer / Pay-easy — never at the city/ward office counter. Students can apply for the student payment deferral (学生納付特例) at the ward office or pension office.",
-                "ne": "लगभग सबैजना पेन्सन प्रणाली (नेन्किन) मा जोडिनुपर्छ। कर्मचारीले कम्पनीमार्फत तिर्छन्; अरूले भुक्तानी पर्चीले बैंक तथा वित्तीय संस्था, हुलाक वा सुविधा पसलमा तिर्छन्, वा बैंक ट्रान्सफर / Pay-easy बाट तिर्छन् — सहर/वार्ड कार्यालयको काउन्टरमा कहिल्यै तिर्न पाइँदैन। विद्यार्थीले विद्यार्थी भुक्तानी स्थगन (学生納付特例) का लागि वार्ड कार्यालय वा पेन्सन कार्यालयमा आवेदन दिन सक्छन्।",
-                "vi": "Hầu như ai cũng phải tham gia bảo hiểm hưu trí (nenkin). Người đi làm đóng qua công ty; các trường hợp khác đóng tại ngân hàng và các tổ chức tài chính khác, bưu điện hoặc cửa hàng tiện lợi bằng phiếu nộp tiền, hoặc bằng chuyển khoản ngân hàng / Pay-easy — không bao giờ đóng tại quầy văn phòng thành phố/quận. Sinh viên có thể xin hoãn đóng theo diện sinh viên (学生納付特例) tại văn phòng quận hoặc văn phòng hưu trí.",
-                "my": "လူတိုင်းနီးပါး ပင်စင်စနစ် (နန်ကင်း) တွင် ပါဝင်ရပါတယ်။ ဝန်ထမ်းများ ကုမ္ပဏီမှတစ်ဆင့် ပေးပြီး ကျန်သူများ ငွေပေးစာရွက်ဖြင့် ဘဏ်နှင့် အခြားဘဏ္ဍာရေးအဖွဲ့အစည်းများ၊ စာတိုက် သို့မဟုတ် ကွန်ဘိနိတွင် ပေးပြီး၊ သို့မဟုတ် ဘဏ်လွှဲ / Pay-easy ဖြင့် ပေးပါတယ် — မြို့/ရပ်ကွက်ရုံး ကောင်တာတွင် မပေးရပါ။ ကျောင်းသားများက ကျောင်းသားပေးချေမှုရွှေ့ဆိုင်းရေး (学生納付特例) ကို ရပ်ကွက်ရုံး သို့မဟုတ် ပင်စင်ရုံးတွင် လျှောက်ထားနိုင်ပါတယ်။"
+                "en": "Almost everyone must join the pension system (nenkin). Employees pay through their company; others pay at banks and other financial institutions, post offices, or convenience stores with the payment slip, or by bank transfer / Pay-easy. Never at the city/ward office counter. Students can apply for the student payment deferral (学生納付特例) at the ward office or pension office.",
+                "ne": "लगभग सबैजना पेन्सन प्रणाली (नेन्किन) मा जोडिनुपर्छ। कर्मचारीले कम्पनीमार्फत तिर्छन्; अरूले भुक्तानी पर्चीले बैंक तथा वित्तीय संस्था, हुलाक वा सुविधा पसलमा तिर्छन्, वा बैंक ट्रान्सफर / Pay-easy बाट तिर्छन्। सहर/वार्ड कार्यालयको काउन्टरमा कहिल्यै तिर्न पाइँदैन। विद्यार्थीले विद्यार्थी भुक्तानी स्थगन (学生納付特例) का लागि वार्ड कार्यालय वा पेन्सन कार्यालयमा आवेदन दिन सक्छन्।",
+                "vi": "Hầu như ai cũng phải tham gia bảo hiểm hưu trí (nenkin). Người đi làm đóng qua công ty; các trường hợp khác đóng tại ngân hàng và các tổ chức tài chính khác, bưu điện hoặc cửa hàng tiện lợi bằng phiếu nộp tiền, hoặc bằng chuyển khoản ngân hàng / Pay-easy. Không bao giờ đóng tại quầy văn phòng thành phố/quận. Sinh viên có thể xin hoãn đóng theo diện sinh viên (学生納付特例) tại văn phòng quận hoặc văn phòng hưu trí.",
+                "my": "လူတိုင်းနီးပါး ပင်စင်စနစ် (နန်ကင်း) တွင် ပါဝင်ရပါတယ်။ ဝန်ထမ်းများ ကုမ္ပဏီမှတစ်ဆင့် ပေးပြီး ကျန်သူများ ငွေပေးစာရွက်ဖြင့် ဘဏ်နှင့် အခြားဘဏ္ဍာရေးအဖွဲ့အစည်းများ၊ စာတိုက် သို့မဟုတ် ကွန်ဘိနိတွင် ပေးပြီး၊ သို့မဟုတ် ဘဏ်လွှဲ / Pay-easy ဖြင့် ပေးပါတယ်။ မြို့/ရပ်ကွက်ရုံး ကောင်တာတွင် မပေးရပါ။ ကျောင်းသားများက ကျောင်းသားပေးချေမှုရွှေ့ဆိုင်းရေး (学生納付特例) ကို ရပ်ကွက်ရုံး သို့မဟုတ် ပင်စင်ရုံးတွင် လျှောက်ထားနိုင်ပါတယ်။"
             }
         },
         {
@@ -559,7 +559,7 @@
 
     function updateStatus() {
         if (isOffline()) {
-            statusEl.textContent = chatT("chat.offline", "Offline — saved answers only");
+            statusEl.textContent = chatT("chat.offline", "Offline. Saved answers only");
         } else {
             statusEl.textContent = chatT("chat.online", "Online");
         }
