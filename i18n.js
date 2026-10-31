@@ -213,7 +213,9 @@
             "explain.noVoice": "Voice is not available in this browser.",
             "explain.variations": "Practice these",
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
-            "explain.sample.variations": "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)"
+            "explain.sample.variations": "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)",
+            "chat.source": "Source",
+            "chat.general": "General guidance"
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
@@ -413,7 +415,9 @@
             "explain.noVoice": "यो ब्राउजरमा आवाज उपलब्ध छैन।",
             "explain.variations": "यी अभ्यास गर्नुहोस्",
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
-            "explain.sample.variations": "いくらですか。(कति हो?)\nいつまでですか。(कहिलेसम्म हो?)\nどこではらえますか。(कहाँ तिर्न सक्छु?)"
+            "explain.sample.variations": "いくらですか。(कति हो?)\nいつまでですか。(कहिलेसम्म हो?)\nどこではらえますか。(कहाँ तिर्न सक्छु?)",
+            "chat.source": "स्रोत",
+            "chat.general": "सामान्य जानकारी"
         },
         vi: {
             "nav.home": "Trang chủ",
@@ -613,7 +617,9 @@
             "explain.noVoice": "Trình duyệt này không có giọng đọc.",
             "explain.variations": "Hãy luyện tập các câu này",
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
-            "explain.sample.variations": "いくらですか。(Bao nhiêu tiền?)\nいつまでですか。(Đến khi nào?)\nどこではらえますか。(Tôi nộp ở đâu?)"
+            "explain.sample.variations": "いくらですか。(Bao nhiêu tiền?)\nいつまでですか。(Đến khi nào?)\nどこではらえますか。(Tôi nộp ở đâu?)",
+            "chat.source": "Nguồn",
+            "chat.general": "Hướng dẫn chung"
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
@@ -813,7 +819,9 @@
             "explain.noVoice": "ဤဘရောင်ဇာတွင် အသံမရနိုင်ပါ။",
             "explain.variations": "ဒါတွေ လေ့ကျင့်ပါ",
             "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
-            "explain.sample.variations": "いくらですか。(ဘယ်လောက်လဲ?)\nいつまでですか。(ဘယ်တော့အထိလဲ?)\nどこではらえますか。(ဘယ်မှာပေးလို့ရလဲ?)"
+            "explain.sample.variations": "いくらですか。(ဘယ်လောက်လဲ?)\nいつまでですか。(ဘယ်တော့အထိလဲ?)\nどこではらえますか。(ဘယ်မှာပေးလို့ရလဲ?)",
+            "chat.source": "အရင်းအမြစ်",
+            "chat.general": "အထွေထွေလမ်းညွှန်ချက်"
         }
     };
 

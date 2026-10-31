@@ -703,6 +703,12 @@ input, select, textarea {
     color: #5b6880;
 }
 
+.chat-source {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    color: #5b6880;
+}
+
 .chat-time.user {
     align-self: flex-end;
 }
@@ -1298,6 +1304,7 @@ html[data-theme="dark"] .entry-date,
 html[data-theme="dark"] .entry-note,
 html[data-theme="dark"] .upload-privacy,
 html[data-theme="dark"] .chat-time,
+html[data-theme="dark"] .chat-source,
 html[data-theme="dark"] .ai-note {
     color: #aab6ca;
 }

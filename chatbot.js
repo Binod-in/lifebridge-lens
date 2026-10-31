@@ -200,9 +200,9 @@
             "id": "work",
             "links": [],
             "keys": {
-                "en": ["job", "work", "part-time", "part time", "baito", "arubaito", "28 hours", "permission", "interview", "resume"],
+                "en": ["job", "work", "part-time", "part time", "baito", "arubaito", "28 hours", "permission"],
                 "ne": ["काम", "जागिर", "बैतो", "पार्ट", "अनुमति", "२८"],
-                "vi": ["việc", "viec", "làm thêm", "lam them", "giấy phép", "giay phep", "28 giờ", "phỏng vấn"],
+                "vi": ["việc", "viec", "làm thêm", "lam them", "giấy phép", "giay phep", "28 giờ"],
                 "my": ["အလုပ်", "အချိန်ပိုင်း", "ခွင့်ပြုချက်", "၂၈"],
                 "ja": ["仕事", "アルバイト", "許可"]
             },
@@ -228,6 +228,25 @@
                 "ne": "सिटी कार्यालय, विद्यालय वा रोजगारदातामार्फत स्वास्थ्य बीमामा जोडिनुहोस्। क्लिनिक जाँदा माई नम्बर स्वास्थ्य बीमा कार्ड (マイナ保険証) वा 資格確認書 (योग्यता प्रमाणपत्र) लैजानुहोस्।",
                 "vi": "Tham gia bảo hiểm y tế qua văn phòng thành phố, trường học hoặc công ty. Khi đi khám, mang thẻ bảo hiểm y tế My Number (マイナ保険証) hoặc 資格確認書 (giấy chứng nhận đủ điều kiện).",
                 "my": "မြို့ရုံး၊ ကျောင်း သို့မဟုတ် အလုပ်ရှင်မှတစ်ဆင့် ကျန်းမာရေးအာမခံတွင် ပါဝင်ပါ။ ဆေးခန်းသွားလျှင် My Number ကျန်းမာရေးအာမခံကတ် (マイナ保険証) သို့မဟုတ် 資格確認書 (အရည်အချင်းပြည့်မီရေး လက်မှတ်) ယူသွားပါ။"
+            }
+        },
+        {
+            "id": "train-tickets",
+            "links": [],
+            "verified": true,
+            "source": "Japanese railway guidance",
+            "keys": {
+                "en": ["train ticket", "buy train ticket", "buy a ticket", "ticket machine", "vending machine", "fare", "fare adjustment", "shinkansen", "bullet train"],
+                "ne": ["रेल टिकट", "टिकट मेसिन", "भाडा", "सिन्कान्सेन"],
+                "vi": ["vé tàu", "ve tau", "máy bán vé", "giá vé", "gia ve", "shinkansen", "tàu cao tốc"],
+                "my": ["ရထားလက်မှတ်", "လက်မှတ်စက်", "ခရီးစရိတ်", "ရှင်ကန်ဆန်"],
+                "ja": ["切符", "券売機", "運賃", "新幹線"]
+            },
+            "answers": {
+                "en": "Buy train tickets at station vending machines. Touch English, choose your destination, and pay by cash or IC card. If you ride past your fare, use the yellow fare adjustment machine before the exit gate.",
+                "ne": "स्टेसनका टिकट मेसिनबाट रेल टिकट किन्नुहोस्। English छुनुहोस्, गन्तव्य छान्नुहोस्, नगद वा IC कार्डले तिर्नुहोस्। भाडाभन्दा टाढा जानुभयो भने बाहिर निस्कनुअघि पहेँलो भाडा मिलान मेसिन प्रयोग गर्नुहोस्।",
+                "vi": "Hãy mua vé tàu tại máy bán vé ở ga. Chạm English, chọn điểm đến rồi trả bằng tiền mặt hoặc thẻ IC. Nếu đi quá số tiền vé, hãy dùng máy điều chỉnh cước màu vàng trước cổng ra.",
+                "my": "ဘူတာလက်မှတ်စက်များတွင် ရထားလက်မှတ် ဝယ်ပါ။ English ကို နှိပ်၊ ခရီးဆုံးရွေးပြီး ငွေသား သို့မဟုတ် IC ကတ်ဖြင့် ပေးပါ။ လက်မှတ်ခထက် ကျော်သွားပါက ထွက်ပေါက်မတိုင်မီ အဝါရောင် ခညှိစက်ကို သုံးပါ။"
             }
         },
         {
@@ -364,6 +383,116 @@
                 "ne": "भूकम्प जाँदा पहिले टाउको जोगाउनुहोस् र सुरक्षित ठाउँमा जानुहोस्। दमकल वा एम्बुलेन्सका लागि 119 मा फोन गर्नुहोस्। ठेगाना स्पष्ट भन्नुहोस् र आधिकारिक निर्देशन पालना गर्नुहोस्।",
                 "vi": "Khi động đất, trước tiên hãy bảo vệ đầu và di chuyển đến nơi an toàn. Gọi 119 cho cứu hỏa hoặc cấp cứu. Nói rõ vị trí của bạn và làm theo hướng dẫn chính thức.",
                 "my": "ငလျင်လှုပ်လျှင် အရင် ဦးခေါင်းကာကွယ်ပြီး လုံခြုံသောနေရာသို့ရွှေ့ပါ။ မီးသတ်နှင့် လူနာတင်ယာဉ်အတွက် 119 ကိုခေါ်ပါ။ တည်နေရာကို ရှင်းလင်းစွာပြောပြီး တရားဝင်ညွှန်ကြားချက်များ လိုက်နာပါ။"
+            }
+        },
+        {
+            "id": "commuter-pass",
+            "links": [],
+            "verified": true,
+            "source": "Japanese railway guidance",
+            "keys": {
+                "en": ["commuter pass", "teikiken", "teiki", "student pass", "season ticket", "school commute"],
+                "ne": ["कम्युटर पास", "teikiken", "विद्यार्थी पास", "स्कुल पास"],
+                "vi": ["vé tháng", "ve thang", "teikiken", "vé học sinh"],
+                "my": ["ခရီးသည်ကတ်", "ကျောင်းသားကတ်", "teikiken"],
+                "ja": ["定期券", "通学定期"]
+            },
+            "answers": {
+                "en": "A commuter pass (teikiken) covers one route for 1, 3, or 6 months. Students buy the cheaper school pass (tsugaku teiki) at the station office with a student ID and a school certificate. Bring your current pass to renew.",
+                "ne": "कम्युटर पास (teikiken) ले एउटा बाटो 1, 3 वा 6 महिना छोप्छ। विद्यार्थीले स्टेसन कार्यालयमा विद्यार्थी परिचयपत्र र विद्यालय प्रमाणपत्रसहित सस्तो स्कुल पास (tsugaku teiki) किन्छन्। नवीकरण गर्न अहिलेको पास लैजानुहोस्।",
+                "vi": "Vé tháng (teikiken) dùng cho một tuyến trong 1, 3 hoặc 6 tháng. Học sinh sinh viên mua vé học sinh rẻ hơn (tsugaku teiki) tại văn phòng ga bằng thẻ học sinh và giấy xác nhận của trường. Mang vé hiện tại khi gia hạn.",
+                "my": "ခရီးသည်ကတ် (teikiken) က လမ်းကြောင်းတစ်ခုကို 1၊ 3 သို့မဟုတ် 6 လ သုံးနိုင်ပါတယ်။ ကျောင်းသားများ ဘူတာရုံးတွင် ကျောင်းသားကတ်နှင့် ကျောင်းထောက်ခံစာဖြင့် ဈေးသက်သာသော ကျောင်းသားကတ် (tsugaku teiki) ဝယ်ပါ။ သက်တမ်းတိုးလျှင် လက်ရှိကတ် ယူသွားပါ။"
+            }
+        },
+        {
+            "id": "conbini-pay",
+            "links": [],
+            "verified": false,
+            "keys": {
+                "en": ["conbini", "pay at conbini", "convenience store payment", "loppi", "famiport"],
+                "ne": ["कन्बिनि", "सुविधा पसल भुक्तानी"],
+                "vi": ["conbini", "cửa hàng tiện lợi"],
+                "my": ["ကွန်ဘိနိ"],
+                "ja": ["コンビニ", "ロッピー"]
+            },
+            "answers": {
+                "en": "Most bills with a barcode can be paid at any convenience store cashier: hand over the slip and pay in cash. Some bills need a kiosk first: enter the number on the store machine, take the printed ticket to the cashier, and pay there. Always keep the receipt.",
+                "ne": "बारकोड भएका धेरैजसो बिल कुनै पनि सुविधा पसलको क्यासियरमा तिर्न सकिन्छ: पर्ची दिनुहोस् र नगद तिर्नुहोस्। केही बिलमा पहिले मेसिन चाहिन्छ: पसल मेसिनमा नम्बर हाल्नुहोस्, छापिएको टिकट क्यासियरमा लैजानुहोस् र त्यहाँ तिर्नुहोस्। रसिद सधैं राख्नुहोस्।",
+                "vi": "Hầu hết hóa đơn có mã vạch đều nộp được tại quầy bất kỳ cửa hàng tiện lợi nào: đưa phiếu và trả tiền mặt. Một số hóa đơn cần dùng máy kiosk trước: nhập số trên máy, mang phiếu in ra quầy rồi nộp tiền. Luôn giữ lại biên lai.",
+                "my": "ဘားကုဒ်ပါသော ဘေလ်အများစုကို ကွန်ဘိနိတစ်ခုခု ကောင်တာတွင် ပေးနိုင်ပါတယ်: စာရွက်ပေးပြီး ငွေသားပေးပါ။ တချို့ဘေလ်များ စက်အရင်သုံးရပါတယ်: ဆိုင်စက်တွင် နံပါတ်ထည့်ပြီး ရိုက်ထုတ်သောလက်မှတ် ကောင်တာသို့ယူသွားကာ ပေးပါ။ ပြေစာ အမြဲသိမ်းပါ။"
+            }
+        },
+        {
+            "id": "atm-use",
+            "links": [],
+            "verified": false,
+            "keys": {
+                "en": ["atm", "withdraw", "withdrawal", "cash machine", "cash deposit"],
+                "ne": ["एटिएम", "एटीएम", "नगद झिक्ने"],
+                "vi": ["atm", "rút tiền", "rut tien"],
+                "my": ["အေတီအမ်", "ငွေထုတ်"],
+                "ja": ["ATM", "引き出し"]
+            },
+            "answers": {
+                "en": "ATMs are inside banks and most convenience stores. Touch English, insert your card, and follow the screen. Hours and fees depend on your bank and card, so check the screen before you confirm.",
+                "ne": "ATM हरू बैंक र धेरैजसो सुविधा पसलभित्र हुन्छन्। English छुनुहोस्, कार्ड हाल्नुहोस् र स्क्रिन पछ्याउनुहोस्। समय र शुल्क बैंक र कार्डअनुसार फरक हुन्छ, त्यसैले पुष्टि गर्नुअघि स्क्रिन हेर्नुहोस्।",
+                "vi": "Máy ATM có trong ngân hàng và hầu hết cửa hàng tiện lợi. Chạm English, cho thẻ vào rồi làm theo màn hình. Giờ hoạt động và phí tùy ngân hàng và thẻ, vì vậy hãy xem kỹ màn hình trước khi xác nhận.",
+                "my": "ATM များ ဘဏ်များနှင့် ကွန်ဘိနိအများစုတွင် ရှိပါတယ်။ English ကို နှိပ်ပြီး ကတ်ထည့်ကာ စခရင်အတိုင်း လုပ်ပါ။ အချိန်နှင့် အခကြေးငွေက ဘဏ်နှင့် ကတ်အလိုက် ကွဲပြားသဖြင့် အတည်မပြုမီ စခရင်ကို စစ်ပါ။"
+            }
+        },
+        {
+            "id": "lost-passport",
+            "links": [],
+            "verified": true,
+            "source": "Police and embassy guidance",
+            "keys": {
+                "en": ["passport", "lost passport", "embassy"],
+                "ne": ["राहदानी", "पासपोर्ट", "राहदानी हरायो", "दूतावास"],
+                "vi": ["hộ chiếu", "passport", "mất hộ chiếu", "đại sứ quán"],
+                "my": ["ပတ်စ်ပို့", "နိုင်ငံကူးလက်မှတ်", "သံရုံး"],
+                "ja": ["パスポート", "大使館"]
+            },
+            "answers": {
+                "en": "Report a lost passport to the police first and keep the report paper. Then apply for a replacement at your embassy in Japan with the report, a photo, and your ID. Ask the embassy what else your country needs.",
+                "ne": "राहदानी हराए पहिले प्रहरीमा रिपोर्ट गर्नुहोस् र रिपोर्ट कागज राख्नुहोस्। अनि रिपोर्ट, फोटो र परिचयपत्रसहित जापानस्थित आफ्नो दूतावासमा नयाँका लागि आवेदन दिनुहोस्। तपाईंको देशलाई अरू के चाहिन्छ दूतावाससँग सोध्नुहोस्।",
+                "vi": "Nếu mất hộ chiếu, hãy báo cảnh sát trước và giữ biên bản. Sau đó xin cấp lại tại đại sứ quán của bạn ở Nhật, mang theo biên bản, ảnh thẻ và giấy tờ. Hãy hỏi đại sứ quán về các giấy tờ khác.",
+                "my": "ပတ်စ်ပို့ ပျောက်ပါက ရဲစခန်းတွင် အရင်တိုင်ပြီး တိုင်စာသိမ်းပါ။ ပြီးလျှင် တိုင်စာ၊ ဓာတ်ပုံနှင့် မှတ်ပုံတင်ဖြင့် ဂျပန်ရှိ သံရုံးတွင် အသစ်လျှောက်ပါ။ သင့်နိုင်ငံအတွက် တခြားဘာလိုသည်ကို သံရုံးတွင် မေးပါ။"
+            }
+        },
+        {
+            "id": "job-resume",
+            "links": [],
+            "verified": false,
+            "keys": {
+                "en": ["resume", "rirekisho", "cv", "curriculum vitae", "job application", "resume photo"],
+                "ne": ["बायोडाटा", "रिजुमे", "जागिर आवेदन"],
+                "vi": ["sơ yếu lý lịch", "so yeu ly lich", "rirekisho", "đơn xin việc", "don xin viec"],
+                "my": ["ကိုယ်ရေးအကျဉ်း", "rirekisho", "အလုပ်လျှောက်လွှာ"],
+                "ja": ["履歴書"]
+            },
+            "answers": {
+                "en": "Japanese companies often ask for a rirekisho, a fixed-format resume sold at stationery stores and conbini. Fill it by hand in black pen, attach a formal photo, and write true dates and history. Ask your school office to check it before you send it.",
+                "ne": "जापानी कम्पनीले प्रायः rirekisho माग्छन्, स्टेशनरी पसल र कन्बिनिमा पाइने निश्चित ढाँचाको बायोडाटा। कालो कलमले हातले भर्नुहोस्, औपचारिक फोटो टाँस्नुहोस् र साँचो मिति र विवरण लेख्नुहोस्। पठाउनुअघि विद्यालय कार्यालयलाई जाँच्न लगाउनुहोस्।",
+                "vi": "Công ty Nhật thường yêu cầu rirekisho, mẫu hồ sơ theo form bán ở hiệu văn phòng phẩm và conbini. Điền tay bằng bút đen, dán ảnh thẻ nghiêm túc và ghi ngày tháng, quá trình thật. Nhờ văn phòng trường kiểm tra trước khi gửi.",
+                "my": "ဂျပန်ကုမ္ပဏီများက ပုံမှန်အားဖြင့် rirekisho တောင်းလေ့ရှိပြီး စာရေးကိရိယာဆိုင်နှင့် ကွန်ဘိနိတွင် ဝယ်နိုင်သော ပုံသေကိုယ်ရေးအကျဉ်း ဖြစ်ပါတယ်။ ဘောပင်အနက်ဖြင့် လက်ရေးဖြည့်ပြီး တရားဝင်ဓာတ်ပုံကပ်ကာ ရက်စွဲအမှန်များ ရေးပါ။ မပို့မီ ကျောင်းရုံးခန်းတွင် စစ်ခိုင်းပါ။"
+            }
+        },
+        {
+            "id": "job-interview",
+            "links": [],
+            "verified": false,
+            "keys": {
+                "en": ["interview", "job interview", "keigo", "job manners"],
+                "ne": ["इन्टरभ्यु", "अन्तर्वार्ता", "जागिर अन्तर्वार्ता"],
+                "vi": ["phỏng vấn", "phong van", "keigo"],
+                "my": ["အင်တာဗျူး", "လူတွေ့စစ်ဆေးမှု"],
+                "ja": ["面接"]
+            },
+            "answers": {
+                "en": "Arrive 10 minutes early in a dark suit. Greet with a bow, knock before entering, and sit only after they invite you. Use polite words, bring your resume, and prepare one question to ask them.",
+                "ne": "गाढा सुटमा 10 मिनेट अगाडि पुग्नुहोस्। झुकेर नमस्कार गर्नुहोस्, पस्नुअघि ढोका ढकढक्याउनुहोस् र उनीहरूले भनेपछि मात्र बस्नुहोस्। शिष्ट शब्द प्रयोग गर्नुहोस्, बायोडाटा लैजानुहोस् र एउटा प्रश्न तयार गर्नुहोस्।",
+                "vi": "Hãy đến sớm 10 phút với vest tối màu. Chào bằng cách cúi đầu, gõ cửa trước khi vào và chỉ ngồi khi được mời. Dùng lời lẽ lịch sự, mang hồ sơ và chuẩn bị một câu hỏi cho họ.",
+                "my": "အရောင်ရင့်ဝတ်စုံဖြင့် 10 မိနစ်စော ရောက်အောင်သွားပါ။ ဦးညွှတ်နှုတ်ဆက်ပြီး မဝင်မီ တံခါးခေါက်၊ ဖိတ်မှ ထိုင်ပါ။ ယဉ်ကျေးသောစကားသုံးပြီး ကိုယ်ရေးအကျဉ်းယူသွား၊ သူတို့ကို မေးမည့်မေးခွန်းတစ်ခု ပြင်ဆင်ပါ။"
             }
         },
         {
@@ -534,12 +663,27 @@
         }
     }
 
+    // Verified answers name their source; everything else is
+    // labelled general guidance, so users know the difference.
+    function addSource(intent) {
+        var line = document.createElement("div");
+        line.className = "chat-source";
+        if (intent && intent.verified === true && intent.source) {
+            line.textContent = chatT("chat.source", "Source") + ": " + intent.source;
+        } else {
+            line.textContent = chatT("chat.general", "General guidance");
+        }
+        msgs.appendChild(line);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
     function answer(inputText) {
         var intent = findBest(inputText);
         if (!intent) return;
         var lang = chatLang();
         var answers = intent.answers || {};
         addMsg(answers[lang] || answers.en || "", "bot");
+        addSource(intent);
         addLinks(intent.links);
     }
 

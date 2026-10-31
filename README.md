@@ -21,7 +21,7 @@ get a plain-language explanation, follow-up answers, and saved deadlines.
 - Communication tutor: every scan includes a staff phrase with hiragana reading, read-aloud, and practice sentences
 - Follow-up chat: ask questions about the same notice, with memory of earlier questions
 - Save deadline: check the due date and add it to My Deadlines in one tap
-- Offline pages + offline chatbot: core pages and keyword answers work without internet
+- Offline pages + offline chatbot: core pages and keyword answers work without internet, covering transport, payments, emergencies, and jobs, with verified answers naming their source
 - Money tracker: income, spending and savings goals, stored in your browser, with optional AI explanations of monthly totals (totals only, notes never leave the browser)
 - 4-language UI: English, Nepali, Vietnamese and Burmese
 - Dark mode
