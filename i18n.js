@@ -202,7 +202,18 @@
             "explain.hCodes": "Codes on this slip",
             "explain.hPaySteps": "Pay step by step",
             "explain.sample.codes": "Barcode at the bottom for the store cashier. Customer number on the right for bank transfer.",
-            "explain.sample.paysteps": "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt."
+            "explain.sample.paysteps": "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt.",
+            "tracker.aiTitle": "AI spending advice",
+            "tracker.aiLead": "Get a short explanation of this month from your totals. Your notes stay in this browser.",
+            "tracker.aiButton": "Explain my spending",
+            "tracker.aiWait": "Reading your totals...",
+            "tracker.aiEmpty": "Add some entries for this month first.",
+            "tracker.aiError": "Sorry, it did not work. Please try again.",
+            "explain.listen": "Listen",
+            "explain.noVoice": "Voice is not available in this browser.",
+            "explain.variations": "Practice these",
+            "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
+            "explain.sample.variations": "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)"
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
@@ -391,7 +402,18 @@
             "explain.hCodes": "यस पर्चीका कोडहरू",
             "explain.hPaySteps": "चरणबद्ध तिर्नुहोस्",
             "explain.sample.codes": "पसल क्यासियरका लागि तल बारकोड। बैंक ट्रान्सफरका लागि दायाँ ग्राहक नम्बर।",
-            "explain.sample.paysteps": "पसल: 1. यो पर्ची कुनै पनि सुविधा पसलमा लैजानुहोस्। 2. क्यासियरमा तिर्नुहोस्। 3. रसिद राख्नुहोस्।"
+            "explain.sample.paysteps": "पसल: 1. यो पर्ची कुनै पनि सुविधा पसलमा लैजानुहोस्। 2. क्यासियरमा तिर्नुहोस्। 3. रसिद राख्नुहोस्।",
+            "tracker.aiTitle": "AI खर्च सल्लाह",
+            "tracker.aiLead": "जम्माबाट यो महिनाको छोटो व्याख्या पाउनुहोस्। तपाईंका नोट यही ब्राउजरमा रहन्छन्।",
+            "tracker.aiButton": "मेरो खर्च बुझाइदिनुहोस्",
+            "tracker.aiWait": "जम्मा पढ्दै...",
+            "tracker.aiEmpty": "पहिले यो महिनाका प्रविष्टि थप्नुहोस्।",
+            "tracker.aiError": "माफ गर्नुहोस्, काम भएन। कृपया फेरि प्रयास गर्नुहोस्।",
+            "explain.listen": "सुन्नुहोस्",
+            "explain.noVoice": "यो ब्राउजरमा आवाज उपलब्ध छैन।",
+            "explain.variations": "यी अभ्यास गर्नुहोस्",
+            "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
+            "explain.sample.variations": "いくらですか。(कति हो?)\nいつまでですか。(कहिलेसम्म हो?)\nどこではらえますか。(कहाँ तिर्न सक्छु?)"
         },
         vi: {
             "nav.home": "Trang chủ",
@@ -580,7 +602,18 @@
             "explain.hCodes": "Các mã trên phiếu",
             "explain.hPaySteps": "Nộp tiền từng bước",
             "explain.sample.codes": "Mã vạch ở cuối phiếu cho thu ngân cửa hàng. Mã khách hàng bên phải để chuyển khoản ngân hàng.",
-            "explain.sample.paysteps": "Cửa hàng: 1. Mang phiếu này đến bất kỳ cửa hàng tiện lợi nào. 2. Nộp tại quầy thu ngân. 3. Giữ lại biên lai."
+            "explain.sample.paysteps": "Cửa hàng: 1. Mang phiếu này đến bất kỳ cửa hàng tiện lợi nào. 2. Nộp tại quầy thu ngân. 3. Giữ lại biên lai.",
+            "tracker.aiTitle": "AI tư vấn chi tiêu",
+            "tracker.aiLead": "Nhận lời giải thích ngắn về tháng này từ các tổng số của bạn. Ghi chú của bạn vẫn ở trên trình duyệt này.",
+            "tracker.aiButton": "Giải thích chi tiêu của tôi",
+            "tracker.aiWait": "Đang đọc các tổng số...",
+            "tracker.aiEmpty": "Hãy thêm các mục cho tháng này trước.",
+            "tracker.aiError": "Xin lỗi, không thành công. Vui lòng thử lại.",
+            "explain.listen": "Nghe",
+            "explain.noVoice": "Trình duyệt này không có giọng đọc.",
+            "explain.variations": "Hãy luyện tập các câu này",
+            "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
+            "explain.sample.variations": "いくらですか。(Bao nhiêu tiền?)\nいつまでですか。(Đến khi nào?)\nどこではらえますか。(Tôi nộp ở đâu?)"
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
@@ -769,7 +802,18 @@
             "explain.hCodes": "ဤစာရွက်ပေါ်က ကုဒ်များ",
             "explain.hPaySteps": "အဆင့်ဆင့်ပေးပါ",
             "explain.sample.codes": "ဆိုင်ကောင်တာအတွက် အောက်ခြေက ဘားကုဒ်။ ဘဏ်လွှဲအတွက် ညာဘက်က ဖောက်သည်နံပါတ်။",
-            "explain.sample.paysteps": "ဆိုင်: 1. ဤစာရွက်ကို ကွန်ဘိနိတစ်ခုခုသို့ ယူသွားပါ။ 2. ကောင်တာတွင် ပေးပါ။ 3. ပြေစာသိမ်းပါ။"
+            "explain.sample.paysteps": "ဆိုင်: 1. ဤစာရွက်ကို ကွန်ဘိနိတစ်ခုခုသို့ ယူသွားပါ။ 2. ကောင်တာတွင် ပေးပါ။ 3. ပြေစာသိမ်းပါ။",
+            "tracker.aiTitle": "AI ငွေသုံးဆိုင်ရာ အကြံဉာဏ်",
+            "tracker.aiLead": "စုစုပေါင်းများမှ ဒီလအကြောင်း အကျဉ်းရှင်းပြချက် ရယူပါ။ သင့်မှတ်စုများ ဤဘရောင်ဇာထဲမှာပဲ ရှိနေပါမယ်။",
+            "tracker.aiButton": "ကျွန်တော့်အသုံးစရိတ် ရှင်းပြပါ",
+            "tracker.aiWait": "စုစုပေါင်းများ ဖတ်နေပါတယ်...",
+            "tracker.aiEmpty": "ဒီလအတွက် မှတ်တမ်းများ အရင်ထည့်ပါ။",
+            "tracker.aiError": "စိတ်မကောင်းပါဘူး၊ မအောင်မြင်ပါ။ ထပ်ကြိုးစားပါ။",
+            "explain.listen": "နားထောင်ပါ",
+            "explain.noVoice": "ဤဘရောင်ဇာတွင် အသံမရနိုင်ပါ။",
+            "explain.variations": "ဒါတွေ လေ့ကျင့်ပါ",
+            "explain.sample.reading": "このほけんりょうのしはらいについてそうだんしたいです。",
+            "explain.sample.variations": "いくらですか。(ဘယ်လောက်လဲ?)\nいつまでですか。(ဘယ်တော့အထိလဲ?)\nどこではらえますか。(ဘယ်မှာပေးလို့ရလဲ?)"
         }
     };
 

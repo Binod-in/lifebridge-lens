@@ -378,6 +378,7 @@ def explain():
         '{"what": "...", "why": "...", "importance": "...", '
         '"next_steps": "...", "deadline": "...", "amount": "...", '
         '"staff_phrase": "...", "staff_phrase_meaning": "...", '
+        '"staff_reading": "...", "staff_variations": "...", '
         '"payment_methods": "...", "consequences": "...", '
         '"markers": [{"x": 50, "y": 30, "label": "..."}], '
         '"payment_codes": "...", "payment_steps": "...", '
@@ -419,6 +420,12 @@ def explain():
         "words each.\n"
         "- 'staff_phrase': ONE short, polite Japanese sentence the user can "
         "show at the office counter about THIS notice, or an empty string.\n"
+        "- 'staff_reading': how to read 'staff_phrase', written in hiragana "
+        "only. Empty string when there is no staff phrase.\n"
+        "- 'staff_variations': 3 short practice sentences for this "
+        "situation, one per line. Each line is a Japanese sentence "
+        "followed by its meaning in " + lang_name + " in brackets. Keep "
+        "sentences polite and simple.\n"
         f"- 'staff_phrase_meaning': what 'staff_phrase' means, in {lang_name}.\n"
         "- 'deadline_date': the due date in YYYY-MM-DD format "
         "if the notice "
@@ -553,6 +560,96 @@ def ask():
         return jsonify({"error": "Unexpected reply from Meta API"}), 502
 
     return jsonify({"answer": answer})
+
+
+# /spending-advice input caps.
+SPENDING_LIMIT = int(os.environ.get("RATE_LIMIT_SPENDING", "30"))
+MAX_ADVICE_GOALS = 20
+
+
+def _non_negative_number(value):
+    return (isinstance(value, (int, float)) and
+            not isinstance(value, bool) and value >= 0)
+
+
+@app.post("/spending-advice")
+def spending_advice():
+    """Short AI explanation of one month, from totals only.
+
+    The browser sends monthly totals and goal progress numbers. Notes
+    and goal names are never read here, even if they are sent.
+    """
+    denied = _check_access()
+    if denied is not None:
+        return denied
+    if _rate_limited(_client_bucket("advice"), SPENDING_LIMIT):
+        return _too_many_requests()
+
+    if not API_KEY:
+        return jsonify({"error": "Server is missing META_API_KEY"}), 500
+
+    body = request.get_json(silent=True) or {}
+    lang = body.get("language", "en")
+    lang_name = LANG_NAMES.get(lang, "English")
+    month = body.get("month", "")
+    if not re.match(r"^\d{4}-\d{2}$", str(month)):
+        return jsonify({"error": "Month must look like 2026-11."}), 400
+
+    totals = {}
+    for key in ("income", "expense", "saving"):
+        value = body.get(key)
+        if not _non_negative_number(value):
+            return jsonify({"error": "Totals must be numbers zero or more."}), 400
+        totals[key] = value
+
+    goals = body.get("goals", [])
+    if not isinstance(goals, list) or len(goals) > MAX_ADVICE_GOALS:
+        return jsonify({"error": "Goals must be a list of at most 20."}), 400
+    goal_lines = []
+    for goal in goals:
+        if not isinstance(goal, dict):
+            return jsonify({"error": "Each goal needs a target and saved amount."}), 400
+        target = goal.get("target")
+        saved = goal.get("saved")
+        if (not _non_negative_number(target) or target <= 0 or
+                not _non_negative_number(saved)):
+            return jsonify({"error": "Each goal needs a target and saved amount."}), 400
+        pct = min(100, round(saved / target * 100))
+        goal_lines.append(
+            "target %d yen, saved %d yen (%d%%)" % (target, saved, pct))
+
+    goal_text = "No savings goals.\n"
+    if goal_lines:
+        goal_text = "Savings goals: " + "; ".join(goal_lines) + ".\n"
+    prompt = (
+        "You are a friendly money coach for a newcomer in Japan. Explain "
+        "their month in simple words.\n\n"
+        f"Write the answer in {lang_name}.\n"
+        f"Month: {month}. Earned: {int(totals['income'])} yen. "
+        f"Spent: {int(totals['expense'])} yen. "
+        f"Put aside as savings: {int(totals['saving'])} yen.\n"
+        + goal_text +
+        "\nRules:\n"
+        "- Give 3 short observations and 1 practical tip.\n"
+        "- Use only the numbers above. Never invent transactions.\n"
+        "- Keep it short and simple.\n"
+    )
+
+    payload = {
+        "model": MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
+    ok, data = _call_meta_api(payload)
+    if not ok:
+        return jsonify({"error": data}), 502
+
+    try:
+        answer = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return jsonify({"error": "Unexpected reply from Meta API"}), 502
+
+    return jsonify({"advice": answer})
 
 
 if __name__ == "__main__":

@@ -541,9 +541,15 @@
                 <article class="result-card staff-card">
                     <h3><span data-i18n="explain.hStaff">Show this to the staff</span></h3>
                     <p id="result-staff" class="staff-phrase" lang="ja"></p>
+                    <p id="result-staff-reading" class="staff-meaning" lang="ja"></p>
                     <p id="result-staff-meaning" class="staff-meaning"></p>
                     <button type="button" id="copy-staff-btn" class="btn" data-i18n="explain.copy">Copy</button>
+                    <button type="button" id="listen-staff-btn" class="btn" data-i18n="explain.listen">Listen</button>
                     <span id="copy-staff-msg" role="status"></span>
+                    <div id="staff-practice">
+                        <p class="staff-practice-title"><strong data-i18n="explain.variations">Practice these</strong></p>
+                        <ul id="result-variations" class="staff-vars"></ul>
+                    </div>
                 </article>
                 <article class="result-card check-card">
                     <h3><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="explain.hCheck">Things to check</span></h3>
@@ -853,6 +859,42 @@
             document.getElementById("copy-staff-msg").textContent = "";
         }
 
+        // Staff practice: hiragana reading plus practice sentences.
+        function practiceFromReply(text) {
+            const out = { reading: "", variations: [] };
+            const raw = String(text || "");
+            const first = raw.indexOf("{");
+            const last = raw.lastIndexOf("}");
+            if (first < 0 || last <= first) return out;
+            try {
+                const data = JSON.parse(raw.slice(first, last + 1));
+                out.reading = cleanText(data.staff_reading).slice(0, 120);
+                const lines = cleanText(data.staff_variations).split(/\n+/);
+                for (const line of lines) {
+                    const clean = line.replace(/^\s*(?:\d+[.)]|-|\*)\s*/, "").trim().slice(0, 120);
+                    if (clean) out.variations.push(clean);
+                }
+            } catch (e) { /* not JSON: leave empty */ }
+            return out;
+        }
+
+        // Fill the reading line and practice list. Empty practice
+        // hides the whole practice block.
+        function fillStaffPractice(reading, variations) {
+            document.getElementById("result-staff-reading").textContent = reading || "";
+            const list = document.getElementById("result-variations");
+            list.replaceChildren();
+            const lines = Array.isArray(variations) ? variations : [];
+            for (const line of lines.slice(0, 5)) {
+                if (!line) continue;
+                const li = document.createElement("li");
+                li.textContent = line;
+                list.appendChild(li);
+            }
+            document.getElementById("staff-practice").style.display =
+                (reading || list.children.length) ? "" : "none";
+        }
+
         // Markers: numbered points from the AI reply. Every marker is
         // checked before display: x and y must be 0-100, the label must
         // be short text, and only the first 5 are kept.
@@ -1027,6 +1069,25 @@
 
         saveDateCal.addEventListener("click", () => {
             downloadIcs(lastSavedTitle, lastSavedDate);
+        });
+
+        // Read the staff phrase aloud with the browser voice.
+        document.getElementById("listen-staff-btn").addEventListener("click", () => {
+            const phrase = document.getElementById("result-staff").textContent;
+            const msg = document.getElementById("copy-staff-msg");
+            try {
+                if (!("speechSynthesis" in window)) {
+                    msg.textContent = t("explain.noVoice", "Voice is not available in this browser.");
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                const said = new SpeechSynthesisUtterance(phrase);
+                said.lang = "ja-JP";
+                window.speechSynthesis.speak(said);
+                msg.textContent = "";
+            } catch (e) {
+                msg.textContent = t("explain.noVoice", "Voice is not available in this browser.");
+            }
         });
 
         // Copy the Japanese staff phrase to the clipboard.
@@ -1206,6 +1267,8 @@
                 }
                 const staff = staffFromReply(json.text || "");
                 fillStaff(staff.phrase, staff.meaning);
+                const practice = practiceFromReply(json.text || "");
+                fillStaffPractice(practice.reading, practice.variations);
                 document.getElementById("result-card").style.display = "block";
                 document.getElementById("sample-tag").style.display = "none";
                 sampleShowing = false;
@@ -1323,6 +1386,7 @@
             document.getElementById("result-paysteps").textContent = t("explain.sample.paysteps", "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt.");
             document.getElementById("result-consequences").textContent = t("explain.sample.consequences", "A late fee may be added. If you cannot pay on time, ask the city office for advice.");
             fillStaff(t("explain.sample.staff", "この保険料の支払いについて相談したいです。"), t("explain.sample.staffMeaning", "I want to ask about paying this insurance bill."));
+            fillStaffPractice(t("explain.sample.reading", "このほけんりょうのしはらいについてそうだんしたいです。"), t("explain.sample.variations", "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)").split("\n"));
             document.getElementById("result-check").textContent = t("explain.sample.check", "Your name and address. The amount and due date.");
         }
 

@@ -1071,6 +1071,22 @@ html.chat-open body {
     color: #5b6880;
 }
 
+#result-staff-reading:empty {
+    display: none;
+}
+
+.staff-practice-title {
+    margin: 12px 0 4px;
+}
+
+.staff-vars {
+    margin: 0;
+    padding-left: 24px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #425473;
+}
+
 /* --- Loading card shown while a scan runs --- */
 .load-card {
     margin-top: 16px;
@@ -1408,6 +1424,10 @@ html[data-theme="dark"] .staff-card {
 
 html[data-theme="dark"] .staff-meaning {
     color: #aab6ca;
+}
+
+html[data-theme="dark"] .staff-vars {
+    color: #d3dbe8;
 }
 
 html[data-theme="dark"] .marker-stage img {
