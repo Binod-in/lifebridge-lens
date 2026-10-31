@@ -191,7 +191,14 @@
             "explain.hPayment": "How to pay",
             "explain.hConsequences": "If you miss the deadline",
             "explain.sample.payment": "Pay at a bank or convenience store with this slip. Keep the receipt.",
-            "explain.sample.consequences": "A late fee may be added. If you cannot pay on time, ask the city office for advice."
+            "explain.sample.consequences": "A late fee may be added. If you cannot pay on time, ask the city office for advice.",
+            "explain.modeLabel": "What are you scanning?",
+            "explain.modeNotice": "Notice or letter",
+            "explain.modeMachine": "Machine (tickets, ATM)",
+            "explain.modeForm": "Form to fill in",
+            "explain.modeSign": "Sign or poster",
+            "explain.markersTitle": "What to look at",
+            "explain.markedPhotoAlt": "Your photo with numbered markers"
         },
         ne: {
             "nav.home": "गृहपृष्ठ",
@@ -369,7 +376,14 @@
             "explain.hPayment": "कसरी तिर्ने",
             "explain.hConsequences": "म्याद छुटेमा के हुन्छ",
             "explain.sample.payment": "यो पर्चीले बैंक वा सुविधा पसलमा तिर्नुहोस्। रसिद राख्नुहोस्।",
-            "explain.sample.consequences": "ढिलो शुल्क लाग्न सक्छ। समयमा तिर्न नसके सहर कार्यालयसँग सल्लाह लिनुहोस्।"
+            "explain.sample.consequences": "ढिलो शुल्क लाग्न सक्छ। समयमा तिर्न नसके सहर कार्यालयसँग सल्लाह लिनुहोस्।",
+            "explain.modeLabel": "के स्क्यान गर्दै हुनुहुन्छ?",
+            "explain.modeNotice": "सूचना वा पत्र",
+            "explain.modeMachine": "मेसिन (टिकट, ATM)",
+            "explain.modeForm": "भर्नुपर्ने फारम",
+            "explain.modeSign": "साइन वा पोस्टर",
+            "explain.markersTitle": "के हेर्ने",
+            "explain.markedPhotoAlt": "नम्बर लगाइएको तपाईंको फोटो"
         },
         vi: {
             "nav.home": "Trang chủ",
@@ -547,7 +561,14 @@
             "explain.hPayment": "Cách nộp tiền",
             "explain.hConsequences": "Nếu trễ hạn thì sao",
             "explain.sample.payment": "Hãy nộp tại ngân hàng hoặc cửa hàng tiện lợi bằng phiếu này. Giữ lại biên lai.",
-            "explain.sample.consequences": "Bạn có thể bị cộng phí trễ hạn. Nếu không nộp kịp, hãy hỏi văn phòng thành phố."
+            "explain.sample.consequences": "Bạn có thể bị cộng phí trễ hạn. Nếu không nộp kịp, hãy hỏi văn phòng thành phố.",
+            "explain.modeLabel": "Bạn đang quét gì?",
+            "explain.modeNotice": "Thông báo hoặc thư",
+            "explain.modeMachine": "Máy (vé, ATM)",
+            "explain.modeForm": "Mẫu đơn cần điền",
+            "explain.modeSign": "Biển hiệu hoặc áp phích",
+            "explain.markersTitle": "Những điểm cần nhìn",
+            "explain.markedPhotoAlt": "Ảnh của bạn với các điểm đánh số"
         },
         my: {
             "nav.home": "ပင်မစာမျက်နှာ",
@@ -725,7 +746,14 @@
             "explain.hPayment": "ဘယ်လိုပေးရမလဲ",
             "explain.hConsequences": "သတ်မှတ်ရက်ကျော်ရင် ဘာဖြစ်မလဲ",
             "explain.sample.payment": "ဤစာရွက်ဖြင့် ဘဏ် သို့မဟုတ် ကွန်ဘိနိတွင် ပေးပါ။ ပြေစာသိမ်းပါ။",
-            "explain.sample.consequences": "နောက်ကျဒဏ်ကြေး ထပ်တိုးနိုင်ပါတယ်။ အချိန်မီမပေးနိုင်ပါက မြို့တော်ရုံးတွင် မေးပါ။"
+            "explain.sample.consequences": "နောက်ကျဒဏ်ကြေး ထပ်တိုးနိုင်ပါတယ်။ အချိန်မီမပေးနိုင်ပါက မြို့တော်ရုံးတွင် မေးပါ။",
+            "explain.modeLabel": "ဘာကို စကင်န်ဖတ်နေသလဲ?",
+            "explain.modeNotice": "အကြောင်းကြားစာ (သို့) စာ",
+            "explain.modeMachine": "စက် (လက်မှတ်၊ ATM)",
+            "explain.modeForm": "ဖြည့်ရမည့်ပုံစံ",
+            "explain.modeSign": "ဆိုင်းဘုတ် (သို့) ပိုစတာ",
+            "explain.markersTitle": "ကြည့်ရမည့်နေရာများ",
+            "explain.markedPhotoAlt": "နံပါတ်ပါသော သင့်ဓာတ်ပုံ"
         }
     };
 

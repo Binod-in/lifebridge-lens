@@ -1004,6 +1004,58 @@ html.chat-open body {
     border-left: 4px solid #b45309;
 }
 
+/* Marked photo: numbered dots over the uploaded image. The stage
+ * shrink-wraps the image and dots use percentage positions, so they
+ * stay aligned at any size. */
+.marked-photo {
+    margin: 0 0 16px;
+}
+
+.marker-stage {
+    position: relative;
+}
+
+.marker-stage img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #e5ecf5;
+    background-color: #f5f9ff;
+}
+
+#marker-layer {
+    position: absolute;
+    inset: 0;
+}
+
+.marker-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    background: #1261ff;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2px solid #ffffff;
+}
+
+.marked-photo figcaption {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.marker-list {
+    margin: 4px 0 0;
+    padding-left: 24px;
+    color: #425473;
+    line-height: 1.6;
+}
+
 /* Staff card: thick primary border, big Japanese sentence. */
 .staff-card {
     border: 2px solid #1261ff;
@@ -1356,6 +1408,21 @@ html[data-theme="dark"] .staff-card {
 
 html[data-theme="dark"] .staff-meaning {
     color: #aab6ca;
+}
+
+html[data-theme="dark"] .marker-stage img {
+    border-color: #33456e;
+    background-color: #101d3d;
+}
+
+html[data-theme="dark"] .marker-list {
+    color: #d3dbe8;
+}
+
+html[data-theme="dark"] #mode {
+    background-color: #101d3d;
+    border-color: #33456e;
+    color: #e6ecf7;
 }
 
 html[data-theme="dark"] .chip {

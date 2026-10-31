@@ -173,7 +173,8 @@
             vertical-align: middle;
         }
 
-        #language {
+        #language,
+        #mode {
             width: 100%;
             min-height: 52px;
             padding: 13px 14px;
@@ -428,6 +429,16 @@
                     </select>
                 </div>
 
+                <div class="field">
+                    <label class="step-label" for="mode" data-i18n="explain.modeLabel">What are you scanning?</label>
+                    <select id="mode" name="mode">
+                        <option value="notice" data-i18n="explain.modeNotice">Notice or letter</option>
+                        <option value="machine" data-i18n="explain.modeMachine">Machine (tickets, ATM)</option>
+                        <option value="form" data-i18n="explain.modeForm">Form to fill in</option>
+                        <option value="sign" data-i18n="explain.modeSign">Sign or poster</option>
+                    </select>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-prim" id="explain-btn" data-i18n="explain.submit">Scan notice</button>
                     <a href="dates.html" class="btn" id="view-dates-btn" data-i18n="explain.viewDatesPage">View Important Dates</a>
@@ -455,6 +466,16 @@
 
         <section class="card" id="result-card" style="display:none;">
             <h2><span data-i18n="explain.resultTitle">Your explanation</span> <span id="sample-tag" data-i18n="explain.sampleTag" style="display:none;">Sample</span></h2>
+            <figure class="marked-photo" id="marked-photo-wrap" style="display:none;">
+                <div class="marker-stage">
+                    <img id="marked-photo" alt="" data-i18n-alt="explain.markedPhotoAlt">
+                    <div id="marker-layer" aria-hidden="true"></div>
+                </div>
+                <figcaption>
+                    <strong data-i18n="explain.markersTitle">What to look at</strong>
+                    <ol id="marker-list" class="marker-list"></ol>
+                </figcaption>
+            </figure>
             <div class="summary-bar" id="summary-bar" style="display:none;">
                 <div class="summary-item">
                     <span class="summary-label" data-i18n="explain.hDeadline">Deadline</span>
@@ -822,6 +843,63 @@
             document.getElementById("copy-staff-msg").textContent = "";
         }
 
+        // Markers: numbered points from the AI reply. Every marker is
+        // checked before display: x and y must be 0-100, the label must
+        // be short text, and only the first 5 are kept.
+        function markersFromReply(text) {
+            const raw = String(text || "");
+            const first = raw.indexOf("{");
+            const last = raw.lastIndexOf("}");
+            if (first < 0 || last <= first) return [];
+            let data = null;
+            try {
+                data = JSON.parse(raw.slice(first, last + 1));
+            } catch (e) { return []; }
+            if (!data || !Array.isArray(data.markers)) return [];
+            const out = [];
+            for (const m of data.markers) {
+                if (out.length >= 5) break;
+                if (!m || typeof m !== "object") continue;
+                const x = +m.x;
+                const y = +m.y;
+                const label = cleanText(m.label).slice(0, 60);
+                if (!isFinite(x) || !isFinite(y)) continue;
+                if (x < 0 || x > 100 || y < 0 || y > 100) continue;
+                if (!label) continue;
+                out.push({ x: x, y: y, label: label });
+            }
+            return out;
+        }
+
+        // Draw numbered dots over the uploaded photo. Dots use percentage
+        // positions, so they stay aligned when the image resizes.
+        function showMarkers(markers) {
+            const wrap = document.getElementById("marked-photo-wrap");
+            const layer = document.getElementById("marker-layer");
+            const list = document.getElementById("marker-list");
+            layer.replaceChildren();
+            list.replaceChildren();
+            if (!markers.length || !lastPhotoB64) {
+                wrap.style.display = "none";
+                return;
+            }
+            document.getElementById("marked-photo").src =
+                "data:" + lastPhotoMime + ";base64," + lastPhotoB64;
+            markers.forEach((m, i) => {
+                const dot = document.createElement("span");
+                dot.className = "marker-dot";
+                dot.style.left = m.x + "%";
+                dot.style.top = m.y + "%";
+                dot.textContent = String(i + 1);
+                dot.setAttribute("aria-hidden", "true");
+                layer.appendChild(dot);
+                const li = document.createElement("li");
+                li.textContent = m.label;
+                list.appendChild(li);
+            });
+            wrap.style.display = "";
+        }
+
         const saveDateBtn = document.getElementById("save-date-btn");
         const saveDateMsg = document.getElementById("save-date-msg");
         const saveDateConfirm = document.getElementById("save-date-confirm");
@@ -1102,6 +1180,7 @@
             const data = new FormData();
             data.append("photo", smallPhoto, photoInput.files[0].name || "photo.jpg");
             data.append("language", document.getElementById("language").value);
+            data.append("mode", document.getElementById("mode").value);
             try {
                 const call = await fetchWithTimeout("/explain", { method: "POST", body: data, headers: lbTokenHeaders() });
                 const res = call.res;
@@ -1131,6 +1210,7 @@
                 if (dateHit) lastDeadlineDate = dateHit[1];
                 updateSaveButton();
                 updateSummary();
+                showMarkers(markersFromReply(json.text || ""));
                 thread.innerHTML = "";
                 askStatus.textContent = "";
                 document.getElementById("followup-card").style.display = "block";
@@ -1180,6 +1260,7 @@
                     body: JSON.stringify({
                         question: question,
                         language: document.getElementById("language").value,
+                        mode: document.getElementById("mode").value,
                         image: lastPhotoB64 ? ("data:" + lastPhotoMime + ";base64," + lastPhotoB64) : "",
                         explanation: lastExplanation,
                         history: chatHistory.slice(-10)
@@ -1236,6 +1317,7 @@
         sampleBtn.addEventListener("click", () => {
             fillSampleCards();
             document.getElementById("result-card").style.display = "block";
+            document.getElementById("marked-photo-wrap").style.display = "none";
             document.getElementById("sample-tag").style.display = "";
             lastDeadlineDate = "2027-02-01";
             updateSaveButton();

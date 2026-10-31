@@ -223,6 +223,32 @@ def _call_meta_api(payload):
 
 LANG_NAMES = {"ne": "Nepali", "en": "English", "ja": "Japanese", "vi": "Vietnamese", "my": "Burmese"}
 
+# Photo Tutor modes for /explain. Anything unknown falls back to "notice".
+MODES = {"notice", "machine", "form", "sign"}
+MODE_GUIDE = {
+    "machine": (
+        "The photo shows a machine such as a ticket machine, ATM, or "
+        "convenience store kiosk. Name the machine in 'what'. Write "
+        "'next_steps' as a numbered walkthrough of exactly which buttons "
+        "to press and screens to follow, in order, using only controls "
+        "visible in the photo.\n"
+    ),
+    "form": (
+        "The photo shows a paper form. Name the form in 'what'. Write "
+        "'next_steps' as numbered steps explaining each visible field: "
+        "what to write, in which box, and in which language or script "
+        "when the form requires it.\n"
+    ),
+    "sign": (
+        "The photo shows a sign, poster, station board, or notice board. "
+        "Read the visible text in 'what'. In 'next_steps', explain what "
+        "the sign means and what the reader should do about it, step by "
+        "step.\n"
+    ),
+}
+# Short words for the /ask follow-up prompt.
+MODE_WORD = {"machine": "machine", "form": "paper form", "sign": "sign or poster"}
+
 
 @app.get("/")
 def home():
@@ -334,6 +360,9 @@ def explain():
 
     lang = request.form.get("language", "en")
     lang_name = LANG_NAMES.get(lang, "English")
+    mode = request.form.get("mode", "notice")
+    if mode not in MODES:
+        mode = "notice"
 
     img_b64 = base64.b64encode(raw).decode("ascii")
     data_uri = f"data:{kind};base64,{img_b64}"
@@ -344,11 +373,13 @@ def explain():
         f"Write every value only in {lang_name}. Do not mix English words "
         "into Nepali, Vietnamese, Burmese or Japanese answers, except "
         "names and the era-year format below.\n"
+        + MODE_GUIDE.get(mode, "") +
         "Reply with ONLY a JSON object (no other text) with exactly these keys:\n"
         '{"what": "...", "why": "...", "importance": "...", '
         '"next_steps": "...", "deadline": "...", "amount": "...", '
         '"staff_phrase": "...", "staff_phrase_meaning": "...", '
         '"payment_methods": "...", "consequences": "...", '
+        '"markers": [{"x": 50, "y": 30, "label": "..."}], '
         '"check": "...", "deadline_date": "..."}\n\n'
         "Rules:\n"
         "- 'what': what kind of notice this is.\n"
@@ -368,6 +399,13 @@ def explain():
         "- 'consequences': what can happen if the deadline is missed, in "
         "general terms (for example reminders or a late fee). Never invent "
         "a specific fine amount unless it is printed on the notice.\n"
+        "- 'markers': at most 5 markers pointing at visible parts the user "
+        "must find or press. Each marker has x and y from 0 to 100 "
+        "(percentages from the top-left of the photo) and a short label. "
+        "Mark only things clearly visible in the photo; never invent "
+        "buttons, labels, or objects. If nothing specific needs pointing "
+        "out, use an empty list. Labels in " + lang_name + ", at most 6 "
+        "words each.\n"
         "- 'staff_phrase': ONE short, polite Japanese sentence the user can "
         "show at the office counter about THIS notice, or an empty string.\n"
         f"- 'staff_phrase_meaning': what 'staff_phrase' means, in {lang_name}.\n"
@@ -375,7 +413,8 @@ def explain():
         "if the notice "
         "clearly shows one, otherwise an empty string. Never guess a date.\n"
         "- 'check': things to double-check. If any detail is unclear or "
-        "unreadable, say so here instead of guessing. "
+        "unreadable, say so here instead of guessing. Ask for another "
+        "photo when the image is too blurry or dark to read. "
         "Never invent amounts, dates, or names.\n"
         "- If the reader must pay, apply, or visit an office, remind them to "
         "confirm the details with the issuing office.\n"
@@ -431,6 +470,9 @@ def ask():
 
     lang = body.get("language", "en")
     lang_name = LANG_NAMES.get(lang, "English")
+    mode = body.get("mode", "notice")
+    if mode not in MODES:
+        mode = "notice"
     image = body.get("image") or ""
     explanation = body.get("explanation") or ""
     if len(explanation) > MAX_EXPLANATION_CHARS:
@@ -464,7 +506,8 @@ def ask():
         "You are helping a newcomer in Japan with a follow-up question about "
         "an official Japanese notice. Answer briefly and simply.\n\n"
         f"Write the answer in {lang_name}.\n"
-        "Use the earlier explanation below as context, and the photo of the "
+        + (f"The attached photo shows a {MODE_WORD[mode]}. " if mode in MODE_WORD else "")
+        + "Use the earlier explanation below as context, and the photo of the "
         "notice if it helps.\n\n"
         f"Earlier explanation:\n{explanation}\n\n"
         "Rules:\n"
