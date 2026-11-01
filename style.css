@@ -1807,6 +1807,95 @@ html[data-theme="dark"] .other-message {
     color: #d3dbe8;
 }
 
+/* Explain chat page surfaces. */
+html[data-theme="dark"] .chat-top {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .chat-top-name,
+html[data-theme="dark"] .chat-back {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .status-badge {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .chat-eyebrow {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .chat-title,
+html[data-theme="dark"] .welcome-title {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .welcome-icon {
+    background: #1d2f5c;
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .suggest-card {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .suggest-text strong {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .suggest-text small {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .suggest-card > svg {
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .chat-composer-bar {
+    background: #0f1a33;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .chat-composer {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] #ask-input {
+    background-color: #101d3d;
+    border-color: #33456e;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] #ask-input:disabled {
+    background-color: #1a2340;
+    color: #8a94a8;
+}
+
+html[data-theme="dark"] .photo-chip {
+    background: #1d2f5c;
+    border-color: #33456e;
+}
+
+html[data-theme="dark"] .photo-name {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .icon-btn {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .composer-note {
+    color: #c3cede;
+}
+
+html[data-theme="dark"] .you-photo {
+    border-color: #33456e;
+    background-color: #101d3d;
+}
+
 html[data-theme="dark"] .chip {
     background: transparent;
     border-color: #9dbcff;

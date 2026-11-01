@@ -49,15 +49,16 @@ class PageLinkTest(unittest.TestCase):
                 self.assertIn("dates.html", navs[0],
                               os.path.basename(path))
 
-    def test_explain_dates_button(self):
+    def test_explain_sidebar_dates_link(self):
         html = _read("explain.html")
-        self.assertEqual(html.count("explain.viewDatesPage"), 1)
-        self.assertIn('id="view-dates-btn"', html)
-        scan_at = html.index('id="explain-btn"')
-        link_at = html.index("explain.viewDatesPage")
-        form_end = html.index("</form>", scan_at)
-        self.assertLess(scan_at, link_at)
-        self.assertLess(link_at, form_end)
+        self.assertIn('class="chat-sidebar"', html)
+        start = html.index('class="chat-sidebar"')
+        end = html.index("</aside>", start)
+        block = html[start:end]
+        self.assertIn('href="dates.html"', block)
+        self.assertIn('"lens.dates"', block)
+        self.assertIn('href="tracker.html"', block)
+        self.assertIn('id="helper-btn"', block)
 
     def test_chatbot_has_no_page_links(self):
         src = _read("chatbot.js")
