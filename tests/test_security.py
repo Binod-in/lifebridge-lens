@@ -160,9 +160,14 @@ class SecurityHeadersTest(unittest.TestCase):
             res.close()
 
     def test_cache_headers(self):
-        res = self.client.get("/style.css")
+        res = self.client.get("/icons/document.svg")
         try:
             self.assertIn("max-age=86400", res.headers.get("Cache-Control", ""))
+        finally:
+            res.close()
+        res = self.client.get("/style.css")
+        try:
+            self.assertIn("no-cache", res.headers.get("Cache-Control", ""))
         finally:
             res.close()
         res = self.client.get("/")

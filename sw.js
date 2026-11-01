@@ -2,7 +2,7 @@
  * Registered on every page by i18n.js. Version the CACHE name to update.
  * Every CORE entry must exist, or the whole install fails.
  */
-const CACHE = "lens-v12";
+const CACHE = "lens-v13";
 const CORE = [
     "/",
     "offline.html",
@@ -22,7 +22,9 @@ const CORE = [
 self.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open(CACHE)
-            .then((cache) => cache.addAll(CORE))
+            // cache: "reload" bypasses the HTTP cache, so a stale
+            // entry can never fill the precache after an update.
+            .then((cache) => cache.addAll(CORE.map(function (url) { return new Request(url, { cache: "reload" }); })))
             .then(() => self.skipWaiting())
     );
 });

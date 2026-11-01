@@ -266,7 +266,9 @@ def static_files(path):
     if not dot or ("." + ext.lower()) not in ALLOWED_STATIC_EXTS:
         abort(404)
     resp = send_from_directory(BASE_DIR, path)
-    if ("." + ext.lower()) == ".html":
+    # Versioned text assets revalidate every time, so a new deploy
+    # reaches browsers at once. Only images keep a long max-age.
+    if ("." + ext.lower()) in (".html", ".js", ".css", ".webmanifest"):
         resp.cache_control.no_cache = True
     else:
         resp.cache_control.public = True
