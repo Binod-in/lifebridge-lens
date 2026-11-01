@@ -1794,6 +1794,19 @@ html[data-theme="dark"] #mode {
     color: #e6ecf7;
 }
 
+html[data-theme="dark"] .more-options summary {
+    color: #9dbcff;
+}
+
+html[data-theme="dark"] .kind-label {
+    background: #1d2f5c;
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .other-message {
+    color: #d3dbe8;
+}
+
 html[data-theme="dark"] .chip {
     background: transparent;
     border-color: #9dbcff;

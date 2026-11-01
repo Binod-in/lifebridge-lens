@@ -163,7 +163,7 @@ class Phase3CompatTest(unittest.TestCase):
 
     def test_modes_still_supported(self):
         src = _read("server.py")
-        self.assertIn('"notice", "machine", "form", "sign"', src)
+        self.assertIn('"notice", "machine", "form", "sign", "auto"', src)
 
 
 if __name__ == "__main__":

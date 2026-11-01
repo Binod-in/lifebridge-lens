@@ -224,7 +224,7 @@ def _call_meta_api(payload):
 LANG_NAMES = {"ne": "Nepali", "en": "English", "ja": "Japanese", "vi": "Vietnamese", "my": "Burmese"}
 
 # Photo Tutor modes for /explain. Anything unknown falls back to "notice".
-MODES = {"notice", "machine", "form", "sign"}
+MODES = {"notice", "machine", "form", "sign", "auto"}
 MODE_GUIDE = {
     "machine": (
         "The photo shows a machine such as a ticket machine, ATM, or "
@@ -246,8 +246,35 @@ MODE_GUIDE = {
         "step.\n"
     ),
 }
+
+# "auto" (the default): the model first decides which kind the photo
+# is, then follows that kind's rules exactly. "other" is for photos
+# with nothing to do with daily life in Japan.
+AUTO_GUIDE = (
+    "First decide which kind of photo this is: a notice or letter "
+    "(kind \"notice\"), a machine such as a ticket machine, ATM, "
+    "vending machine, or washing machine (kind \"machine\"), a paper "
+    "form to fill in (kind \"form\"), or a sign, poster, station board, "
+    "or notice board (kind \"sign\"). Then follow the rules for that "
+    "kind exactly, as written below. If the photo has nothing to do "
+    "with daily life in Japan (for example a selfie, food, or scenery "
+    "with no text), use kind \"other\": leave every field empty except "
+    "'what', which holds one short polite message asking for a photo "
+    "of a letter, machine, form, or sign.\n"
+    + MODE_GUIDE["machine"] + MODE_GUIDE["form"] + MODE_GUIDE["sign"]
+)
 # Short words for the /ask follow-up prompt.
 MODE_WORD = {"machine": "machine", "form": "paper form", "sign": "sign or poster"}
+
+# Safety rules shared by the /explain and /ask prompts.
+SAFETY_RULES = (
+    "- Safety: never ask the user to photograph or type a card number, "
+    "PIN, or password. For ATMs, remind them to cover the keypad when "
+    "typing the PIN.\n"
+    "- For medicine, hospital, or legal papers: translate and explain "
+    "what is written, but do not give medical or legal advice. Tell the "
+    "reader to ask the pharmacist, doctor, or the city office.\n"
+)
 
 
 @app.get("/")
@@ -375,9 +402,9 @@ def explain():
         f"Write every value only in {lang_name}. Do not mix English words "
         "into Nepali, Vietnamese, Burmese or Japanese answers, except "
         "names and the era-year format below.\n"
-        + MODE_GUIDE.get(mode, "") +
+        + (AUTO_GUIDE if mode == "auto" else MODE_GUIDE.get(mode, "")) +
         "Reply with ONLY a JSON object (no other text) with exactly these keys:\n"
-        '{"what": "...", "why": "...", "importance": "...", '
+        '{"what": "...", "kind": "...", "why": "...", "importance": "...", '
         '"next_steps": "...", "deadline": "...", "amount": "...", '
         '"staff_phrase": "...", "staff_phrase_meaning": "...", '
         '"staff_reading": "...", "staff_variations": "...", '
@@ -387,6 +414,8 @@ def explain():
         '"check": "...", "deadline_date": "..."}\n\n'
         "Rules:\n"
         "- 'what': what kind of notice this is.\n"
+        "- 'kind': one of \"notice\", \"machine\", \"form\", \"sign\", or "
+        "\"other\", matching the photo as decided above.\n"
         "- 'why': why the person got it.\n"
         "- 'importance': how important or urgent it is.\n"
         "- 'next_steps': clear steps in order.\n"
@@ -438,6 +467,7 @@ def explain():
         "Never invent amounts, dates, or names.\n"
         "- If the reader must pay, apply, or visit an office, remind them to "
         "confirm the details with the issuing office.\n"
+        + SAFETY_RULES +
         "- Convert Japanese era years to Western years in brackets, "
         "for example \u4ee4\u548c8\u5e74 becomes \"Reiwa 8 (2026)\".\n"
         "- Keep each value short. Do not use markdown. "
@@ -533,7 +563,15 @@ def ask():
         "- Answer only about this notice. Keep it short and simple.\n"
         "- If the notice does not contain the answer, honestly say it is not "
         "written in the notice instead of guessing.\n"
-        "- Never invent amounts, dates, or names."
+        "- Never invent amounts, dates, or names.\n"
+        "- When the user asks HOW to do something (for example how to "
+        "withdraw money from an ATM), answer with a numbered step-by-step "
+        "guide from the very first step to the end, in simple words. Name "
+        "the exact Japanese button labels to press, with the reading in "
+        "brackets, say what the screen will show, and warn about common "
+        "mistakes. If a step depends on something not visible in the photo, "
+        "say so instead of guessing.\n"
+        + SAFETY_RULES
     )
 
     # First message: prompt + photo (only once). Then the earlier

@@ -202,6 +202,42 @@
             color: #13234b;
         }
 
+        /* Collapsed power-user options (scan mode). Auto is default. */
+        .more-options {
+            margin-bottom: 22px;
+        }
+
+        .more-options summary {
+            display: inline-block;
+            min-height: 48px;
+            line-height: 48px;
+            color: #1261ff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .more-options .field {
+            margin-top: 8px;
+        }
+
+        /* Small detected-kind label at the top of the result. */
+        .kind-label {
+            display: inline-block;
+            margin: 0 0 12px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: #eaf1ff;
+            color: #13234b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .other-message {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #425473;
+        }
+
         #explain-btn {
             width: 100%;
             padding: 16px 20px;
@@ -419,15 +455,19 @@
                     </select>
                 </div>
 
-                <div class="field">
-                    <label class="step-label" for="mode" data-i18n="explain.modeLabel">What are you scanning?</label>
-                    <select id="mode" name="mode">
-                        <option value="notice" data-i18n="explain.modeNotice">Notice or letter</option>
-                        <option value="machine" data-i18n="explain.modeMachine">Machine (tickets, ATM)</option>
-                        <option value="form" data-i18n="explain.modeForm">Form to fill in</option>
-                        <option value="sign" data-i18n="explain.modeSign">Sign or poster</option>
-                    </select>
-                </div>
+                <details class="more-options">
+                    <summary data-i18n="explain.moreOptions">More options</summary>
+                    <div class="field">
+                        <label class="step-label" for="mode" data-i18n="explain.modeLabel">What are you scanning?</label>
+                        <select id="mode" name="mode">
+                            <option value="auto" selected data-i18n="explain.modeAuto">Auto detect</option>
+                            <option value="notice" data-i18n="explain.modeNotice">Notice or letter</option>
+                            <option value="machine" data-i18n="explain.modeMachine">Machine (tickets, ATM)</option>
+                            <option value="form" data-i18n="explain.modeForm">Form to fill in</option>
+                            <option value="sign" data-i18n="explain.modeSign">Sign or poster</option>
+                        </select>
+                    </div>
+                </details>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-prim" id="explain-btn" data-i18n="explain.submit">Scan notice</button>
@@ -456,6 +496,8 @@
 
         <section class="card" id="result-card" style="display:none;">
             <h2><span data-i18n="explain.resultTitle">Your explanation</span> <span id="sample-tag" data-i18n="explain.sampleTag" style="display:none;">Sample</span></h2>
+            <p id="kind-label" class="kind-label" style="display:none;"></p>
+            <p id="other-message" class="other-message" style="display:none;"></p>
             <figure class="marked-photo" id="marked-photo-wrap" style="display:none;">
                 <div class="marker-stage">
                     <img id="marked-photo" alt="" data-i18n-alt="explain.markedPhotoAlt">
@@ -590,7 +632,7 @@
             ["Things to check", "result-check"]
         ];
 
-        const form = document.getElementById("explain-form"); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); if (saveDateState) renderSaveDateMsg(); }); } else { document.addEventListener("lb:lang", function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); if (saveDateState) renderSaveDateMsg(); }); }
+        const form = document.getElementById("explain-form"); if (window.LBT && typeof window.LBT.onChange === "function") { window.LBT.onChange(function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); updateKindLabel(); if (saveDateState) renderSaveDateMsg(); }); } else { document.addEventListener("lb:lang", function () { if (lastStatusKey) setStatus(lastStatusKey, lastStatusFb, lastStatusMsg); if (sampleShowing) fillSampleCards(); updateSummary(); updateKindLabel(); if (saveDateState) renderSaveDateMsg(); }); }
         const photoInput = document.getElementById("photo");
         const sampleBtn = document.getElementById("sample-btn");
         const preview = document.getElementById("preview");
@@ -669,6 +711,7 @@
         let chatHistory = [];
         let scanEpoch = 0; // Rises on every successful scan; late follow-up replies check it.
         let lastDeadlineDate = "";
+        let lastKind = "";
         let lastDeadlineText = "";
         let lastAmountText = "";
         let sampleShowing = false;
@@ -1112,6 +1155,39 @@
             return Math.round((day - today) / 86400000);
         }
 
+        // Detected photo kinds from the AI reply. "other" is shown
+        // alone, without any other result card.
+        const KIND_KEYS = { notice: "explain.kindNotice", machine: "explain.kindMachine", form: "explain.kindForm", sign: "explain.kindSign" };
+        const KIND_FALLBACK = { notice: "Notice", machine: "Machine", form: "Form", sign: "Sign" };
+
+        // "Detected: Machine" label text, or "" when unknown.
+        function kindLabel(kind) {
+            if (!KIND_KEYS[kind]) return "";
+            return t("explain.detected", "Detected: {kind}").replace("{kind}", t(KIND_KEYS[kind], KIND_FALLBACK[kind]));
+        }
+
+        // Show the kind label, or only the polite message for "other".
+        function updateKindLabel() {
+            const isOther = lastKind === "other";
+            const label = document.getElementById("kind-label");
+            const other = document.getElementById("other-message");
+            const grid = document.querySelector("#result-card .result-grid");
+            if (isOther) {
+                label.style.display = "none";
+                other.style.display = "";
+                grid.style.display = "none";
+                document.getElementById("summary-bar").style.display = "none";
+                document.getElementById("marked-photo-wrap").style.display = "none";
+                document.getElementById("followup-card").style.display = "none";
+            } else {
+                other.style.display = "none";
+                grid.style.display = "";
+                const text = kindLabel(lastKind);
+                label.style.display = text ? "" : "none";
+                label.textContent = text;
+            }
+        }
+
         // Summary bar: big deadline + amount, plus the days left.
         function updateSummary() {
             const bar = document.getElementById("summary-bar");
@@ -1232,7 +1308,10 @@
                 const json = call.json;
                 if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
                 const sections = parseExplainReply(json.text || "");
-                if (Object.keys(sections).length === 0) {
+                lastKind = "";
+                const kindHit = /"kind"\s*:\s*"([^"]*)"/.exec(json.text || "");
+                if (kindHit && (KIND_KEYS[kindHit[1]] || kindHit[1] === "other")) lastKind = kindHit[1];
+                if (Object.keys(sections).length === 0 && lastKind !== "other") {
                     setStatus("explain.badFormat", "The reply was unclear. Please try again with a clearer photo of the whole notice.");
                     return;
                 }
@@ -1257,12 +1336,18 @@
                 lastDeadlineDate = "";
                 const dateHit = /"deadline_date"\s*:\s*"([^"]*)"/.exec(json.text || "");
                 if (dateHit) lastDeadlineDate = dateHit[1];
+                if (lastKind === "other") {
+                    const otherText = (sections["result-what"] || "").trim() ||
+                        t("explain.otherKind", "I help with Japanese letters, machines, forms and signs. Please send a photo of one of those.");
+                    document.getElementById("other-message").textContent = otherText;
+                }
                 updateSaveButton();
                 updateSummary();
                 showMarkers(markersFromReply(json.text || ""));
+                updateKindLabel();
                 thread.innerHTML = "";
                 askStatus.textContent = "";
-                document.getElementById("followup-card").style.display = "block";
+                document.getElementById("followup-card").style.display = lastKind === "other" ? "none" : "block";
                 lastStatusKey = null; status.textContent = "";
             } catch (err) {
                 if (err && err.name === "AbortError") {
@@ -1423,8 +1508,10 @@
             document.getElementById("marked-photo-wrap").style.display = "none";
             document.getElementById("sample-tag").style.display = "";
             lastDeadlineDate = "2027-02-01";
+            lastKind = "";
             updateSaveButton();
             updateSummary();
+            updateKindLabel();
             // No follow-up chat for the sample.
             lastExplanation = "";
             chatHistory = [];
