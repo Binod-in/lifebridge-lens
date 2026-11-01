@@ -335,40 +335,16 @@
             cursor: wait;
         }
 
+        /* Follow-up messages reuse the shared .lb-msg rows from
+           style.css, so both chats look the same. */
         #chat-thread {
             display: grid;
-            gap: 10px;
+            gap: 16px;
             margin-top: 16px;
         }
 
         #chat-thread:empty {
             margin-top: 0;
-        }
-
-        .chat-q {
-            justify-self: end;
-            max-width: 90%;
-            padding: 10px 14px;
-            background-color: #1261ff;
-            color: #ffffff;
-            border-radius: 14px 14px 4px 14px;
-            font-size: 14px;
-            line-height: 1.5;
-            overflow-wrap: anywhere;
-        }
-
-        .chat-a {
-            justify-self: start;
-            max-width: 95%;
-            padding: 10px 14px;
-            background-color: #f5f9ff;
-            border: 1px solid #d5e5ff;
-            border-radius: 14px 14px 14px 4px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #425473;
-            white-space: pre-line;
-            overflow-wrap: anywhere;
         }
 
         #ask-status {
@@ -1307,12 +1283,60 @@
             }
         });
 
+        // Follow-up avatars: the same line icons as the chat panel.
+        const LB_AVATAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg>';
+        const USER_AVATAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>';
+
+        // One follow-up row: avatar plus a name above the text, time
+        // below. "chat-q" is the user, "chat-a" is LifeBridge.
         function addMsg(cls, text) {
-            const div = document.createElement("div");
-            div.className = cls;
-            div.textContent = text;
-            thread.appendChild(div);
-            div.scrollIntoView({ block: "nearest" });
+            const who = cls === "chat-q" ? "user" : "bot";
+            const row = document.createElement("div");
+            row.className = "lb-msg lb-msg-" + who;
+            const avatar = document.createElement("span");
+            avatar.className = "lb-msg-avatar";
+            avatar.setAttribute("aria-hidden", "true");
+            avatar.innerHTML = who === "user" ? USER_AVATAR_SVG : LB_AVATAR_SVG;
+            const main = document.createElement("div");
+            main.className = "lb-msg-main";
+            const name = document.createElement("div");
+            name.className = "lb-msg-name";
+            name.textContent = who === "user" ? t("chat.userName", "You") : t("chat.botName", "LifeBridge");
+            const body = document.createElement("div");
+            body.className = "lb-msg-text";
+            body.textContent = text;
+            const time = document.createElement("div");
+            time.className = "lb-msg-time";
+            try {
+                time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            } catch (e) { time.textContent = ""; }
+            main.append(name, body, time);
+            row.append(avatar, main);
+            thread.appendChild(row);
+            row.scrollIntoView({ block: "nearest" });
+        }
+
+        // "LifeBridge is thinking…" line shown while /ask runs.
+        let thinkingEl = null;
+        function showThinking() {
+            hideThinking();
+            thinkingEl = document.createElement("div");
+            thinkingEl.className = "lb-thinking";
+            const label = document.createElement("span");
+            label.textContent = t("chat.thinking", "LifeBridge is thinking…");
+            const dots = document.createElement("span");
+            dots.className = "lb-thinking-dots";
+            dots.setAttribute("aria-hidden", "true");
+            for (let i = 0; i < 3; i++) dots.appendChild(document.createElement("span"));
+            thinkingEl.append(label, dots);
+            thread.appendChild(thinkingEl);
+            thinkingEl.scrollIntoView({ block: "nearest" });
+        }
+        function hideThinking() {
+            if (thinkingEl) {
+                thinkingEl.remove();
+                thinkingEl = null;
+            }
         }
 
         async function askQuestion(question) {
@@ -1326,6 +1350,7 @@
             askStatus.textContent = "";
             addMsg("chat-q", question);
             const myEpoch = scanEpoch; // Drop this reply if a new scan lands first.
+            showThinking();
             try {
                 const call = await fetchWithTimeout("/ask", {
                     method: "POST",
@@ -1341,6 +1366,7 @@
                 });
                 const res = call.res;
                 const json = call.json;
+                hideThinking();
                 if (myEpoch !== scanEpoch) return; // A new scan won the race: drop this reply.
                 if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
                 const answer = json.answer || t("explain.notShown", "Not shown");
@@ -1348,6 +1374,7 @@
                 chatHistory.push({role: "user", content: question});
                 chatHistory.push({role: "assistant", content: answer.slice(0, 8000)});
             } catch (err) {
+                hideThinking();
                 if (err && err.name === "AbortError") {
                     askStatus.textContent = t("explain.tooSlow", "The AI took too long. Please try again.");
                 } else if (err && err.lbServerError) {

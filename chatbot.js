@@ -605,31 +605,75 @@
     var fab = null;
     var panel = null;
     var msgs = null;
-    var chips = null;
     var form = null;
     var input = null;
     var sendBtn = null;
+    var sendLabel = null;
     var titleEl = null;
     var statusEl = null;
+    var statusDot = null;
+    var statusText = null;
+    var hintEl = null;
     var closeBtn = null;
     var backdrop = null;
-    var greeted = false;
+    var welcomed = false;
+    var lastMain = null;
 
-    function addMsg(text, who) {
-        var div = document.createElement("div");
-        div.className = who === "user" ? "chat-msg-user" : "chat-msg-bot";
-        div.textContent = text;
-        msgs.appendChild(div);
-        var time = document.createElement("div");
-        time.className = who === "user" ? "chat-time user" : "chat-time bot";
+    // Simple line icons (stroke only, currentColor): the LifeBridge
+    // document mark, a person, arrows and a close X.
+    var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    var ICON_LENS = SVG_OPEN + '<rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg>';
+    var ICON_PERSON = SVG_OPEN + '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>';
+    var ICON_ARROW_RIGHT = SVG_OPEN + '<path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    var ICON_ARROW_UP = SVG_OPEN + '<path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+    var ICON_CLOSE = SVG_OPEN + '<path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+    function timeNow() {
         try {
-            time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        } catch (e) { time.textContent = ""; }
-        msgs.appendChild(time);
+            return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } catch (e) { return ""; }
+    }
+
+    // One message row: avatar plus a name above the text. Returns the
+    // body element so bot extras (source, links) can be added between
+    // the text and the time.
+    function addMsg(text, who) {
+        var isUser = who === "user";
+        var row = document.createElement("div");
+        row.className = isUser ? "lb-msg lb-msg-user" : "lb-msg lb-msg-bot";
+        var avatar = document.createElement("span");
+        avatar.className = "lb-msg-avatar";
+        avatar.setAttribute("aria-hidden", "true");
+        avatar.innerHTML = isUser ? ICON_PERSON : ICON_LENS;
+        var main = document.createElement("div");
+        main.className = "lb-msg-main";
+        var name = document.createElement("div");
+        name.className = "lb-msg-name";
+        name.textContent = isUser
+            ? chatT("chat.userName", "You")
+            : chatT("chat.botName", "LifeBridge");
+        var body = document.createElement("div");
+        body.className = "lb-msg-text";
+        body.textContent = text;
+        main.appendChild(name);
+        main.appendChild(body);
+        row.appendChild(avatar);
+        row.appendChild(main);
+        msgs.appendChild(row);
+        msgs.scrollTop = msgs.scrollHeight;
+        lastMain = main;
+        return { row: row, main: main };
+    }
+
+    function addTime(main) {
+        var time = document.createElement("div");
+        time.className = "lb-msg-time";
+        time.textContent = timeNow();
+        main.appendChild(time);
         msgs.scrollTop = msgs.scrollHeight;
     }
 
-    function addLinks(links) {
+    function addLinks(main, links) {
         if (!links || !links.length) return;
         var row = document.createElement("div");
         row.className = "chat-links";
@@ -643,28 +687,61 @@
             row.appendChild(a);
         }
         if (row.childNodes.length) {
-            msgs.appendChild(row);
+            main.appendChild(row);
             msgs.scrollTop = msgs.scrollHeight;
         }
     }
 
-    function showSuggestions() {
-        chips.replaceChildren();
-        var list = LB_CHAT_SUGGEST[chatLang()] || LB_CHAT_SUGGEST.en;
-        for (var i = 0; i < list.length; i++) {
-            var btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "chip";
-            btn.textContent = list[i];
-            btn.addEventListener("click", function () {
-                sendText(this.textContent);
-            });
-            chips.appendChild(btn);
+    // Welcome state: centered icon, greeting and 3 suggestion
+    // buttons. Shown until the first message is sent.
+    function renderWelcome() {
+        msgs.replaceChildren();
+        var wrap = document.createElement("div");
+        wrap.className = "chat-welcome";
+        var icon = document.createElement("span");
+        icon.className = "chat-welcome-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.innerHTML = ICON_LENS;
+        var kicker = document.createElement("p");
+        kicker.className = "chat-welcome-kicker";
+        kicker.textContent = chatT("chat.welcomeKicker", "NAMASTE");
+        var title = document.createElement("p");
+        title.className = "chat-welcome-title";
+        title.textContent = chatT("chat.welcomeTitle", "What can I help you with today?");
+        var sub = document.createElement("p");
+        sub.className = "chat-welcome-sub";
+        sub.textContent = chatT("chat.welcomeSub", "Ask about address, bank, jobs, health, transport or emergencies.");
+        var list = document.createElement("div");
+        list.className = "chat-suggest-list";
+        var suggests = LB_CHAT_SUGGEST[chatLang()] || LB_CHAT_SUGGEST.en;
+        for (var i = 0; i < suggests.length && i < 3; i++) {
+            list.appendChild(suggestButton(suggests[i]));
         }
+        wrap.appendChild(icon);
+        wrap.appendChild(kicker);
+        wrap.appendChild(title);
+        wrap.appendChild(sub);
+        wrap.appendChild(list);
+        msgs.appendChild(wrap);
+    }
+
+    function suggestButton(text) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chat-suggest";
+        var label = document.createElement("span");
+        label.textContent = text;
+        btn.appendChild(label);
+        btn.insertAdjacentHTML("beforeend", ICON_ARROW_RIGHT);
+        btn.addEventListener("click", function () {
+            sendText(text);
+        });
+        return btn;
     }
 
     // Verified answers name their source; everything else is
     // labelled general guidance, so users know the difference.
+    // The line goes into the latest message body (set by addMsg).
     function addSource(intent) {
         var line = document.createElement("div");
         line.className = "chat-source";
@@ -673,7 +750,7 @@
         } else {
             line.textContent = chatT("chat.general", "General guidance");
         }
-        msgs.appendChild(line);
+        (lastMain || msgs).appendChild(line);
         msgs.scrollTop = msgs.scrollHeight;
     }
 
@@ -682,17 +759,22 @@
         if (!intent) return;
         var lang = chatLang();
         var answers = intent.answers || {};
-        addMsg(answers[lang] || answers.en || "", "bot");
+        var msg = addMsg(answers[lang] || answers.en || "", "bot");
         addSource(intent);
-        addLinks(intent.links);
+        addLinks(msg.main, intent.links);
+        addTime(msg.main);
     }
 
     function sendText(text) {
         text = String(text || "").trim();
         if (!text) return;
-        addMsg(text, "user");
+        if (!welcomed) {
+            welcomed = true;
+            msgs.replaceChildren();
+        }
+        var msg = addMsg(text, "user");
+        addTime(msg.main);
         answer(text);
-        showSuggestions();
     }
 
     function isOffline() {
@@ -703,9 +785,11 @@
 
     function updateStatus() {
         if (isOffline()) {
-            statusEl.textContent = chatT("chat.offline", "Offline. Saved answers only");
+            statusText.textContent = chatT("chat.offline", "Offline, saved answers only");
+            statusEl.className = "chat-status off";
         } else {
-            statusEl.textContent = chatT("chat.online", "Online");
+            statusText.textContent = chatT("chat.online", "Online");
+            statusEl.className = "chat-status";
         }
     }
 
@@ -714,11 +798,12 @@
         titleEl.textContent = chatT("chat.title", "Ask LifeBridge");
         updateStatus();
         closeBtn.setAttribute("aria-label", chatT("chat.close", "Close chat"));
-        var ph = chatT("chat.placeholder", "Type your question...");
+        var ph = chatT("chat.placeholder", "Ask a question…");
         input.setAttribute("placeholder", ph);
         input.setAttribute("aria-label", ph);
-        sendBtn.textContent = chatT("chat.send", "Send");
-        showSuggestions();
+        sendLabel.textContent = chatT("chat.send", "Send");
+        hintEl.textContent = chatT("chat.sendHint", "Enter to send · Shift + Enter for a new line");
+        if (!welcomed) renderWelcome();
     }
 
     function togglePanel(force) {
@@ -737,10 +822,8 @@
             }
         } catch (e) { /* ignore */ }
         fab.setAttribute("aria-expanded", String(show));
-        if (show && !greeted) {
-            greeted = true;
-            greet();
-            showSuggestions();
+        if (show && !welcomed) {
+            renderWelcome();
         }
         if (show) {
             try { input.focus({ preventScroll: true }); } catch (e) { try { input.focus(); } catch (e2) { /* ignore */ } }
@@ -766,42 +849,57 @@
 
         var head = document.createElement("div");
         head.className = "chat-head";
-        var avatar = document.createElement("span");
-        avatar.className = "chat-avatar";
-        avatar.setAttribute("aria-hidden", "true");
-        avatar.textContent = "LB";
-        var headText = document.createElement("span");
-        headText.className = "chat-head-text";
         titleEl = document.createElement("strong");
+        titleEl.className = "chat-head-text";
         statusEl = document.createElement("span");
         statusEl.className = "chat-status";
-        headText.append(titleEl, statusEl);
+        statusDot = document.createElement("span");
+        statusDot.className = "chat-status-dot";
+        statusDot.setAttribute("aria-hidden", "true");
+        statusText = document.createElement("span");
+        statusEl.appendChild(statusDot);
+        statusEl.appendChild(statusText);
         closeBtn = document.createElement("button");
         closeBtn.type = "button";
         closeBtn.className = "chat-close";
-        closeBtn.textContent = "×";
-        head.append(avatar, headText, closeBtn);
+        closeBtn.innerHTML = ICON_CLOSE;
+        head.appendChild(titleEl);
+        head.appendChild(statusEl);
+        head.appendChild(closeBtn);
 
         msgs = document.createElement("div");
         msgs.className = "chat-msgs";
         msgs.setAttribute("role", "log");
         msgs.setAttribute("aria-live", "polite");
 
-        chips = document.createElement("div");
-        chips.className = "chat-chips";
-
+        var composer = document.createElement("div");
+        composer.className = "chat-composer";
         form = document.createElement("form");
-        form.className = "chat-form";
-        input = document.createElement("input");
-        input.type = "text";
+        input = document.createElement("textarea");
+        input.className = "chat-input";
+        input.rows = 1;
         input.autocomplete = "off";
         input.maxLength = 500;
+        var composerRow = document.createElement("div");
+        composerRow.className = "chat-composer-row";
+        hintEl = document.createElement("span");
+        hintEl.className = "chat-hint";
+        hintEl.setAttribute("aria-hidden", "true");
         sendBtn = document.createElement("button");
         sendBtn.type = "submit";
-        sendBtn.className = "btn btn-prim";
-        form.append(input, sendBtn);
+        sendBtn.className = "btn btn-prim chat-send";
+        sendLabel = document.createElement("span");
+        sendBtn.appendChild(sendLabel);
+        sendBtn.insertAdjacentHTML("beforeend", ICON_ARROW_UP);
+        composerRow.appendChild(hintEl);
+        composerRow.appendChild(sendBtn);
+        form.appendChild(input);
+        form.appendChild(composerRow);
+        composer.appendChild(form);
 
-        panel.append(head, msgs, chips, form);
+        panel.appendChild(head);
+        panel.appendChild(msgs);
+        panel.appendChild(composer);
         document.body.append(fab, backdrop, panel);
 
         fab.addEventListener("click", function () { togglePanel(); });
@@ -810,10 +908,16 @@
             togglePanel(false);
             fab.focus();
         });
+        input.addEventListener("input", autoGrow);
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendFromComposer();
+            }
+        });
         form.addEventListener("submit", function (event) {
             event.preventDefault();
-            sendText(input.value);
-            input.value = "";
+            sendFromComposer();
         });
         document.addEventListener("keydown", function (event) {
             if (panel.hidden) return;
@@ -823,7 +927,7 @@
                 return;
             }
             if (event.key !== "Tab") return;
-            var focusables = panel.querySelectorAll("button, input, a[href]");
+            var focusables = panel.querySelectorAll("button, input, textarea, a[href]");
             if (!focusables.length) return;
             var first = focusables[0];
             var last = focusables[focusables.length - 1];
@@ -842,16 +946,18 @@
         refreshChrome();
     }
 
-    // First open shows the greeting intent from the KB.
-    function greet() {
-        var lang = chatLang();
-        for (var i = 0; i < LB_CHAT_KB.length; i++) {
-            if (LB_CHAT_KB[i] && LB_CHAT_KB[i].id === "greeting" && LB_CHAT_KB[i].answers) {
-                var answers = LB_CHAT_KB[i].answers;
-                addMsg(answers[lang] || answers.en || "", "bot");
-                return;
-            }
-        }
+    // The textarea grows from 1 to 5 lines (15px at 1.8
+    // line-height is 27px a line, so 135px is the cap).
+    function autoGrow() {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 135) + "px";
+    }
+
+    function sendFromComposer() {
+        sendText(input.value);
+        input.value = "";
+        autoGrow();
+        try { input.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
     }
 
     function init() {
