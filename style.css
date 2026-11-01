@@ -1864,14 +1864,29 @@ html[data-theme="dark"] .chat-composer {
 }
 
 html[data-theme="dark"] #ask-input {
-    background-color: #101d3d;
+    background-color: transparent;
     border-color: #33456e;
     color: #e6ecf7;
 }
 
 html[data-theme="dark"] #ask-input:disabled {
-    background-color: #1a2340;
+    background-color: transparent;
     color: #8a94a8;
+}
+
+html[data-theme="dark"] .chat-main-head {
+    background: #16244a;
+    border-color: #26355c;
+}
+
+html[data-theme="dark"] .chat-main-head .status-badge {
+    background: #12351f;
+    border-color: #2f6b47;
+}
+
+html[data-theme="dark"] .chat-composer:focus-within {
+    border-color: #9dbcff;
+    box-shadow: 0 0 0 3px #1d2f5c;
 }
 
 html[data-theme="dark"] .photo-chip {

@@ -319,5 +319,83 @@ class ChatDarkTest(unittest.TestCase):
             self.assertIn(selector, self.css)
 
 
+class LayoutFixesTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.page = _read("explain.html")
+
+    def test_sidebar_visible_on_desktop(self):
+        blocks = re.findall(r"\.chat-sidebar\s*\{[^}]*\}", self.page)
+        full = [b for b in blocks if "width: 270px" in b]
+        self.assertTrue(full)
+        for block in full:
+            self.assertNotIn("display: none", block)
+        start = self.page.index("@media (min-width: 1024px)")
+        media = self.page[start:start + 1200]
+        self.assertIn(".chat-sidebar", media)
+        self.assertIn("display: flex;", media)
+
+    def test_status_lines_above_box(self):
+        bar = self.page.index('class="chat-composer-bar"')
+        box = self.page.index('class="chat-composer">', bar)
+        status = self.page.index('id="status"', bar)
+        ask_status = self.page.index('id="ask-status"', bar)
+        self.assertLess(bar, status)
+        self.assertLess(status, box)
+        self.assertLess(ask_status, box)
+        self.assertIn("min-height: 0;", self.page)
+        self.assertIn("#status:empty,", self.page)
+        self.assertIn("#ask-status:empty {", self.page)
+
+    def test_hidden_inputs_take_no_space(self):
+        self.assertIn("clip-path: inset(50%);", self.page)
+        self.assertIn("#explain-form {", self.page)
+
+    def test_mode_select_hidden_but_present(self):
+        self.assertIn('<details class="more-options" hidden>', self.page)
+        self.assertIn('id="mode"', self.page)
+        self.assertIn('<option value="auto" selected', self.page)
+
+    def test_compact_composer(self):
+        boxes = re.findall(r"\.chat-composer\s*\{[^}]*\}", self.page)
+        self.assertTrue(any("padding: 12px 14px;" in b for b in boxes))
+        inputs = re.findall(r"#ask-input\s*\{[^}]*\}", self.page)
+        self.assertTrue(any("border: none;" in b for b in inputs))
+        self.assertIn(".chat-composer:focus-within {", self.page)
+
+    def test_result_has_no_outer_card(self):
+        self.assertNotIn('class="card" id="result-card"', self.page)
+        self.assertIn('id="result-card"', self.page)
+        self.assertIn("#result-card > h2 {", self.page)
+
+    def test_desktop_header_bar(self):
+        heads = re.findall(r"\.chat-main-head\s*\{[^}]*\}", self.page)
+        full = [b for b in heads if "padding: 28px 40px 18px;" in b]
+        self.assertTrue(full)
+        self.assertIn("background: #ffffff;", full[0])
+        self.assertIn("border-bottom: 1px solid #e3e8f0;", full[0])
+        badges = re.findall(r"\.chat-main-head \.status-badge\s*\{[^}]*\}",
+                              self.page)
+        self.assertTrue(badges)
+        self.assertIn("background: #edf8f1;", badges[0])
+        self.assertIn("border: 1px solid #cfe6d8;", badges[0])
+        self.assertIn("border-radius: 8px;", badges[0])
+
+    def test_page_chrome(self):
+        self.assertRegex(self.page,
+                         r"\.site-header\s*\{\s*display: none;\s*\}")
+        self.assertRegex(self.page,
+                         r"\.chat-fab\s*\{\s*display: none;\s*\}")
+        bars = re.findall(r"\.chat-composer-bar\s*\{[^}]*\}", self.page)
+        self.assertTrue(any("bottom: 72px;" in b for b in bars))
+
+    def test_dark_covers_fixes(self):
+        css = _read("style.css")
+        for selector in ('html[data-theme="dark"] .chat-main-head',
+                         'html[data-theme="dark"] .chat-main-head .status-badge',
+                         'html[data-theme="dark"] .chat-composer:focus-within'):
+            self.assertIn(selector, css)
+
+
 if __name__ == "__main__":
     unittest.main()

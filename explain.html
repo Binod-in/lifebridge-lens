@@ -609,8 +609,17 @@
             position: absolute;
             width: 1px;
             height: 1px;
-            opacity: 0;
+            margin: -1px;
+            padding: 0;
+            border: 0;
+            clip-path: inset(50%);
+            overflow: hidden;
+            white-space: nowrap;
             pointer-events: none;
+        }
+
+        #explain-form {
+            margin: 0;
         }
 
         /* Composer fixed at the bottom. */
@@ -631,7 +640,7 @@
             background: #ffffff;
             border: 1px solid #e3e8f0;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -713,10 +722,10 @@
             width: 100%;
             min-height: 48px;
             max-height: 135px;
-            padding: 10px 12px;
-            border: 1px solid #cbd9eb;
-            border-radius: 8px;
-            background: #ffffff;
+            padding: 4px 2px;
+            border: none;
+            border-radius: 0;
+            background: transparent;
             color: #13234b;
             font: inherit;
             font-size: 15px;
@@ -724,8 +733,17 @@
             resize: none;
         }
 
+        #ask-input:focus {
+            outline: none;
+        }
+
+        .chat-composer:focus-within {
+            border-color: #1261ff;
+            box-shadow: 0 0 0 3px #eaf1ff;
+        }
+
         #ask-input:disabled {
-            background: #f1f4fa;
+            background: transparent;
             color: #8a94a8;
         }
 
@@ -769,6 +787,16 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
+            background: #ffffff;
+            border-bottom: 1px solid #e3e8f0;
+            padding: 28px 40px 18px;
+        }
+
+        .chat-main-head .status-badge {
+            background: #edf8f1;
+            border: 1px solid #cfe6d8;
+            border-radius: 8px;
+            padding: 6px 10px;
         }
 
         .chat-eyebrow {
@@ -817,7 +845,6 @@
 
         /* Left sidebar (desktop only). */
         .chat-sidebar {
-            display: none;
             position: fixed;
             left: 0;
             top: 0;
@@ -927,6 +954,37 @@
             font-size: 13px;
             color: #8a94a8;
         }
+
+        /* Layout fixes: this page has its own headers, and nothing
+           reserves space when empty. */
+        .site-header {
+            display: none;
+        }
+
+        .chat-fab {
+            display: none;
+        }
+
+        #result-card > h2 {
+            display: none;
+        }
+
+        #status,
+        #ask-status {
+            min-height: 0;
+            width: min(820px, 100%);
+            margin: 0 auto 6px;
+            font-size: 12px;
+        }
+
+        #status:empty,
+        #ask-status:empty {
+            display: none;
+        }
+
+        .more-options[hidden] {
+            display: none;
+        }
     </style>
 </head>
 
@@ -981,15 +1039,15 @@
             <span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span class="status-text">Online</span></span>
         </header>
 
-    <main id="main-content" class="chat-main">
-        <header class="chat-main-head">
-            <div>
-                <p class="chat-eyebrow" data-i18n="explain.chatEyebrow">JAPANESE, IN YOUR LANGUAGE</p>
-                <h1 class="chat-title" data-i18n="explain.chatTitle">Send a photo, I will explain it.</h1>
-            </div>
-            <span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span class="status-text">Online</span></span>
-        </header>
+    <header class="chat-main-head">
+        <div>
+            <p class="chat-eyebrow" data-i18n="explain.chatEyebrow">JAPANESE, IN YOUR LANGUAGE</p>
+            <h1 class="chat-title" data-i18n="explain.chatTitle">Send a photo, I will explain it.</h1>
+        </div>
+        <span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span class="status-text">Online</span></span>
+    </header>
 
+    <main id="main-content" class="chat-main">
         <div id="chat-thread" aria-live="polite">
             <section id="welcome" class="chat-welcome-block">
                 <span class="welcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg></span>
@@ -1030,7 +1088,7 @@
             <p class="load-privacy" data-i18n="explain.loadPrivacy">Your photo is sent only to Meta AI and is not stored on our server.</p>
         </section>
 
-        <section class="card" id="result-card" style="display:none;">
+        <section id="result-card" style="display:none;">
             <h2><span data-i18n="explain.resultTitle">Your explanation</span> <span id="sample-tag" data-i18n="explain.sampleTag" style="display:none;">Sample</span></h2>
             <p id="kind-label" class="kind-label" style="display:none;"></p>
             <p id="other-message" class="other-message" style="display:none;"></p>
@@ -1126,6 +1184,8 @@
         </section>
 
         <div class="chat-composer-bar">
+            <p id="status" role="status"></p>
+            <p id="ask-status" role="status"></p>
             <div class="chat-composer">
                 <form id="explain-form">
                     <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
@@ -1136,7 +1196,6 @@
                         <button type="button" id="photo-remove" class="icon-btn" data-i18n-aria-label="app.remove" aria-label="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
                         <button type="submit" class="btn btn-prim" id="explain-btn" data-i18n="explain.submit">Scan notice</button>
                     </div>
-                    <p id="status" role="status"></p>
                 </form>
                 <form id="ask-form">
                     <label class="visually-hidden" for="ask-input" data-i18n="explain.askLabel">Ask something else about this notice</label>
@@ -1153,9 +1212,8 @@
                         <span class="chat-hint" data-i18n="chat.sendHint">Enter to send · Shift + Enter for a new line</span>
                         <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" data-i18n="explain.ask">Ask</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
                     </div>
-                    <p id="ask-status" role="status"></p>
                 </form>
-                <details class="more-options">
+                <details class="more-options" hidden>
                     <summary data-i18n="explain.moreOptions">More options</summary>
                     <div class="field">
                         <label class="step-label" for="mode" data-i18n="explain.modeLabel">What are you scanning?</label>
