@@ -155,7 +155,7 @@ class Phase6RendererTest(unittest.TestCase):
     def test_source_styles(self):
         css = _read("style.css")
         self.assertIn(".chat-source {", css)
-        self.assertIn('html[data-theme="dark"] .chat-source', css)
+        self.assertNotIn('html[data-theme="dark"] .chat-source', css)
 
 
 class Phase6TranslationTest(unittest.TestCase):

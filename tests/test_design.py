@@ -23,7 +23,8 @@ class FontTest(unittest.TestCase):
             text = _read(page)
             self.assertIn("fonts.googleapis.com", text, page)
             for family in ("Noto+Sans:", "Noto+Sans+Devanagari",
-                           "Noto+Sans+JP", "Noto+Sans+Myanmar"):
+                           "Noto+Sans+JP", "Noto+Sans+Myanmar",
+                           "Noto+Serif+JP", "Noto+Serif+Devanagari"):
                 self.assertIn(family, text, page)
 
     def test_base_type(self):
@@ -40,15 +41,30 @@ class ShapeColorTest(unittest.TestCase):
                      "dates.html"):
             self.assertNotIn("gradient", _read(name), name)
 
-    def test_buttons_use_8px_radius(self):
+    def test_buttons_use_4px_radius(self):
         css = _read("style.css")
-        self.assertRegex(css, r"\.btn\s*\{[^}]*?border-radius: 8px;")
-        self.assertRegex(css, r"\.chip\s*\{[^}]*?border-radius: 8px;")
-        self.assertRegex(css, r"\.chat-fab\s*\{[^}]*?border-radius: 8px;")
+        self.assertRegex(css, r"\.btn\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(css, r"\.chip\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(css, r"\.chat-fab\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(css, r"\.chat-composer\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(css,
+                         r"\.detail-card\s*\{[^}]*?border-radius: 4px;")
         page = _read("explain.html")
-        self.assertRegex(page, r"\.chip\s*\{[^}]*?border-radius: 8px;")
+        self.assertRegex(page, r"\.chip\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(page, r"\.card\s*\{[^}]*?border-radius: 4px;")
         self.assertNotIn("999px", css)
         self.assertNotIn("999px", page)
+
+    def test_no_big_radii_left(self):
+        for name in ("style.css", "explain.html", "tracker.html"):
+            text = _read(name)
+            for radius in ("border-radius: 8px", "border-radius: 12px",
+                           "border-radius: 14px", "border-radius: 16px"):
+                self.assertNotIn(radius, text, name)
+
+    def test_no_shadows(self):
+        for name in ("style.css", "explain.html", "tracker.html"):
+            self.assertNotIn("box-shadow", _read(name), name)
 
     def test_deadline_colors(self):
         css = _read("style.css")
@@ -57,22 +73,95 @@ class ShapeColorTest(unittest.TestCase):
         self.assertRegex(css,
                          r"\.due-soon\s*\{[^}]*?background: #fee2e2;[^}]*?color: #b91c1c;")
         self.assertRegex(css,
-                         r"\.summary-bar\s*\{[^}]*?background: #fef3c7;")
+                         r"\.summary-bar\s*\{[^}]*?background: var\(--card\);")
         self.assertRegex(css,
-                         r"\.summary-bar\.soon\s*\{[^}]*?background: #fee2e2;")
+                         r"\.summary-bar\s*\{[^}]*?border: 1\.5px solid var\(--accent\);")
+        self.assertRegex(css,
+                         r"\.summary-bar\.soon\s*\{[^}]*?background: var\(--soft\);")
+        self.assertRegex(css,
+                         r"\.summary-bar\.soon \.summary-days\s*\{[^}]*?color: var\(--accent\);")
 
-    def test_dark_theme_covers_new_elements(self):
+    def test_washi_tokens(self):
         css = _read("style.css")
+        start = css.index(":root {")
+        block = css[start:start + 700]
+        for line in ("--page: #f4efe6;", "--card: #fffdf8;",
+                     "--line: #e2d8c6;", "--text: #2a2420;",
+                     "--muted: #7a6e62;", "--accent: #b8322a;",
+                     "--accent-text: #ffffff;", "--soft: #f6e3df;",
+                     "--ok: #1f9d55;"):
+            self.assertIn(line, block)
+
+    def test_dark_theme_is_var_based(self):
+        css = _read("style.css")
+        start = css.index('html[data-theme="dark"] {')
+        block = css[start:start + 700]
+        for line in ("--page: #1c1916;", "--card: #26221e;",
+                     "--line: #3a332c;", "--text: #efe7da;",
+                     "--muted: #a99c8c;", "--accent: #e0675c;",
+                     "--accent-text: #1c1916;", "--soft: #3a2622;"):
+            self.assertIn(line, block)
+        # Only fixed urgency colors keep their own dark rules.
+        for selector in ('html[data-theme="dark"] .due',
+                         'html[data-theme="dark"] .due-soon',
+                         'html[data-theme="dark"] .net-banner'):
+            self.assertIn(selector, css)
         for selector in ('html[data-theme="dark"] .hero-text',
-                         'html[data-theme="dark"] .example-before',
-                         'html[data-theme="dark"] .steps li',
                          'html[data-theme="dark"] .summary-bar',
                          'html[data-theme="dark"] .summary-big',
                          'html[data-theme="dark"] .check-list',
                          'html[data-theme="dark"] .scan-steps',
-                         'html[data-theme="dark"] .due',
-                         'html[data-theme="dark"] .due-soon'):
-            self.assertIn(selector, css)
+                         'html[data-theme="dark"] .chat-composer'):
+            self.assertNotIn(selector, css)
+
+    def test_serif_for_headings_and_numbers(self):
+        css = _read("style.css")
+        self.assertRegex(css, r"h1, h2, h3 \{[^}]*?font-family: var\(--serif\);")
+        self.assertRegex(css,
+                         r"\.logo-name\s*\{[^}]*?font-family: var\(--serif\);")
+        self.assertRegex(css,
+                         r"\.summary-big\s*\{[^}]*?font-family: var\(--serif\);")
+        self.assertRegex(css,
+                         r"\.summary-big\s*\{[^}]*?font-size: 26px;")
+        self.assertRegex(css,
+                         r"\.deadline-amount\s*\{[^}]*?font-family: var\(--serif\);")
+        self.assertRegex(css,
+                         r"\.summary-label\s*\{[^}]*?text-transform: uppercase;")
+
+    def test_check_list_numbers(self):
+        css = _read("style.css")
+        self.assertRegex(css,
+                         r"\.check-list li::before\s*\{[^}]*?width: 24px;")
+        self.assertRegex(
+            css,
+            r"\.check-list li::before\s*\{[^}]*?background: var\(--soft\);")
+        self.assertRegex(
+            css,
+            r"\.check-list li::before\s*\{[^}]*?color: var\(--accent\);")
+        self.assertRegex(css,
+                         r"\.check-list li::before\s*\{[^}]*?border-radius: 4px;")
+
+    def test_hanko_stamp(self):
+        css = _read("style.css")
+        self.assertRegex(css, r"\.hanko\s*\{[^}]*?width: 62px;")
+        self.assertRegex(css, r"\.hanko\s*\{[^}]*?height: 62px;")
+        self.assertRegex(css, r"\.hanko\s*\{[^}]*?border-radius: 50%;")
+        self.assertRegex(
+            css,
+            r"\.hanko\s*\{[^}]*?border: 2\.5px solid var\(--accent\);")
+        self.assertRegex(css, r"\.hanko\s*\{[^}]*?transform: rotate\(-8deg\);")
+        self.assertRegex(css,
+                         r"#summary-hanko-num\s*\{[^}]*?font-size: 20px;")
+
+    def test_deadline_count_is_small_stamp(self):
+        css = _read("style.css")
+        self.assertRegex(
+            css,
+            r"\.deadline-count\s*\{[^}]*?border: 1\.5px solid var\(--muted\);")
+        self.assertRegex(css, r"\.deadline-count\s*\{[^}]*?transform: rotate\(-2deg\);")
+        self.assertRegex(
+            css,
+            r"\.deadline-count\.soon\s*\{[^}]*?color: var\(--accent\);")
 
 
 class TextRulesTest(unittest.TestCase):

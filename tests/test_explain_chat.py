@@ -36,6 +36,9 @@ NEW_KEYS = (
     "sidebar.savedDeadlines",
     "sidebar.offline",
     "sidebar.noSaved",
+    "explain.hankoDays",
+    "explain.hankoDay",
+    "explain.hankoOverdue",
 )
 
 
@@ -69,7 +72,7 @@ class ChatLayoutTest(unittest.TestCase):
         self.assertRegex(self.page,
                          r"\.chat-sidebar\s*\{[^}]*?width: 270px;")
         self.assertRegex(self.page,
-                         r"\.chat-sidebar\s*\{[^}]*?background: #13203f;")
+                         r"\.chat-sidebar\s*\{[^}]*?background: #2a2420;")
 
     def test_sidebar_saved_list_reads_storage(self):
         self.assertIn("function renderSideDates()", self.page)
@@ -212,6 +215,26 @@ class ComposerTest(unittest.TestCase):
         self.assertRegex(self.page,
                          r"#ask-btn\s*\{[^}]*?min-height: 44px;")
 
+    def test_composer_one_row(self):
+        # Paperclip, textarea, square Send in one row; language
+        # and hint in the small row under it.
+        main_at = self.page.index('class="composer-main"')
+        attach_at = self.page.index('id="attach-btn"', main_at)
+        input_at = self.page.index('id="ask-input"', main_at)
+        send_at = self.page.index('id="ask-btn"', main_at)
+        row_at = self.page.index('class="composer-row"', main_at)
+        self.assertLess(attach_at, input_at)
+        self.assertLess(input_at, send_at)
+        self.assertLess(send_at, row_at)
+        self.assertIn('id="language"', self.page[row_at:row_at + 1200])
+        self.assertIn("chat-hint", self.page[row_at:row_at + 1200])
+        self.assertRegex(self.page,
+                         r"\.composer-main\s*\{[^}]*?display: flex;")
+        self.assertRegex(self.page,
+                         r"#ask-btn\s*\{[^}]*?width: 44px;")
+        self.assertRegex(self.page,
+                         r"#ask-btn\s*\{[^}]*?height: 44px;")
+
 
 class TurnsTest(unittest.TestCase):
     @classmethod
@@ -226,7 +249,18 @@ class TurnsTest(unittest.TestCase):
         self.assertRegex(self.page,
                          r"\.you-photo\s*\{[^}]*?max-width: 220px;")
         self.assertRegex(self.page,
-                         r"\.you-photo\s*\{[^}]*?border-radius: 8px;")
+                         r"\.you-photo\s*\{[^}]*?border-radius: 4px;")
+
+    def test_you_row_is_dark_box(self):
+        self.assertRegex(
+            self.page,
+            r"#chat-thread \.lb-msg-user \.lb-msg-main\s*\{[^}]*?max-width: 260px;")
+        self.assertRegex(
+            self.page,
+            r"#chat-thread \.lb-msg-user \.lb-msg-text\s*\{[^}]*?background: var\(--text\);")
+        self.assertRegex(
+            self.page,
+            r"#chat-thread \.lb-msg-user \.lb-msg-text\s*\{[^}]*?color: var\(--card\);")
 
     def test_turns_hold_live_sections(self):
         self.assertIn("function newTurn()", self.page)
@@ -327,7 +361,8 @@ class ChatDarkTest(unittest.TestCase):
     def setUpClass(cls):
         cls.css = _read("style.css")
 
-    def test_dark_covers_chat_page(self):
+    def test_dark_chat_page_uses_tokens(self):
+        self.assertIn('html[data-theme="dark"] {', self.css)
         for selector in ('html[data-theme="dark"] .chat-top',
                          'html[data-theme="dark"] .status-badge',
                          'html[data-theme="dark"] .chat-title',
@@ -340,7 +375,7 @@ class ChatDarkTest(unittest.TestCase):
                          'html[data-theme="dark"] .icon-btn',
                          'html[data-theme="dark"] .composer-note',
                          'html[data-theme="dark"] .you-photo'):
-            self.assertIn(selector, self.css)
+            self.assertNotIn(selector, self.css)
 
 
 class LayoutFixesTest(unittest.TestCase):
@@ -396,14 +431,14 @@ class LayoutFixesTest(unittest.TestCase):
         heads = re.findall(r"\.chat-main-head\s*\{[^}]*\}", self.page)
         full = [b for b in heads if "padding: 28px 40px 18px;" in b]
         self.assertTrue(full)
-        self.assertIn("background: #ffffff;", full[0])
-        self.assertIn("border-bottom: 1px solid #e3e8f0;", full[0])
+        self.assertIn("background: var(--card);", full[0])
+        self.assertIn("border-bottom: 1px solid var(--line);", full[0])
         badges = re.findall(r"\.chat-main-head \.status-badge\s*\{[^}]*\}",
                               self.page)
         self.assertTrue(badges)
-        self.assertIn("background: #edf8f1;", badges[0])
-        self.assertIn("border: 1px solid #cfe6d8;", badges[0])
-        self.assertIn("border-radius: 8px;", badges[0])
+        self.assertIn("background: var(--soft);", badges[0])
+        self.assertIn("border: 1px solid var(--line);", badges[0])
+        self.assertIn("border-radius: 4px;", badges[0])
 
     def test_page_chrome(self):
         self.assertRegex(self.page,
@@ -413,12 +448,12 @@ class LayoutFixesTest(unittest.TestCase):
         bars = re.findall(r"\.chat-composer-bar\s*\{[^}]*\}", self.page)
         self.assertTrue(any("bottom: 72px;" in b for b in bars))
 
-    def test_dark_covers_fixes(self):
+    def test_dark_fixes_use_tokens(self):
         css = _read("style.css")
         for selector in ('html[data-theme="dark"] .chat-main-head',
                          'html[data-theme="dark"] .chat-main-head .status-badge',
                          'html[data-theme="dark"] .chat-composer:focus-within'):
-            self.assertIn(selector, css)
+            self.assertNotIn(selector, css)
 
 
 class AppShellTest(unittest.TestCase):
@@ -453,8 +488,9 @@ class AppShellTest(unittest.TestCase):
         self.assertTrue(muted)
         self.assertIn("font-size: 13px;", muted[0])
         self.assertIn("font-weight: 400;", muted[0])
-        self.assertIn('html[data-theme="dark"] .summary-big.summary-muted',
-                      _read("style.css"))
+        self.assertIn("color: var(--muted);", muted[0])
+        self.assertNotIn('html[data-theme="dark"] .summary-big.summary-muted',
+                         _read("style.css"))
 
 
 class LoadingStateTest(unittest.TestCase):
@@ -511,8 +547,18 @@ class LoadingStateTest(unittest.TestCase):
         self.assertIn("}, 20000);", self.page)
         self.assertIn("clearTimeout(slowTimer)", self.page)
         self.assertIn(".load-slow {", self.page)
-        self.assertIn('html[data-theme="dark"] .load-slow',
-                      _read("style.css"))
+        self.assertNotIn('html[data-theme="dark"] .load-slow',
+                         _read("style.css"))
+
+    def test_hanko_stamp_wired(self):
+        self.assertIn('id="summary-hanko"', self.page)
+        self.assertIn('id="summary-hanko-num"', self.page)
+        self.assertIn('id="summary-hanko-sub"', self.page)
+        self.assertIn('classList.add("overdue")', self.page)
+        self.assertIn('classList.remove("overdue")', self.page)
+        for key in ('"explain.hankoDays"', '"explain.hankoDay"',
+                    '"explain.hankoOverdue"'):
+            self.assertIn(key, self.page)
 
     def test_still_working_translated(self):
         src = _read("i18n.js")

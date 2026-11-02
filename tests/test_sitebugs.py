@@ -100,25 +100,31 @@ class DarkThemeTest(unittest.TestCase):
     def setUpClass(cls):
         cls.css = _read("style.css")
 
-    def test_dark_tracker_tile_text_is_light(self):
-        self.assertRegex(
-            self.css,
-            r'html\[data-theme="dark"\] \.summary-box span \{\s*'
-            r'color: #c3cede;')
-        self.assertRegex(
-            self.css,
-            r'html\[data-theme="dark"\] \.summary-box strong \{\s*'
-            r'color: #ffffff;')
+    def test_dark_tracker_tiles_use_tokens(self):
+        page = _read("tracker.html")
+        self.assertIn(".summary-box { background: var(--card);", page)
+        self.assertIn(".summary-box span { display: block; "
+                      "font-size: 0.85rem; color: var(--muted); }", page)
+        self.assertRegex(page,
+                         r"\.summary-box strong \{[^}]*?color: var\(--text\);")
+        self.assertNotIn('html[data-theme="dark"] .summary-box',
+                         self.css)
 
-    def test_dark_lens_surfaces_covered(self):
+    def test_dark_tracker_urgency_kept(self):
+        for selector in ('html[data-theme="dark"] .tag-income',
+                         'html[data-theme="dark"] .tag-expense',
+                         'html[data-theme="dark"] .del-btn'):
+            self.assertIn(selector, self.css)
+
+    def test_dark_lens_surfaces_use_tokens(self):
+        self.assertIn('html[data-theme="dark"] .net-banner', self.css)
         for selector in ('html[data-theme="dark"] .bottom-nav',
                          'html[data-theme="dark"] .chat-panel',
                          'html[data-theme="dark"] .date-list li',
                          'html[data-theme="dark"] .footer-links a',
                          'html[data-theme="dark"] .page-lead',
-                         'html[data-theme="dark"] .net-banner',
                          'html[data-theme="dark"] .main-nav a'):
-            self.assertIn(selector, self.css)
+            self.assertNotIn(selector, self.css)
 
 
 class ChatScrollTest(unittest.TestCase):
@@ -159,11 +165,11 @@ class ChatHiddenTest(unittest.TestCase):
 class ExplainDarkTest(unittest.TestCase):
     """Dark theme covers every Lens page surface."""
 
-    def test_dark_lens_selectors_covered(self):
+    def test_dark_lens_uses_tokens(self):
         css = _read("style.css")
         for selector in ('html[data-theme="dark"] .page-hero',
                          'html[data-theme="dark"] .eyebrow',
-                         'html[data-theme="dark"] .card',
+                         'html[data-theme="dark"] .card {',
                          'html[data-theme="dark"] .upload-area',
                          'html[data-theme="dark"] .explain-lead',
                          'html[data-theme="dark"] .upload-hint',
@@ -173,7 +179,13 @@ class ExplainDarkTest(unittest.TestCase):
                          'html[data-theme="dark"] #sample-btn',
                          'html[data-theme="dark"] #view-dates-btn',
                          'html[data-theme="dark"] .upload-privacy'):
-            self.assertIn(selector, css)
+            self.assertNotIn(selector, css)
+        page = _read("explain.html")
+        self.assertRegex(page,
+                         r"\.card\s*\{[^}]*?background-color: var\(--card\);")
+        self.assertRegex(
+            page,
+            r"\.result-card\s*\{[^}]*?background-color: var\(--card\);")
 
 
 if __name__ == "__main__":

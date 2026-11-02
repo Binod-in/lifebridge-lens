@@ -224,7 +224,7 @@ class AutoModeFrontendTest(unittest.TestCase):
         for selector in ('html[data-theme="dark"] .kind-label',
                          'html[data-theme="dark"] .other-message',
                          'html[data-theme="dark"] .more-options summary'):
-            self.assertIn(selector, css)
+            self.assertNotIn(selector, css)
 
 
 class AutoModeTranslationTest(unittest.TestCase):

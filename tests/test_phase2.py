@@ -184,9 +184,10 @@ class Phase2StyleTest(unittest.TestCase):
         self.assertIn(".marker-list {", self.css)
 
     def test_marker_dark_theme(self):
-        self.assertIn('html[data-theme="dark"] .marker-stage img', self.css)
-        self.assertIn('html[data-theme="dark"] .marker-list', self.css)
-        self.assertIn('html[data-theme="dark"] #mode', self.css)
+        self.assertNotIn('html[data-theme="dark"] .marker-stage img',
+                         self.css)
+        self.assertNotIn('html[data-theme="dark"] .marker-list', self.css)
+        self.assertNotIn('html[data-theme="dark"] #mode', self.css)
 
 
 class Phase2TranslationTest(unittest.TestCase):

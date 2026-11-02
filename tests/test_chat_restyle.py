@@ -149,13 +149,13 @@ class ChatStyleTest(unittest.TestCase):
         self.assertRegex(self.css,
                          r"\.lb-msg-avatar\s*\{[^}]*?width: 32px;")
         self.assertRegex(self.css,
-                         r"\.lb-msg-avatar\s*\{[^}]*?border-radius: 8px;")
+                         r"\.lb-msg-avatar\s*\{[^}]*?border-radius: 4px;")
         self.assertRegex(
             self.css,
-            r"\.lb-msg-bot \.lb-msg-avatar\s*\{[^}]*?background: #eaf1ff;")
+            r"\.lb-msg-bot \.lb-msg-avatar\s*\{[^}]*?background: var\(--accent\);")
         self.assertRegex(
             self.css,
-            r"\.lb-msg-user \.lb-msg-avatar\s*\{[^}]*?background: #e7f0ea;")
+            r"\.lb-msg-user \.lb-msg-avatar\s*\{[^}]*?background: var\(--text\);")
         self.assertRegex(self.css,
                          r"\.lb-msg-text\s*\{[^}]*?font-size: 15px;")
         self.assertRegex(self.css,
@@ -167,9 +167,10 @@ class ChatStyleTest(unittest.TestCase):
         self.assertRegex(self.css,
                          r"\.chat-welcome-icon\s*\{[^}]*?width: 64px;")
         self.assertRegex(self.css,
-                         r"\.chat-welcome-icon\s*\{[^}]*?border-radius: 16px;")
-        self.assertRegex(self.css,
-                         r"\.chat-welcome-icon\s*\{[^}]*?background: #eaf1ff;")
+                         r"\.chat-welcome-icon\s*\{[^}]*?border-radius: 4px;")
+        self.assertRegex(
+            self.css,
+            r"\.chat-welcome-icon\s*\{[^}]*?background: var\(--soft\);")
         self.assertRegex(self.css,
                          r"\.chat-welcome-kicker\s*\{[^}]*?font-size: 12px;")
         self.assertRegex(
@@ -178,7 +179,7 @@ class ChatStyleTest(unittest.TestCase):
         self.assertRegex(self.css,
                          r"\.chat-welcome-title\s*\{[^}]*?font-size: 24px;")
         self.assertRegex(self.css,
-                         r"\.chat-suggest\s*\{[^}]*?border-radius: 8px;")
+                         r"\.chat-suggest\s*\{[^}]*?border-radius: 4px;")
         self.assertRegex(self.css,
                          r"\.chat-suggest\s*\{[^}]*?min-height: 48px;")
 
@@ -189,15 +190,18 @@ class ChatStyleTest(unittest.TestCase):
                          r"\.chat-status-dot\s*\{[^}]*?height: 6px;")
         self.assertRegex(
             self.css,
+            r"\.chat-status-dot\s*\{[^}]*?background: var\(--ok\);")
+        self.assertRegex(
+            self.css,
             r"\.chat-status\.off \.chat-status-dot\s*\{[^}]*?background: #8a94a8;")
 
     def test_composer_styles(self):
         self.assertRegex(self.css,
-                         r"\.chat-composer\s*\{[^}]*?border-radius: 14px;")
+                         r"\.chat-composer\s*\{[^}]*?border-radius: 4px;")
         self.assertRegex(
             self.css,
-            r"\.chat-composer:focus-within\s*\{[^}]*?border-color: #1261ff;")
-        self.assertIn("box-shadow: 0 0 0 3px #eaf1ff;", self.css)
+            r"\.chat-composer:focus-within\s*\{[^}]*?border-color: var\(--accent\);")
+        self.assertNotIn("box-shadow", self.css)
         self.assertIn("@media (max-width: 399px)", self.css)
 
     def test_thinking_styles(self):
@@ -219,7 +223,8 @@ class ChatStyleTest(unittest.TestCase):
             self.assertNotIn("999px", text, name)
             self.assertNotIn("gradient", text, name)
 
-    def test_dark_covers_chat_restyle(self):
+    def test_dark_chat_uses_tokens(self):
+        self.assertIn('html[data-theme="dark"] {', self.css)
         for selector in ('html[data-theme="dark"] .chat-head',
                          'html[data-theme="dark"] .chat-status',
                          'html[data-theme="dark"] .chat-close',
@@ -233,7 +238,7 @@ class ChatStyleTest(unittest.TestCase):
                          'html[data-theme="dark"] .chat-composer',
                          'html[data-theme="dark"] .chat-input',
                          'html[data-theme="dark"] .lb-thinking'):
-            self.assertIn(selector, self.css)
+            self.assertNotIn(selector, self.css)
 
 
 class FollowupRestyleTest(unittest.TestCase):

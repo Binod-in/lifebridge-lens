@@ -157,7 +157,7 @@ class Phase5CompatTest(unittest.TestCase):
     def test_staff_styles_kept(self):
         css = _read("style.css")
         self.assertIn(".staff-vars {", css)
-        self.assertIn('html[data-theme="dark"] .staff-vars', css)
+        self.assertNotIn('html[data-theme="dark"] .staff-vars', css)
 
 
 if __name__ == "__main__":

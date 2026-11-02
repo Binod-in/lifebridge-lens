@@ -168,22 +168,25 @@ class RedesignDarkThemeTest(unittest.TestCase):
     def test_dark_covers_redesign_selectors(self):
         for selector in ('html[data-theme="dark"] .hero-text',
                          'html[data-theme="dark"] .scan-steps',
-                         'html[data-theme="dark"] .check-card',
-                         'html[data-theme="dark"] .cal',
-                         'html[data-theme="dark"] .cal-day',
+                         'html[data-theme="dark"] .cal {',
                          'html[data-theme="dark"] .deadline-title',
                          'html[data-theme="dark"] .deadline-count',
                          'html[data-theme="dark"] .deadline-amount',
                          'html[data-theme="dark"] .step-desc'):
+            self.assertNotIn(selector, self.css)
+        # Fixed urgency colors keep their own dark rules.
+        for selector in ('html[data-theme="dark"] .check-card',
+                         'html[data-theme="dark"] .cal-day.soon'):
             self.assertIn(selector, self.css)
 
     def test_dark_covers_tracker_extras(self):
         for selector in ('html[data-theme="dark"] .tag-income',
                          'html[data-theme="dark"] .tag-expense',
-                         'html[data-theme="dark"] .tag-saving',
-                         'html[data-theme="dark"] .progress',
                          'html[data-theme="dark"] .del-btn'):
             self.assertIn(selector, self.css)
+        for selector in ('html[data-theme="dark"] .tag-saving',
+                         'html[data-theme="dark"] .progress'):
+            self.assertNotIn(selector, self.css)
 
     def test_no_purple_or_pills(self):
         for name in ("style.css", "tracker.html", "explain.html",

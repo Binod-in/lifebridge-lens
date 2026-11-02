@@ -19,15 +19,15 @@
     <title data-i18n="explain.title">LifeBridge Lens</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&family=Noto+Serif+JP:wght@400;700&family=Noto+Serif+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="site.webmanifest">
-    <meta name="theme-color" content="#1261ff">
+    <meta name="theme-color" content="#f4efe6">
     <style>
         /* Explain page styles: same tokens as the rest of the site. */
         .page-hero {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e5ecf5;
+            background-color: var(--card);
+            border-bottom: 1px solid var(--line);
             padding: 48px 20px 38px;
         }
 
@@ -40,12 +40,12 @@
             display: inline-block;
             padding: 6px 14px;
             margin-bottom: 14px;
-            background-color: #f3f8ff;
-            border: 1px solid #d5e5ff;
-            border-radius: 8px;
+            background-color: var(--soft);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             font-size: 13px;
             font-weight: 600;
-            color: #13234b;
+            color: var(--text);
         }
 
         .page-hero h1 {
@@ -56,7 +56,7 @@
         }
 
         .explain-lead {
-            color: #425473;
+            color: var(--muted);
             font-size: 16px;
             line-height: 1.6;
             max-width: 640px;
@@ -67,10 +67,9 @@
             width: min(800px, calc(100% - 40px));
             margin: 24px auto;
             padding: 24px 20px;
-            background-color: #ffffff;
-            border: 1px solid #e5ecf5;
-            border-radius: 12px;
-            box-shadow: 0 10px 28px rgba(19, 35, 75, 0.12);
+            background-color: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
         }
         /* Compact page header: back link plus title, aligned with cards. */
         .lens-top {
@@ -119,27 +118,27 @@
             min-height: 190px;
             padding: 32px 20px;
             text-align: center;
-            background-color: #f3f8ff;
-            border: 2px dashed #9dbfff;
-            border-radius: 12px;
+            background-color: var(--card);
+            border: 2px dashed var(--line);
+            border-radius: 4px;
             cursor: pointer;
             transition: border-color 0.15s, background-color 0.15s;
         }
 
         .upload-area:hover {
-            border-color: #1261ff;
-            background-color: #edf4ff;
+            border-color: var(--accent);
+            background-color: var(--soft);
         }
 
         .upload-area:focus-within {
-            outline: 3px solid #1261ff;
+            outline: 3px solid var(--accent);
             outline-offset: 4px;
         }
 
         .upload-area svg {
             width: 44px;
             height: 44px;
-            color: #1261ff;
+            color: var(--accent);
         }
 
         .upload-title {
@@ -149,7 +148,7 @@
 
         .upload-hint {
             font-size: 13px;
-            color: #56647d;
+            color: var(--muted);
         }
 
         #photo {
@@ -166,9 +165,9 @@
             max-height: 320px;
             object-fit: contain;
             margin-top: 14px;
-            border-radius: 8px;
-            border: 1px solid #e5ecf5;
-            background-color: #f5f9ff;
+            border-radius: 4px;
+            border: 1px solid var(--line);
+            background-color: var(--card);
         }
 
         #sample-btn {
@@ -196,10 +195,10 @@
             width: 100%;
             min-height: 52px;
             padding: 13px 14px;
-            border: 1px solid #cbd9eb;
-            border-radius: 8px;
-            background-color: #ffffff;
-            color: #13234b;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background-color: var(--card);
+            color: var(--text);
         }
 
         /* Collapsed power-user options (scan mode). Auto is default. */
@@ -211,7 +210,7 @@
             display: inline-block;
             min-height: 48px;
             line-height: 48px;
-            color: #1261ff;
+            color: var(--accent);
             font-weight: 600;
             cursor: pointer;
         }
@@ -225,9 +224,9 @@
             display: inline-block;
             margin: 0 0 12px;
             padding: 4px 10px;
-            border-radius: 8px;
-            background: #eaf1ff;
-            color: #13234b;
+            border-radius: 4px;
+            background: var(--soft);
+            color: var(--text);
             font-size: 13px;
             font-weight: 600;
         }
@@ -235,7 +234,7 @@
         .other-message {
             font-size: 16px;
             line-height: 1.7;
-            color: #425473;
+            color: var(--muted);
         }
 
         #status {
@@ -243,7 +242,7 @@
             min-height: 24px;
             font-size: 14px;
             line-height: 1.5;
-            color: #425473;
+            color: var(--muted);
         }
 
         #result-card h2 {
@@ -264,9 +263,9 @@
         }
 
         .result-card {
-            background-color: #f5f9ff;
-            border: 1px solid #d5e5ff;
-            border-radius: 12px;
+            background-color: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             padding: 18px 20px;
         }
 
@@ -278,7 +277,7 @@
         .result-card p {
             font-size: 14px;
             line-height: 1.6;
-            color: #425473;
+            color: var(--text);
             white-space: pre-line;
         }
 
@@ -303,18 +302,18 @@
         .chip {
             padding: 12px 16px;
             min-height: 48px;
-            background-color: #f3f8ff;
-            border: 1px solid #d5e5ff;
-            border-radius: 8px;
+            background-color: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             font-size: 14px;
-            color: #13234b;
+            color: var(--text);
             cursor: pointer;
             text-align: left;
         }
 
         .chip:hover {
-            border-color: #1261ff;
-            background-color: #edf4ff;
+            border-color: var(--accent);
+            background-color: var(--soft);
         }
 
         .chip:disabled {
@@ -329,26 +328,20 @@
             margin-bottom: 8px;
         }
 
-        @media (min-width: 600px) {
-            #ask-form {
-                flex-direction: row;
-            }
-        }
-
         #ask-input {
             flex: 1;
             min-width: 0;
             padding: 13px 18px;
-            border: 1px solid #cbd9eb;
-            border-radius: 8px;
-            background-color: #ffffff;
-            color: #13234b;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background-color: var(--card);
+            color: var(--text);
         }
 
         #ask-btn {
             padding: 13px 24px;
             white-space: nowrap;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
@@ -373,7 +366,7 @@
             margin-top: 10px;
             min-height: 22px;
             font-size: 13px;
-            color: #425473;
+            color: var(--muted);
         }
 
         /* --- Chat page layout (mobile first) --- */
@@ -397,8 +390,8 @@
             align-items: center;
             gap: 10px;
             padding: 8px 12px;
-            background: #ffffff;
-            border-bottom: 1px solid #e3e8f0;
+            background: var(--card);
+            border-bottom: 1px solid var(--line);
             position: sticky;
             top: 0;
             z-index: 30;
@@ -410,8 +403,8 @@
             justify-content: center;
             min-width: 44px;
             min-height: 44px;
-            color: #2c3a55;
-            border-radius: 8px;
+            color: var(--text);
+            border-radius: 4px;
         }
 
         .chat-back svg {
@@ -425,8 +418,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            font-family: var(--serif);
             font-weight: 700;
-            color: #13203f;
+            color: var(--text);
         }
 
         /* Status badge shared by both headers. */
@@ -436,7 +430,7 @@
             align-items: center;
             gap: 6px;
             font-size: 13px;
-            color: #5b6880;
+            color: var(--muted);
             white-space: nowrap;
         }
 
@@ -444,7 +438,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #1f9d55;
+            background: var(--ok);
         }
 
         .status-badge.off .status-dot {
@@ -488,9 +482,9 @@
             justify-content: center;
             width: 72px;
             height: 72px;
-            border-radius: 16px;
-            background: #eaf1ff;
-            color: #1261ff;
+            border-radius: 4px;
+            background: var(--soft);
+            color: var(--accent);
         }
 
         .welcome-icon svg {
@@ -500,10 +494,11 @@
 
         .welcome-title {
             margin: 0;
+            font-family: var(--serif);
             font-size: 22px;
             font-weight: 600;
             line-height: 1.4;
-            color: #13203f;
+            color: var(--text);
         }
 
         .suggest-cards {
@@ -521,9 +516,9 @@
             width: 100%;
             min-height: 64px;
             padding: 12px 14px;
-            background: #ffffff;
-            border: 1px solid #e3e8f0;
-            border-radius: 8px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             font: inherit;
             text-align: left;
             cursor: pointer;
@@ -533,7 +528,7 @@
             flex-shrink: 0;
             width: 24px;
             height: 24px;
-            color: #1261ff;
+            color: var(--accent);
         }
 
         .suggest-text {
@@ -545,12 +540,12 @@
 
         .suggest-text strong {
             font-size: 15px;
-            color: #13203f;
+            color: var(--text);
         }
 
         .suggest-text small {
             font-size: 13px;
-            color: #5b6880;
+            color: var(--muted);
         }
 
         #sample-btn {
@@ -584,9 +579,36 @@
             max-width: 220px;
             height: auto;
             margin-bottom: 6px;
-            border-radius: 8px;
-            border: 1px solid #e3e8f0;
-            background: #f5f9ff;
+            border-radius: 4px;
+            border: 1px solid var(--line);
+            background: var(--card);
+        }
+
+        /* Your messages: a right-aligned dark box with the photo
+         * and text inside, no avatar or name. */
+        #chat-thread .lb-msg-user .lb-msg-avatar {
+            display: none;
+        }
+
+        #chat-thread .lb-msg-user .lb-msg-name {
+            display: none;
+        }
+
+        #chat-thread .lb-msg-user .lb-msg-main {
+            margin-left: auto;
+            max-width: 260px;
+        }
+
+        #chat-thread .lb-msg-user .lb-msg-text {
+            margin-top: 0;
+            padding: 10px 12px;
+            border-radius: 4px;
+            background: var(--text);
+            color: var(--card);
+        }
+
+        #chat-thread .lb-msg-user .lb-msg-time {
+            text-align: right;
         }
 
         /* Hidden file inputs (opened via buttons). */
@@ -616,16 +638,16 @@
             bottom: 72px;
             z-index: 35;
             padding: 8px 12px;
-            background: #f6f8fb;
-            border-top: 1px solid #e3e8f0;
+            background: var(--page);
+            border-top: 1px solid var(--line);
         }
 
         .chat-composer {
             width: min(820px, 100%);
             margin: 0 auto;
-            background: #ffffff;
-            border: 1px solid #e3e8f0;
-            border-radius: 12px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             padding: 12px 14px;
             display: flex;
             flex-direction: column;
@@ -636,7 +658,7 @@
             width: min(820px, 100%);
             margin: 6px auto 0;
             font-size: 12px;
-            color: #5b6880;
+            color: var(--muted);
             text-align: center;
         }
 
@@ -645,9 +667,9 @@
             align-items: center;
             gap: 8px;
             padding: 6px 8px;
-            background: #f3f8ff;
-            border: 1px solid #d5e5ff;
-            border-radius: 8px;
+            background: var(--soft);
+            border: 1px solid var(--line);
+            border-radius: 4px;
         }
 
         #preview {
@@ -655,8 +677,8 @@
             height: 40px;
             object-fit: cover;
             margin: 0;
-            border-radius: 8px;
-            border: 1px solid #e3e8f0;
+            border-radius: 4px;
+            border: 1px solid var(--line);
             flex-shrink: 0;
         }
 
@@ -667,7 +689,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             font-size: 13px;
-            color: #2c3a55;
+            color: var(--text);
         }
 
         .icon-btn {
@@ -678,9 +700,9 @@
             min-width: 44px;
             min-height: 44px;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             background: transparent;
-            color: #2c3a55;
+            color: var(--text);
             cursor: pointer;
         }
 
@@ -695,6 +717,19 @@
             gap: 8px;
         }
 
+        /* One composer row: paperclip, textarea, square Send button. */
+        .composer-main {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .composer-main #ask-input {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+        }
+
         #ask-input {
             width: 100%;
             min-height: 48px;
@@ -703,7 +738,7 @@
             border: none;
             border-radius: 0;
             background: transparent;
-            color: #13234b;
+            color: var(--text);
             font: inherit;
             font-size: 15px;
             line-height: 1.6;
@@ -715,8 +750,7 @@
         }
 
         .chat-composer:focus-within {
-            border-color: #1261ff;
-            box-shadow: 0 0 0 3px #eaf1ff;
+            border-color: var(--accent);
         }
 
         #ask-input:disabled {
@@ -724,6 +758,7 @@
             color: #8a94a8;
         }
 
+        /* Small row under the composer: language plus hint. */
         .composer-row {
             display: flex;
             align-items: center;
@@ -742,11 +777,15 @@
         }
 
         #ask-btn {
+            flex-shrink: 0;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
             min-height: 44px;
+            padding: 0;
+            border-radius: 4px;
         }
 
         #ask-btn svg {
@@ -764,15 +803,15 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
-            background: #ffffff;
-            border-bottom: 1px solid #e3e8f0;
+            background: var(--card);
+            border-bottom: 1px solid var(--line);
             padding: 28px 40px 18px;
         }
 
         .chat-main-head .status-badge {
-            background: #edf8f1;
-            border: 1px solid #cfe6d8;
-            border-radius: 8px;
+            background: var(--soft);
+            border: 1px solid var(--line);
+            border-radius: 4px;
             padding: 6px 10px;
         }
 
@@ -781,14 +820,15 @@
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.08em;
-            color: #5b6880;
+            color: var(--muted);
         }
 
         .chat-title {
             margin: 0;
+            font-family: var(--serif);
             font-size: 26px;
             font-weight: 700;
-            color: #13203f;
+            color: var(--text);
             line-height: 1.3;
         }
 
@@ -835,8 +875,8 @@
             flex-direction: column;
             gap: 16px;
             padding: 20px 16px;
-            background: #13203f;
-            color: #e6ecf7;
+            background: #2a2420;
+            color: #f4efe6;
             overflow-y: auto;
         }
 
@@ -844,8 +884,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-family: var(--serif);
             font-weight: 700;
-            color: #ffffff;
+            color: #f4efe6;
         }
 
         .side-nav {
@@ -862,9 +903,9 @@
             min-height: 48px;
             padding: 10px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             background: transparent;
-            color: #c3cede;
+            color: #cfc4b4;
             font: inherit;
             font-size: 15px;
             text-decoration: none;
@@ -880,7 +921,7 @@
         }
 
         .side-nav a.active {
-            background: #1261ff;
+            background: #b8322a;
             color: #ffffff;
             font-weight: 600;
         }
@@ -896,7 +937,7 @@
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.08em;
-            color: #8a94a8;
+            color: #a99c8c;
         }
 
         #side-dates {
@@ -913,8 +954,8 @@
             flex-direction: column;
             gap: 2px;
             padding: 8px 10px;
-            border-radius: 8px;
-            background: #1d2f5c;
+            border-radius: 4px;
+            background: #3a332c;
         }
 
         .side-date-title {
@@ -928,12 +969,12 @@
 
         .side-date-date {
             font-size: 12px;
-            color: #9dbcff;
+            color: #e0675c;
         }
 
         .side-empty {
             font-size: 13px;
-            color: #8a94a8;
+            color: #a99c8c;
         }
 
         /* Layout fixes: this page has its own headers, and nothing
@@ -990,16 +1031,17 @@
 
         /* Missing amount: one small muted line, not a big error. */
         .summary-big.summary-muted {
+            font-family: "Noto Sans", "Noto Sans Devanagari", "Noto Sans JP", "Noto Sans Myanmar", system-ui, sans-serif;
             font-size: 13px;
             font-weight: 400;
-            color: #5b6880;
+            color: var(--muted);
         }
 
         /* Muted line shown when a scan runs long. */
         .load-slow {
             margin: 4px 0 0;
             font-size: 13px;
-            color: #5b6880;
+            color: var(--muted);
         }
     </style>
 </head>
@@ -1112,6 +1154,7 @@
                 </figcaption>
             </figure>
             <div class="summary-bar" id="summary-bar" style="display:none;">
+                <div class="hanko" id="summary-hanko" aria-hidden="true"><span id="summary-hanko-num"></span><span id="summary-hanko-sub"></span></div>
                 <div class="summary-item">
                     <span class="summary-label" data-i18n="explain.hDeadline">Deadline</span>
                     <strong class="summary-big" id="summary-deadline"></strong>
@@ -1210,9 +1253,12 @@
                 </form>
                 <form id="ask-form">
                     <label class="visually-hidden" for="ask-input" data-i18n="explain.askLabel">Ask something else about this notice</label>
-                    <textarea id="ask-input" rows="1" autocomplete="off"></textarea>
-                    <div class="composer-row">
+                    <div class="composer-main">
                         <button type="button" id="attach-btn" class="icon-btn" data-i18n-aria-label="explain.uploadTitle" aria-label="Tap to take or choose a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+                        <textarea id="ask-input" rows="1" autocomplete="off"></textarea>
+                        <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" class="visually-hidden" data-i18n="explain.ask">Send</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+                    </div>
+                    <div class="composer-row">
                         <select id="language" name="language">
                             <option value="ne" data-i18n="explain.optNepali">Nepali</option>
                             <option value="en" data-i18n="explain.optEnglish">English</option>
@@ -1221,7 +1267,6 @@
                             <option value="my">မြန်မာ</option>
                         </select>
                         <span class="chat-hint" data-i18n="chat.sendHint">Enter to send · Shift + Enter for a new line</span>
-                        <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" data-i18n="explain.ask">Send</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
                     </div>
                 </form>
                 <details class="more-options" hidden>
@@ -1871,17 +1916,31 @@
             document.getElementById("summary-era").textContent = eraText;
             const n = daysUntil(lastDeadlineDate);
             const daysEl = document.getElementById("summary-days");
+            const hanko = document.getElementById("summary-hanko");
+            const hankoNum = document.getElementById("summary-hanko-num");
+            const hankoSub = document.getElementById("summary-hanko-sub");
             bar.classList.remove("soon", "passed");
             if (n < 0) {
                 bar.classList.add("passed");
                 daysEl.textContent = t("explain.deadlinePassed", "Deadline passed");
+                hanko.classList.add("overdue");
+                hankoNum.textContent = "";
+                hankoSub.textContent = t("explain.hankoOverdue", "Overdue");
             } else if (n <= 7) {
                 bar.classList.add("soon");
                 daysEl.textContent = n === 1
                     ? t("explain.dayLeft", "1 day left")
                     : t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+                hanko.classList.remove("overdue");
+                hankoNum.textContent = String(n);
+                hankoSub.textContent = n === 1
+                    ? t("explain.hankoDay", "day left")
+                    : t("explain.hankoDays", "days left");
             } else {
                 daysEl.textContent = t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+                hanko.classList.remove("overdue");
+                hankoNum.textContent = String(n);
+                hankoSub.textContent = t("explain.hankoDays", "days left");
             }
             bar.style.display = "";
         }
