@@ -2262,7 +2262,4 @@ html[data-theme="dark"] .del-btn {
         border-color: #1261ff;
         background: #1261ff;
     }
-    .btn-spinner {
-        animation: none;
-    }
 }
