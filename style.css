@@ -583,6 +583,18 @@ input, select, textarea {
     font-weight: 700;
 }
 
+/* Desktop: the top nav is already there, so the bottom tab bar
+ * hides on every page and the pages drop the padding kept for it. */
+@media (min-width: 1024px) {
+    .bottom-nav {
+        display: none;
+    }
+
+    .page-cnt {
+        padding-bottom: 24px;
+    }
+}
+
 /* --- Offline banner (added by i18n.js, hidden while online) --- */
 .net-banner {
     padding: 8px 16px;

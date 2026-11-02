@@ -226,6 +226,22 @@ class ResponsiveTest(unittest.TestCase):
         self.assertIn("position: fixed;", match.group(1))
         self.assertIn("bottom: 0;", match.group(1))
 
+    def test_bottom_nav_hidden_on_desktop(self):
+        css = _read("style.css")
+        start = css.index("@media (min-width: 1024px)")
+        block = css[start:start + 800]
+        self.assertIn(".bottom-nav", block)
+        self.assertIn("display: none;", block)
+        self.assertIn(".page-cnt", block)
+        self.assertIn("padding-bottom: 24px;", block)
+
+    def test_bottom_nav_kept_on_mobile(self):
+        css = _read("style.css")
+        base = css[:css.index("@media (min-width: 1024px)")]
+        match = re.search(r"\.bottom-nav \{(.*?)\}", base, re.S)
+        self.assertTrue(match)
+        self.assertIn("display: flex;", match.group(1))
+
 
 class NoEmDashTest(unittest.TestCase):
     def test_no_em_or_en_dash_in_i18n(self):
