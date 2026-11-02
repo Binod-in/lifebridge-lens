@@ -79,7 +79,26 @@ class AskEndpointTest(unittest.TestCase):
         self.assertIn("This is a gas bill.", sent)
         self.assertIn("data:image/jpeg;base64,/9j/2Q==", sent)
         self.assertIn("Nepali", sent)
-        self.assertIn("not written in the notice", sent)
+        self.assertIn("If one is not on the notice, say so", sent)
+
+    def test_general_questions_answered_from_knowledge(self):
+        captured = {}
+
+        def fake_urlopen(req, timeout=120):
+            captured["body"] = json.loads(req.data.decode("utf-8"))
+            return _api_reply("ok")
+
+        with mock.patch.object(server.urllib.request, "urlopen",
+                               side_effect=fake_urlopen):
+            res = self.client.post("/ask", json={
+                "question": "What is national health insurance?",
+                "language": "en",
+            })
+        self.assertEqual(res.status_code, 200)
+        sent = json.dumps(captured["body"])
+        self.assertIn("general knowledge", sent)
+        self.assertIn("Never invent", sent)
+        self.assertNotIn("Answer only about this notice", sent)
 
 
 class AskHistoryTest(unittest.TestCase):
