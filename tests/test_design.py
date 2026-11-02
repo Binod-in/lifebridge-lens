@@ -159,7 +159,9 @@ class ExplainDesignTest(unittest.TestCase):
         self.assertIn("startScanSteps();", self.page)
         self.assertIn("stopScanSteps();", self.page)
         css = _read("style.css")
-        self.assertIn(".scan-steps li.on", css)
+        self.assertIn(".scan-steps li.current", css)
+        self.assertIn(".scan-steps li.done", css)
+        self.assertIn("@keyframes lb-spin", css)
         self.assertIn("prefers-reduced-motion", css)
 
 

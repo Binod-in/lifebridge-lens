@@ -691,6 +691,9 @@
             min-height: 44px;
             font-size: 15px;
             box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .icon-btn {
@@ -1017,6 +1020,28 @@
             font-weight: 400;
             color: #5b6880;
         }
+
+        /* Small spinner inside the Scan button while loading. */
+        .btn-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-top-color: #ffffff;
+            animation: lb-spin 0.8s linear infinite;
+        }
+
+        .btn-spinner[hidden] {
+            display: none;
+        }
+
+        /* Muted line shown when a scan runs long. */
+        .load-slow {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: #5b6880;
+        }
     </style>
 </head>
 
@@ -1103,20 +1128,13 @@
                 <p class="upload-privacy" data-i18n="explain.privacyHint">Your photo is sent to Meta AI. Cover details you don't need, like your residence card number.</p>
             </section>
 
-        <section class="card load-card" id="loading-card" style="display:none;" aria-live="polite">
-            <h2 data-i18n="explain.loadingTitle">Reading your notice</h2>
-            <div class="loading-file">
-                <img id="loading-thumb" alt="">
-                <div>
-                    <p id="loading-name"></p>
-                    <p class="muted-text" id="loading-lang"></p>
-                </div>
-            </div>
+        <section id="loading-card" style="display:none;" aria-live="polite">
             <ol class="scan-steps" id="scan-steps">
                 <li data-i18n="explain.load1">Reading the Japanese text</li>
                 <li data-i18n="explain.load2">Understanding the notice</li>
                 <li data-i18n="explain.load3">Writing it in your language</li>
             </ol>
+            <p class="load-slow" id="load-slow" style="display:none;" data-i18n="explain.stillWorking">Still working, big photos can take up to a minute.</p>
             <p class="load-privacy" data-i18n="explain.loadPrivacy">Your photo is sent only to Meta AI and is not stored on our server.</p>
         </section>
 
@@ -1226,7 +1244,7 @@
                         <img id="preview" alt="">
                         <span id="photo-name" class="photo-name"></span>
                         <button type="button" id="photo-remove" class="icon-btn" data-i18n-aria-label="app.remove" aria-label="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-                        <button type="submit" class="btn btn-prim" id="explain-btn" data-i18n="explain.submit">Scan notice</button>
+                        <button type="submit" class="btn btn-prim" id="explain-btn"><span class="btn-spinner" aria-hidden="true" hidden></span><span data-i18n="explain.submit">Scan</span></button>
                     </div>
                 </form>
                 <form id="ask-form">
@@ -1905,50 +1923,37 @@
             bar.style.display = "";
         }
 
-        // Loading card: thumbnail, file name and language first, then the
-        // steps light up one by one while a scan runs.
+        // Loading steps: exactly one step is "current" at a time;
+        // finished steps turn "done" and the last one stays "current"
+        // until the reply arrives.
         let scanStepTimer = null;
-        let loadingObjectUrl = "";
+        let slowTimer = null;
         function startScanSteps() {
-            const file = photoInput.files[0];
-            const thumb = document.getElementById("loading-thumb");
-            if (loadingObjectUrl) {
-                URL.revokeObjectURL(loadingObjectUrl);
-                loadingObjectUrl = "";
-            }
-            if (preview.style.display !== "none" && preview.src) {
-                thumb.src = preview.src;
-            } else if (file) {
-                loadingObjectUrl = URL.createObjectURL(file);
-                thumb.src = loadingObjectUrl;
-            } else {
-                thumb.removeAttribute("src");
-            }
-            document.getElementById("loading-name").textContent = file ? file.name : "";
-            const langSelect = document.getElementById("language");
-            const langName = langSelect.options[langSelect.selectedIndex].textContent;
-            document.getElementById("loading-lang").textContent =
-                t("explain.loadingLang", "Language") + ": " + langName;
             document.getElementById("loading-card").style.display = "block";
+            document.getElementById("load-slow").style.display = "none";
             const box = document.getElementById("scan-steps");
             const items = Array.from(box.querySelectorAll("li"));
-            items.forEach((li) => li.classList.remove("on"));
-            let i = 0;
-            const light = () => {
-                if (i < items.length) items[i].classList.add("on");
-                i++;
+            let at = 0;
+            const advance = () => {
+                items.forEach((li, i) => {
+                    li.classList.toggle("done", i < at);
+                    li.classList.toggle("current", i === at);
+                });
+                if (at < items.length - 1) at++;
             };
-            light();
-            scanStepTimer = setInterval(light, 4000);
+            advance();
+            scanStepTimer = setInterval(advance, 4000);
+            slowTimer = setTimeout(() => {
+                document.getElementById("load-slow").style.display = "";
+            }, 20000);
         }
         function stopScanSteps() {
             if (scanStepTimer) clearInterval(scanStepTimer);
             scanStepTimer = null;
+            if (slowTimer) clearTimeout(slowTimer);
+            slowTimer = null;
             document.getElementById("loading-card").style.display = "none";
-            if (loadingObjectUrl) {
-                URL.revokeObjectURL(loadingObjectUrl);
-                loadingObjectUrl = "";
-            }
+            document.getElementById("load-slow").style.display = "none";
         }
 
         // Japanese era date: 2027-02-01 becomes "Reiwa 9 (2027)".
@@ -1984,9 +1989,7 @@
             askInput.disabled = true;
             askBtn.disabled = true;
             document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
-            const originalBtnText = btn.textContent;
-            btn.textContent = t("explain.explaining", "Reading your notice...");
-            setStatus("explain.reading", "Reading your notice... this can take a few seconds.");
+            btn.querySelector(".btn-spinner").hidden = false;
             startScanSteps();
             const smallPhoto = await shrinkPhoto(photoInput.files[0]);
             const newPhotoB64 = await blobToB64(smallPhoto);
@@ -2062,7 +2065,7 @@
                     if (emptyTurn) emptyTurn.remove();
                     currentTurnBody = null;
                 }
-                btn.textContent = originalBtnText;
+                btn.querySelector(".btn-spinner").hidden = true;
                 btn.disabled = false;
                 sampleBtn.disabled = false;
                 askInput.disabled = false;

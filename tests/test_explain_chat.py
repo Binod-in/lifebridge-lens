@@ -433,5 +433,76 @@ class AppShellTest(unittest.TestCase):
                       _read("style.css"))
 
 
+class LoadingStateTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.page = _read("explain.html")
+
+    def test_flat_loading_message(self):
+        self.assertIn('id="loading-card"', self.page)
+        self.assertNotIn('class="card load-card"', self.page)
+        self.assertNotIn('id="loading-thumb"', self.page)
+        self.assertNotIn('id="loading-name"', self.page)
+        self.assertNotIn('id="loading-lang"', self.page)
+        self.assertNotIn('"explain.loadingTitle"', self.page)
+        for marker in ('id="scan-steps"', '"explain.load1"',
+                       '"explain.loadPrivacy"'):
+            self.assertIn(marker, self.page)
+
+    def test_step_states(self):
+        for marker in ('toggle("done", i < at)',
+                       'toggle("current", i === at)',
+                       "setInterval(advance, 4000)",
+                       "function startScanSteps()",
+                       "function stopScanSteps()"):
+            self.assertIn(marker, self.page)
+        self.assertNotIn('add("on")', self.page)
+        css = _read("style.css")
+        for marker in (".scan-steps li.current::before",
+                       ".scan-steps li.done::before",
+                       "@keyframes lb-spin"):
+            self.assertIn(marker, css)
+
+    def test_single_announcement(self):
+        self.assertIn('class="btn-spinner"', self.page)
+        self.assertIn('querySelector(".btn-spinner").hidden = false',
+                      self.page)
+        self.assertIn('querySelector(".btn-spinner").hidden = true',
+                      self.page)
+        self.assertNotIn('"explain.explaining"', self.page)
+        self.assertNotIn('"explain.reading"', self.page)
+        self.assertIn('id="explain-btn"', self.page)
+        self.assertIn('"explain.submit"', self.page)
+
+    def test_spinner_css(self):
+        self.assertIn(".btn-spinner {", self.page)
+        self.assertIn(".btn-spinner[hidden] {", self.page)
+        css = _read("style.css")
+        start = css.index("@media (prefers-reduced-motion: reduce)")
+        block = css[start:]
+        self.assertIn(".scan-steps li.current::before", block)
+        self.assertIn(".btn-spinner", block)
+
+    def test_slow_line(self):
+        self.assertIn('id="load-slow"', self.page)
+        self.assertIn('"explain.stillWorking"', self.page)
+        self.assertIn("}, 20000);", self.page)
+        self.assertIn("clearTimeout(slowTimer)", self.page)
+        self.assertIn(".load-slow {", self.page)
+        self.assertIn('html[data-theme="dark"] .load-slow',
+                      _read("style.css"))
+
+    def test_still_working_translated(self):
+        src = _read("i18n.js")
+        for lang in LANGS:
+            block = _lang_block(src, lang)
+            match = re.search(r'"explain\.stillWorking": "(.*?)"', block)
+            self.assertTrue(match, lang)
+            value = match.group(1)
+            self.assertTrue(value.strip(), lang)
+            self.assertNotIn("—", value, lang)
+            self.assertNotIn("–", value, lang)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1492,15 +1492,34 @@ html.chat-open body {
     border: 2px solid #c3cee6;
 }
 
-.scan-steps li.on {
-    border-color: #1261ff;
+.scan-steps li.current {
     color: #2c3a55;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-.scan-steps li.on::before {
-    background: #1261ff;
-    border-color: #1261ff;
+.scan-steps li.current::before {
+    border-color: #c3cee6;
+    border-top-color: #1261ff;
+    animation: lb-spin 0.9s linear infinite;
+}
+
+.scan-steps li.done {
+    color: #2c3a55;
+}
+
+.scan-steps li.done::before {
+    width: 7px;
+    height: 13px;
+    margin: 0 4px 0 3px;
+    border-radius: 0;
+    border: none;
+    border-right: 3px solid #1f9d55;
+    border-bottom: 3px solid #1f9d55;
+    transform: rotate(45deg);
+}
+
+@keyframes lb-spin {
+    to { transform: rotate(360deg); }
 }
 
 /* --- Deadline urgency badges --- */
@@ -2060,14 +2079,26 @@ html[data-theme="dark"] .scan-steps {
     color: #aab6ca;
 }
 
-html[data-theme="dark"] .scan-steps li.on {
-    border-color: #9dbcff;
+html[data-theme="dark"] .scan-steps li.current {
     color: #e6ecf7;
 }
 
-html[data-theme="dark"] .scan-steps li.on::before {
-    background: #9dbcff;
-    border-color: #9dbcff;
+html[data-theme="dark"] .scan-steps li.current::before {
+    border-color: #33456e;
+    border-top-color: #9dbcff;
+}
+
+html[data-theme="dark"] .scan-steps li.done {
+    color: #e6ecf7;
+}
+
+html[data-theme="dark"] .scan-steps li.done::before {
+    border-right-color: #8fe3a6;
+    border-bottom-color: #8fe3a6;
+}
+
+html[data-theme="dark"] .load-slow {
+    color: #c3cede;
 }
 
 html[data-theme="dark"] .check-card {
@@ -2224,6 +2255,14 @@ html[data-theme="dark"] .del-btn {
         animation: none;
     }
     .lb-thinking-dots span {
+        animation: none;
+    }
+    .scan-steps li.current::before {
+        animation: none;
+        border-color: #1261ff;
+        background: #1261ff;
+    }
+    .btn-spinner {
         animation: none;
     }
 }
