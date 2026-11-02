@@ -397,5 +397,41 @@ class LayoutFixesTest(unittest.TestCase):
             self.assertIn(selector, css)
 
 
+class AppShellTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.page = _read("explain.html")
+
+    def test_no_footer_on_chat_page(self):
+        self.assertNotIn("<footer", self.page)
+
+    def test_footer_kept_elsewhere(self):
+        for name in ("index.html", "dates.html", "tracker.html"):
+            self.assertIn('<footer class="site-footer">', _read(name))
+
+    def test_page_locked_thread_scrolls(self):
+        self.assertIn("overflow: hidden;", self.page)
+        self.assertIn("height: 100dvh;", self.page)
+        mains = re.findall(r"\.chat-main\s*\{[^}]*\}", self.page)
+        self.assertTrue(any("overflow-y: auto" in m for m in mains))
+        self.assertTrue(any("min-height: 0" in m for m in mains))
+        self.assertTrue(any("padding-bottom: 260px" in m for m in mains))
+        start = self.page.index("@media (min-width: 1024px)")
+        self.assertIn("padding-bottom: 190px",
+                      self.page[start:start + 1200])
+
+    def test_amount_muted_when_missing(self):
+        self.assertIn("lastAmountMissing", self.page)
+        self.assertIn('classList.toggle("summary-muted", lastAmountMissing)',
+                      self.page)
+        muted = re.findall(r"\.summary-big\.summary-muted\s*\{[^}]*\}",
+                            self.page)
+        self.assertTrue(muted)
+        self.assertIn("font-size: 13px;", muted[0])
+        self.assertIn("font-weight: 400;", muted[0])
+        self.assertIn('html[data-theme="dark"] .summary-big.summary-muted',
+                      _read("style.css"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -841,6 +841,10 @@
                 left: 270px;
                 bottom: 0;
             }
+
+            .chat-main {
+                padding-bottom: 190px;
+            }
         }
 
         /* Left sidebar (desktop only). */
@@ -984,6 +988,34 @@
 
         .more-options[hidden] {
             display: none;
+        }
+
+        /* App-style scroll: the page never scrolls, only the thread. */
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        .chat-shell {
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .chat-main {
+            min-height: 0;
+            overflow-y: auto;
+            padding-bottom: 260px;
+        }
+
+        /* Missing amount: one small muted line, not a big error. */
+        .summary-big.summary-muted {
+            font-size: 13px;
+            font-weight: 400;
+            color: #5b6880;
         }
     </style>
 </head>
@@ -1231,28 +1263,6 @@
         </div>
     </main>
     </div>
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <span>LifeBridge Lens</span>
-                </div>
-                <p data-i18n="footer.tagline">Understand Japanese notices in your own language.</p>
-            </div>
-            <nav aria-label="Explore" class="footer-links" data-i18n-aria-label="doc.explore">
-                <h3 data-i18n="doc.explore">Explore</h3>
-                <a href="index.html" data-i18n="nav.home">Home</a>
-                <a href="explain.html" data-i18n="lens.scan">Scan a notice</a>
-                <a href="dates.html" data-i18n="lens.dates">My deadlines</a>
-                <a href="tracker.html" data-i18n="lens.money">Money tracker</a>
-            </nav>
-        </div>
-        <div class="footer-bottom">
-            <small data-i18n="doc.copyright">© 2026 LifeBridge Lens · Built for newcomers in Japan</small>
-            <small data-i18n="footer.disclaimer">LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.</small>
-            <a href="#top" data-i18n="doc.backTop">Back to top ↑</a>
-        </div>
-    </footer>
     <script src="i18n.js" defer></script>
     <!-- Publishes window.LB_API_TOKEN. Every visitor can read it: it blocks casual scripts only, NOT real authentication. -->
     <script src="lb-config.js"></script>
@@ -1354,6 +1364,7 @@
         let lastKind = "";
         let lastDeadlineText = "";
         let lastAmountText = "";
+        let lastAmountMissing = false;
         let sampleShowing = false;
         let saveDateState = "";
         const askForm = document.getElementById("ask-form");
@@ -1873,6 +1884,7 @@
             }
             document.getElementById("summary-deadline").textContent = lastDeadlineText;
             document.getElementById("summary-amount").textContent = lastAmountText;
+            document.getElementById("summary-amount").classList.toggle("summary-muted", lastAmountMissing);
             const era = toEraDate(lastDeadlineDate);
             const eraText = era ? t("explain.eraLabel", "Japanese date") + ": " + era : "";
             document.getElementById("summary-era").textContent = eraText;
@@ -2001,6 +2013,7 @@
                 }
                 lastDeadlineText = sections["result-deadline"] || t("explain.notShown", "Not shown");
                 lastAmountText = sections["result-amount"] || t("explain.notShown", "Not shown");
+                lastAmountMissing = !sections["result-amount"];
                 const staff = staffFromReply(json.text || "");
                 fillStaff(staff.phrase, staff.meaning);
                 const practice = practiceFromReply(json.text || "");
@@ -2333,6 +2346,7 @@
             fillCard("result-next", t("explain.sample.next", "1. Check the amount and due date.\n2. Pay at a bank or convenience store.\n3. Keep the receipt."));
             lastDeadlineText = t("explain.sample.deadline", "February 1, 2027 (4th installment)");
             lastAmountText = t("explain.sample.amount", "12,340 yen");
+            lastAmountMissing = false;
             document.getElementById("result-payment").textContent = t("explain.sample.payment", "Pay at a bank or convenience store with this slip. Keep the receipt.");
             document.getElementById("result-codes").textContent = t("explain.sample.codes", "Barcode at the bottom for the store cashier. Customer number on the right for bank transfer.");
             document.getElementById("result-paysteps").textContent = t("explain.sample.paysteps", "Store: 1. Take this slip to any convenience store. 2. Pay at the cashier. 3. Keep the receipt.");

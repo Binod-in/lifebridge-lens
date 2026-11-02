@@ -1911,6 +1911,10 @@ html[data-theme="dark"] .you-photo {
     background-color: #101d3d;
 }
 
+html[data-theme="dark"] .summary-big.summary-muted {
+    color: #c3cede;
+}
+
 html[data-theme="dark"] .chip {
     background: transparent;
     border-color: #9dbcff;
