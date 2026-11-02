@@ -1221,7 +1221,7 @@
                             <option value="my">မြန်မာ</option>
                         </select>
                         <span class="chat-hint" data-i18n="chat.sendHint">Enter to send · Shift + Enter for a new line</span>
-                        <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" data-i18n="explain.ask">Ask</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+                        <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" data-i18n="explain.ask">Send</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
                     </div>
                 </form>
                 <details class="more-options" hidden>
@@ -1367,6 +1367,7 @@
         function showPhotoChip(input) {
             const file = input.files[0];
             if (!file) return;
+            askStatus.textContent = "";
             // Show the preview from the resized image, so it is the
             // same photo that gets uploaded.
             shrinkPhoto(file).then((small) => {
@@ -2257,7 +2258,7 @@
             asking = true;
             askBtn.disabled = true;
             const askLabelText = askLabel.textContent;
-            askLabel.textContent = t("explain.asking", "Asking...");
+            askLabel.textContent = t("explain.asking", "Sending...");
             document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
             askStatus.textContent = "";
             addMsg("chat-q", question);
@@ -2325,7 +2326,10 @@
             sendComposer();
         });
 
-        askInput.addEventListener("input", autoGrowAsk);
+        askInput.addEventListener("input", () => {
+            askStatus.textContent = "";
+            autoGrowAsk();
+        });
         askInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

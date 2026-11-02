@@ -185,6 +185,20 @@ class ComposerTest(unittest.TestCase):
                        "addYouPhotoRow(preview.src, pendingQuestion);"):
             self.assertIn(marker, self.page)
 
+    def test_send_label(self):
+        self.assertIn('"explain.ask": "Send"', _read("i18n.js"))
+        self.assertIn('id="ask-btn"', self.page)
+        self.assertIn('"explain.ask"', self.page)
+
+    def test_hint_clears_on_photo_or_typing(self):
+        chip_at = self.page.index("function showPhotoChip(input) {")
+        self.assertIn('askStatus.textContent = "";',
+                      self.page[chip_at:chip_at + 400])
+        input_at = self.page.index('askInput.addEventListener("input"')
+        block = self.page[input_at:input_at + 300]
+        self.assertIn('askStatus.textContent = "";', block)
+        self.assertIn("autoGrowAsk();", block)
+
     def test_mode_stays_auto(self):
         self.assertIn('<option value="auto" selected', self.page)
         self.assertIn('id="mode"', self.page)
