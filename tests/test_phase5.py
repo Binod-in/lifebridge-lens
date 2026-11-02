@@ -80,20 +80,19 @@ class Phase5PromptTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         return seen["payload"]["messages"][0]["content"][0]["text"]
 
-    def test_prompt_requests_new_keys(self):
+    def test_prompt_requests_reading_not_variations(self):
         prompt = self._posted_prompt()
         self.assertIn('"staff_reading"', prompt)
-        self.assertIn('"staff_variations"', prompt)
+        self.assertNotIn('"staff_variations"', prompt)
 
     def test_prompt_reading_is_hiragana_only(self):
         prompt = self._posted_prompt()
         self.assertIn("hiragana", prompt)
         self.assertIn("only", prompt)
 
-    def test_prompt_variations_have_meanings(self):
+    def test_first_scan_skips_variations(self):
         prompt = self._posted_prompt()
-        self.assertIn("3 short practice sentences", prompt)
-        self.assertIn("in brackets", prompt)
+        self.assertNotIn("3 short practice sentences", prompt)
 
 
 class Phase5FrontendTest(unittest.TestCase):

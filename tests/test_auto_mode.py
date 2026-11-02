@@ -119,7 +119,8 @@ class AutoModeBackendTest(unittest.TestCase):
         self.assertNotIn("numbered walkthrough", prompt)
         self.assertNotIn("paper form", prompt)
         self.assertNotIn("station board", prompt)
-        self.assertIn('"markers"', prompt)
+        self.assertNotIn('"markers"', prompt)
+        self.assertIn('"check"', prompt)
 
     def test_explicit_modes_unchanged(self):
         prompt = self._posted_prompt("machine")

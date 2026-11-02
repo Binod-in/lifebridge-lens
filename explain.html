@@ -238,20 +238,6 @@
             color: #425473;
         }
 
-        #explain-btn {
-            width: 100%;
-            padding: 16px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(18, 97, 255, 0.3);
-            cursor: pointer;
-        }
-
-        #explain-btn:disabled {
-            opacity: 0.65;
-            cursor: wait;
-        }
-
         #status {
             margin-top: 12px;
             min-height: 24px;
@@ -684,18 +670,6 @@
             color: #2c3a55;
         }
 
-        .photo-chip #explain-btn {
-            width: auto;
-            margin: 0;
-            padding: 10px 16px;
-            min-height: 44px;
-            font-size: 15px;
-            box-shadow: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .icon-btn {
             flex-shrink: 0;
             display: inline-flex;
@@ -1021,21 +995,6 @@
             color: #5b6880;
         }
 
-        /* Small spinner inside the Scan button while loading. */
-        .btn-spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-top-color: #ffffff;
-            animation: lb-spin 0.8s linear infinite;
-        }
-
-        .btn-spinner[hidden] {
-            display: none;
-        }
-
         /* Muted line shown when a scan runs long. */
         .load-slow {
             margin: 4px 0 0;
@@ -1230,6 +1189,9 @@
                 <button type="button" class="chip" data-i18n="explain.qDocs">What documents do I need?</button>
                 <button type="button" class="chip" data-i18n="explain.qUrgent">Is this urgent?</button>
                 <button type="button" class="chip" id="step-chip" data-i18n="explain.qStepByStep">Show me step by step</button>
+                <button type="button" class="chip" data-i18n="explain.qHowPay">How do I pay?</button>
+                <button type="button" class="chip" data-i18n="explain.qIfNotPay">What if I don't pay?</button>
+                <button type="button" class="chip" data-i18n="explain.qMorePhrases">More phrases for the staff</button>
             </div>
         </section>
 
@@ -1244,12 +1206,11 @@
                         <img id="preview" alt="">
                         <span id="photo-name" class="photo-name"></span>
                         <button type="button" id="photo-remove" class="icon-btn" data-i18n-aria-label="app.remove" aria-label="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-                        <button type="submit" class="btn btn-prim" id="explain-btn"><span class="btn-spinner" aria-hidden="true" hidden></span><span data-i18n="explain.submit">Scan</span></button>
                     </div>
                 </form>
                 <form id="ask-form">
                     <label class="visually-hidden" for="ask-input" data-i18n="explain.askLabel">Ask something else about this notice</label>
-                    <textarea id="ask-input" rows="1" autocomplete="off" disabled></textarea>
+                    <textarea id="ask-input" rows="1" autocomplete="off"></textarea>
                     <div class="composer-row">
                         <button type="button" id="attach-btn" class="icon-btn" data-i18n-aria-label="explain.uploadTitle" aria-label="Tap to take or choose a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
                         <select id="language" name="language">
@@ -1303,7 +1264,7 @@
         const sampleBtn = document.getElementById("sample-btn");
         const preview = document.getElementById("preview");
         const status = document.getElementById("status");
-        const btn = document.getElementById("explain-btn"); function t(key, fallback) { try { if (window.LBT && typeof window.LBT.t === "function") { var v = window.LBT.t(key); if (typeof v === "string" && v !== "" && v !== key) return v; } } catch (e) {} return fallback; } var lastStatusKey = null, lastStatusFb = "", lastStatusMsg = ""; function setStatus(key, fb, msg) { lastStatusKey = key; lastStatusFb = fb; lastStatusMsg = msg || ""; status.textContent = t(key, fb).replace("{msg}", lastStatusMsg); }
+        function t(key, fallback) { try { if (window.LBT && typeof window.LBT.t === "function") { var v = window.LBT.t(key); if (typeof v === "string" && v !== "" && v !== key) return v; } } catch (e) {} return fallback; } var lastStatusKey = null, lastStatusFb = "", lastStatusMsg = ""; function setStatus(key, fb, msg) { lastStatusKey = key; lastStatusFb = fb; lastStatusMsg = msg || ""; status.textContent = t(key, fb).replace("{msg}", lastStatusMsg); }
 
         // Explain language follows the site language (lb_lang), Nepali if unset.
         try {
@@ -1377,6 +1338,7 @@
         let chatHistory = [];
         let scanEpoch = 0; // Rises on every successful scan; late follow-up replies check it.
         let hasResult = false; // True once a scan or sample produced a result.
+        let pendingQuestion = ""; // Typed text sent as the first follow-up after a scan.
         let currentTurnBody = null; // Body of the latest LifeBridge turn.
         let lastDeadlineDate = "";
         let lastKind = "";
@@ -1968,8 +1930,22 @@
             return "";
         }
 
-        form.addEventListener("submit", async (e) => {
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
+            runScan();
+        });
+
+        // Cards for follow-up-only info hide when the first scan omits
+        // them, instead of showing "Not shown".
+        function updateOptionalCards(sections) {
+            const payIds = ["result-payment", "result-codes", "result-paysteps"];
+            const anyPay = payIds.some((id) => Boolean(sections[id]));
+            document.getElementById("result-payment").closest("article").style.display = anyPay ? "" : "none";
+            document.getElementById("result-consequences").style.display = sections["result-consequences"] ? "" : "none";
+        }
+
+        // One Send button runs the scan when a photo is attached.
+        async function runScan() {
             if (typeof navigator !== "undefined" && navigator.onLine === false) {
                 setStatus("net.offline", "You are offline. Connect to the internet and try again.");
                 return;
@@ -1980,16 +1956,14 @@
             }
             hideWelcome();
             freezeResult();
-            addYouPhotoRow(preview.src);
+            addYouPhotoRow(preview.src, pendingQuestion);
             currentTurnBody = newTurn().querySelector(".lb-turn-body");
             document.getElementById("followup-card").style.display = "none";
             let scanOk = false;
-            btn.disabled = true;
             sampleBtn.disabled = true;
             askInput.disabled = true;
             askBtn.disabled = true;
             document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
-            btn.querySelector(".btn-spinner").hidden = false;
             startScanSteps();
             const smallPhoto = await shrinkPhoto(photoInput.files[0]);
             const newPhotoB64 = await blobToB64(smallPhoto);
@@ -2014,6 +1988,7 @@
                 for (const [, id] of HEADERS) {
                     fillCard(id, sections[id] || t("explain.notShown", "Not shown"));
                 }
+                updateOptionalCards(sections);
                 lastDeadlineText = sections["result-deadline"] || t("explain.notShown", "Not shown");
                 lastAmountText = sections["result-amount"] || t("explain.notShown", "Not shown");
                 lastAmountMissing = !sections["result-amount"];
@@ -2049,6 +2024,11 @@
                 scanOk = true;
                 askStatus.textContent = "";
                 document.getElementById("followup-card").style.display = lastKind === "other" ? "none" : "block";
+                if (pendingQuestion) {
+                    const firstQ = pendingQuestion;
+                    pendingQuestion = null;
+                    askQuestion(firstQ);
+                }
                 lastStatusKey = null; status.textContent = "";
             } catch (err) {
                 if (err && err.name === "AbortError") {
@@ -2065,15 +2045,14 @@
                     if (emptyTurn) emptyTurn.remove();
                     currentTurnBody = null;
                 }
-                btn.querySelector(".btn-spinner").hidden = true;
-                btn.disabled = false;
+                if (!scanOk) pendingQuestion = "";
                 sampleBtn.disabled = false;
                 askInput.disabled = false;
                 updateAskState();
                 askBtn.disabled = false;
                 document.querySelectorAll(".chip").forEach((c) => { c.disabled = false; });
             }
-        });
+        }
 
         // Follow-up avatars: the same line icons as the chat panel.
         const LB_AVATAR_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="11" height="15" rx="2"/><path d="M7 7h5M7 11h5"/><circle cx="15.5" cy="15.5" r="4"/><path d="M18.5 18.5L21 21"/></svg>';
@@ -2132,7 +2111,7 @@
         }
 
         // One "You" row for a scanned photo: thumbnail plus text.
-        function addYouPhotoRow(thumbUrl) {
+        function addYouPhotoRow(thumbUrl, extraText) {
             const langSelect = document.getElementById("language");
             const langName = langSelect.options[langSelect.selectedIndex].textContent;
             const row = document.createElement("div");
@@ -2158,6 +2137,11 @@
             const text = document.createElement("div");
             text.textContent = t("explain.youExplain", "Explain this in {lang}").replace("{lang}", langName);
             body.appendChild(text);
+            if (extraText) {
+                const extra = document.createElement("div");
+                extra.textContent = extraText;
+                body.appendChild(extra);
+            }
             const time = document.createElement("div");
             time.className = "lb-msg-time";
             try {
@@ -2216,10 +2200,10 @@
         }
 
         function updateAskState() {
-            askInput.disabled = !hasResult;
+            askInput.disabled = false;
             askInput.placeholder = hasResult
-                ? t("explain.askComposer", "Ask about this…")
-                : t("explain.askNeedPhoto", "Add a photo first");
+                ? t("explain.askComposer", "Add a photo or ask about the letter…")
+                : t("explain.askNeedPhoto", "Add a photo, then press Send");
             autoGrowAsk();
         }
 
@@ -2318,20 +2302,34 @@
             }
         }
 
+        // One Send button for everything: scan with a photo, ask with a
+        // result, or hint when there is nothing to send yet.
+        function sendComposer() {
+            askStatus.textContent = "";
+            if (photoInput.files[0]) {
+                pendingQuestion = askInput.value.trim();
+                askInput.value = "";
+                autoGrowAsk();
+                runScan();
+            } else if (hasResult) {
+                askQuestion(askInput.value);
+                askInput.value = "";
+                autoGrowAsk();
+            } else {
+                askStatus.textContent = t("explain.needPhotoFirst", "Add a photo of a letter, machine, form or sign first");
+            }
+        }
+
         askForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            askQuestion(askInput.value);
-            askInput.value = "";
-            autoGrowAsk();
+            sendComposer();
         });
 
         askInput.addEventListener("input", autoGrowAsk);
         askInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                askQuestion(askInput.value);
-                askInput.value = "";
-                autoGrowAsk();
+                sendComposer();
             }
         });
 
@@ -2357,6 +2355,7 @@
             fillStaff(t("explain.sample.staff", "この保険料の支払いについて相談したいです。"), t("explain.sample.staffMeaning", "I want to ask about paying this insurance bill."));
             fillStaffPractice(t("explain.sample.reading", "このほけんりょうのしはらいについてそうだんしたいです。"), t("explain.sample.variations", "いくらですか。(How much is it?)\nいつまでですか。(Until when is it?)\nどこではらえますか。(Where can I pay?)").split("\n"));
             document.getElementById("result-check").textContent = t("explain.sample.check", "Your name and address. The amount and due date.");
+            updateOptionalCards({ "result-payment": "x", "result-codes": "x", "result-paysteps": "x", "result-consequences": "x" });
         }
 
         sampleBtn.addEventListener("click", () => {

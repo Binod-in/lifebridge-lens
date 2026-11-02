@@ -151,13 +151,13 @@ class ComposerTest(unittest.TestCase):
         self.assertIn("new DataTransfer()", self.page)
 
     def test_photo_chip(self):
+        # One composer: the chip holds thumbnail, name and remove only;
+        # Send runs the scan.
         for marker in ('id="photo-chip"', 'id="preview"',
                        'id="photo-name"', 'id="photo-remove"',
-                       'id="explain-btn"', '"explain.submit"',
                        "function clearPhotoChip()"):
             self.assertIn(marker, self.page)
-        self.assertRegex(self.page,
-                         r"\.photo-chip #explain-btn\s*\{[^}]*?min-height: 44px;")
+        self.assertNotIn('id="explain-btn"', self.page)
 
     def test_ask_box(self):
         for marker in ('id="ask-form"', 'id="ask-input"',
@@ -169,11 +169,21 @@ class ComposerTest(unittest.TestCase):
         self.assertIn('e.key === "Enter" && !e.shiftKey', self.page)
         self.assertIn("Math.min(askInput.scrollHeight, 135)", self.page)
 
-    def test_ask_gating(self):
+    def test_ask_always_enabled(self):
         self.assertIn("function updateAskState()", self.page)
         self.assertIn('"explain.askComposer"', self.page)
         self.assertIn('"explain.askNeedPhoto"', self.page)
-        self.assertIn("askInput.disabled = !hasResult;", self.page)
+        self.assertIn("askInput.disabled = false;", self.page)
+        self.assertNotIn("askInput.disabled = !hasResult;", self.page)
+
+    def test_unified_send(self):
+        for marker in ("function sendComposer()",
+                       "function runScan()",
+                       "pendingQuestion = askInput.value.trim();",
+                       "askQuestion(firstQ);",
+                       '"explain.needPhotoFirst"',
+                       "addYouPhotoRow(preview.src, pendingQuestion);"):
+            self.assertIn(marker, self.page)
 
     def test_mode_stays_auto(self):
         self.assertIn('<option value="auto" selected', self.page)
@@ -464,24 +474,22 @@ class LoadingStateTest(unittest.TestCase):
             self.assertIn(marker, css)
 
     def test_single_announcement(self):
-        self.assertIn('class="btn-spinner"', self.page)
-        self.assertIn('querySelector(".btn-spinner").hidden = false',
-                      self.page)
-        self.assertIn('querySelector(".btn-spinner").hidden = true',
-                      self.page)
+        # One Send button: no Scan button, no spinner swap, no repeated
+        # status line; the steps announce the load once.
         self.assertNotIn('"explain.explaining"', self.page)
         self.assertNotIn('"explain.reading"', self.page)
-        self.assertIn('id="explain-btn"', self.page)
-        self.assertIn('"explain.submit"', self.page)
+        self.assertNotIn('id="explain-btn"', self.page)
+        self.assertNotIn('class="btn-spinner"', self.page)
+        self.assertNotIn(".btn-spinner", self.page)
+        self.assertIn("function sendComposer()", self.page)
+        self.assertIn('id="ask-btn"', self.page)
 
     def test_spinner_css(self):
-        self.assertIn(".btn-spinner {", self.page)
-        self.assertIn(".btn-spinner[hidden] {", self.page)
         css = _read("style.css")
         start = css.index("@media (prefers-reduced-motion: reduce)")
         block = css[start:]
         self.assertIn(".scan-steps li.current::before", block)
-        self.assertIn(".btn-spinner", block)
+        self.assertNotIn(".btn-spinner", block)
 
     def test_slow_line(self):
         self.assertIn('id="load-slow"', self.page)

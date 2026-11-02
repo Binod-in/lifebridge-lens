@@ -80,24 +80,17 @@ class Phase3PromptTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         return seen["payload"]["messages"][0]["content"][0]["text"]
 
-    def test_prompt_requests_new_keys(self):
+    def test_first_scan_skips_payment_codes(self):
+        # Payment codes and steps moved out of the slim first scan;
+        # the frontend still renders them when a reply contains any.
         prompt = self._posted_prompt()
-        self.assertIn('"payment_codes"', prompt)
-        self.assertIn('"payment_steps"', prompt)
-
-    def test_prompt_distinguishes_code_types(self):
-        prompt = self._posted_prompt()
-        for word in ("barcode", "QR code", "customer number", "slip number"):
-            self.assertIn(word, prompt)
-
-    def test_prompt_forbids_invented_code_numbers(self):
-        prompt = self._posted_prompt()
-        self.assertIn("Never invent code numbers", prompt)
-
-    def test_prompt_forbids_assuming_all_methods(self):
-        prompt = self._posted_prompt()
-        self.assertIn("Never assume every slip supports every", prompt)
-        self.assertIn("convenience store, bank or ATM, and online", prompt)
+        for key in ("payment_codes", "payment_steps"):
+            self.assertNotIn('"%s"' % key, prompt)
+        for marker in ("Never invent code numbers",
+                       "Never assume every slip supports every",
+                       "customer number",
+                       "slip number"):
+            self.assertNotIn(marker, prompt)
 
 
 class Phase3FrontendTest(unittest.TestCase):
@@ -156,9 +149,13 @@ class Phase3TranslationTest(unittest.TestCase):
 
 
 class Phase3CompatTest(unittest.TestCase):
-    def test_earlier_keys_still_requested(self):
+    def test_removed_keys_gone_from_prompt(self):
         src = _read("server.py")
-        for key in ("payment_methods", "consequences", "markers"):
+        for key in ("payment_methods", "consequences", "markers",
+                    "payment_codes", "payment_steps", "staff_variations"):
+            self.assertNotIn('"%s"' % key, src)
+        for key in ("what", "kind", "next_steps", "deadline_date",
+                    "staff_reading", "check"):
             self.assertIn('"%s"' % key, src)
 
     def test_modes_still_supported(self):

@@ -80,20 +80,32 @@ class Phase1PromptTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         return seen["payload"]["messages"][0]["content"][0]["text"]
 
-    def test_prompt_requests_new_keys(self):
+    def test_first_scan_skips_payment_details(self):
+        # The slim first scan leaves payment details and consequences
+        # to follow-up questions (asked through the chips).
         prompt = self._posted_prompt()
-        self.assertIn('"payment_methods"', prompt)
-        self.assertIn('"consequences"', prompt)
+        for key in ("payment_methods", "consequences", "payment_codes",
+                    "payment_steps", "markers", "staff_variations"):
+            self.assertNotIn('"%s"' % key, prompt)
+        for marker in ("QR code, barcode, or payment number",
+                       "specific fine amount",
+                       "Never invent code numbers",
+                       "at most 5 markers",
+                       "3 short practice sentences"):
+            self.assertNotIn(marker, prompt)
 
-    def test_prompt_forbids_invented_payment_details(self):
+    def test_first_scan_keeps_core_keys(self):
         prompt = self._posted_prompt()
-        self.assertIn("Never invent a", prompt)
-        self.assertIn("QR code, barcode, or payment number", prompt)
+        for key in ("what", "kind", "why", "importance", "next_steps",
+                    "deadline", "deadline_date", "amount", "staff_phrase",
+                    "staff_phrase_meaning", "staff_reading", "check"):
+            self.assertIn('"%s"' % key, prompt)
 
-    def test_prompt_forbids_invented_fine_amounts(self):
+    def test_first_scan_keeps_values_short(self):
         prompt = self._posted_prompt()
-        self.assertIn("Never invent", prompt)
-        self.assertIn("specific fine amount", prompt)
+        self.assertIn("at most 2 sentences", prompt)
+        self.assertIn("next_steps at most", prompt)
+        self.assertIn("4 short steps", prompt)
 
 
 class Phase1FrontendTest(unittest.TestCase):

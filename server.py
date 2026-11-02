@@ -195,7 +195,7 @@ def _image_kind(raw):
     return ""
 
 
-def _call_meta_api(payload):
+def _call_meta_api(payload, label="meta"):
     """POST to the Meta chat API. Returns (ok, data_or_public_error)."""
     req = urllib.request.Request(
         f"{BASE_URL}/chat/completions",
@@ -206,6 +206,7 @@ def _call_meta_api(payload):
         },
         method="POST",
     )
+    start = time.monotonic()
     try:
         with urllib.request.urlopen(req, timeout=120) as resp:
             return True, json.loads(resp.read().decode("utf-8"))
@@ -219,6 +220,8 @@ def _call_meta_api(payload):
     except Exception as e:  # network, timeout, etc.
         app.logger.warning("Meta API request failed: %s", e)
         return False, "Could not reach the AI service. Please try again."
+    finally:
+        print(f"{label} took {time.monotonic() - start:.1f}s", flush=True)
 
 
 LANG_NAMES = {"ne": "Nepali", "en": "English", "ja": "Japanese", "vi": "Vietnamese", "my": "Burmese"}
@@ -407,10 +410,7 @@ def explain():
         '{"what": "...", "kind": "...", "why": "...", "importance": "...", '
         '"next_steps": "...", "deadline": "...", "amount": "...", '
         '"staff_phrase": "...", "staff_phrase_meaning": "...", '
-        '"staff_reading": "...", "staff_variations": "...", '
-        '"payment_methods": "...", "consequences": "...", '
-        '"markers": [{"x": 50, "y": 30, "label": "..."}], '
-        '"payment_codes": "...", "payment_steps": "...", '
+        '"staff_reading": "...", '
         '"check": "...", "deadline_date": "..."}\n\n'
         "Rules:\n"
         "- 'what': what kind of notice this is.\n"
@@ -424,39 +424,10 @@ def explain():
         "- 'amount': the amount to pay exactly as written on the notice "
         '(for example "12,340 yen"), otherwise an empty string. '
         "Never guess an amount.\n"
-        "- 'payment_methods': how this notice can be paid (for example "
-        "convenience store, bank, ATM, or online), based only on what the "
-        "notice shows or what is standard for this slip type. If the notice "
-        "shows no payment information, use an empty string. Never invent a "
-        "QR code, barcode, or payment number.\n"
-        "- 'consequences': what can happen if the deadline is missed, in "
-        "general terms (for example reminders or a late fee). Never invent "
-        "a specific fine amount unless it is printed on the notice.\n"
-        "- 'payment_codes': which payment codes are printed on the notice: "
-        "barcode, QR code, customer number, or slip number. Explain what "
-        "each code is used for. List only codes actually visible on the "
-        "notice. Never invent code numbers.\n"
-        "- 'payment_steps': numbered steps for each payment method this "
-        "notice supports: convenience store, bank or ATM, and online. Base "
-        "steps only on methods the notice supports or that are standard "
-        "for this slip type. Never assume every slip supports every "
-        "method: if a method is not supported, say so instead of giving "
-        "steps for it.\n"
-        "- 'markers': at most 5 markers pointing at visible parts the user "
-        "must find or press. Each marker has x and y from 0 to 100 "
-        "(percentages from the top-left of the photo) and a short label. "
-        "Mark only things clearly visible in the photo; never invent "
-        "buttons, labels, or objects. If nothing specific needs pointing "
-        "out, use an empty list. Labels in " + lang_name + ", at most 6 "
-        "words each.\n"
         "- 'staff_phrase': ONE short, polite Japanese sentence the user can "
         "show at the office counter about THIS notice, or an empty string.\n"
         "- 'staff_reading': how to read 'staff_phrase', written in hiragana "
         "only. Empty string when there is no staff phrase.\n"
-        "- 'staff_variations': 3 short practice sentences for this "
-        "situation, one per line. Each line is a Japanese sentence "
-        "followed by its meaning in " + lang_name + " in brackets. Keep "
-        "sentences polite and simple.\n"
         f"- 'staff_phrase_meaning': what 'staff_phrase' means, in {lang_name}.\n"
         "- 'deadline_date': the due date in YYYY-MM-DD format "
         "if the notice "
@@ -470,8 +441,9 @@ def explain():
         + SAFETY_RULES +
         "- Convert Japanese era years to Western years in brackets, "
         "for example \u4ee4\u548c8\u5e74 becomes \"Reiwa 8 (2026)\".\n"
-        "- Keep each value short. Do not use markdown. "
-        "No text outside the JSON object."
+        "- Keep every value short: at most 2 sentences, next_steps at most "
+        "4 short steps. Do not use markdown. No text outside the JSON "
+        "object."
     )
 
     payload = {
@@ -487,7 +459,7 @@ def explain():
         ],
     }
 
-    ok, data = _call_meta_api(payload)
+    ok, data = _call_meta_api(payload, "explain")
     if not ok:
         return jsonify({"error": data}), 502
 
@@ -602,7 +574,7 @@ def ask():
         "messages": messages,
     }
 
-    ok, data = _call_meta_api(payload)
+    ok, data = _call_meta_api(payload, "ask")
     if not ok:
         return jsonify({"error": data}), 502
 
@@ -692,7 +664,7 @@ def spending_advice():
         "messages": [{"role": "user", "content": prompt}],
     }
 
-    ok, data = _call_meta_api(payload)
+    ok, data = _call_meta_api(payload, "advice")
     if not ok:
         return jsonify({"error": data}), 502
 

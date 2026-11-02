@@ -83,16 +83,14 @@ class Phase2PromptTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         return seen["payload"]["messages"][0]["content"][0]["text"]
 
-    def test_prompt_requests_markers(self):
+    def test_first_scan_skips_markers(self):
+        # Markers moved out of the slim first scan; the frontend still
+        # renders them when a reply contains any.
         prompt = self._posted_prompt()
-        self.assertIn('"markers"', prompt)
-        self.assertIn("at most 5 markers", prompt)
-        self.assertIn("percentages from the top-left", prompt)
-
-    def test_prompt_forbids_invented_objects(self):
-        prompt = self._posted_prompt()
-        self.assertIn("never invent", prompt)
-        self.assertIn("buttons, labels, or objects", prompt)
+        self.assertNotIn('"markers"', prompt)
+        self.assertNotIn("at most 5 markers", prompt)
+        self.assertNotIn("percentages from the top-left", prompt)
+        self.assertNotIn("buttons, labels, or objects", prompt)
 
     def test_machine_mode_changes_prompt(self):
         prompt = self._posted_prompt(mode="machine")
@@ -114,7 +112,8 @@ class Phase2PromptTest(unittest.TestCase):
         self.assertNotIn("numbered walkthrough", prompt)
         self.assertNotIn("paper form", prompt)
         self.assertNotIn("station board", prompt)
-        self.assertIn('"markers"', prompt)
+        self.assertNotIn('"markers"', prompt)
+        self.assertIn('"check"', prompt)
 
     def test_ask_carries_mode(self):
         seen = {}
@@ -220,8 +219,7 @@ class Phase2CompatTest(unittest.TestCase):
         src = _read("server.py")
         for key in ("what", "why", "importance", "next_steps",
                     "deadline", "amount", "staff_phrase",
-                    "staff_phrase_meaning", "payment_methods",
-                    "consequences", "check", "deadline_date"):
+                    "staff_phrase_meaning", "check", "deadline_date"):
             self.assertIn('"%s"' % key, src)
 
     def test_notice_flow_kept(self):
