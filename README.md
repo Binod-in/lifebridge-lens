@@ -139,7 +139,7 @@ Tests use mocked AI replies and need no API key.
 
 ## Links
 
-- Demo video: <YOUTUBE LINK>
+- Demo video: https://www.youtube.com/watch?v=rrYk4MSJmGM
 - Live demo: not hosted. Run it locally, see Run locally.
 
 ## Screenshots
