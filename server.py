@@ -63,6 +63,8 @@ _load_dotenv(os.path.join(BASE_DIR, ".env"))
 API_KEY = os.environ.get("META_API_KEY", "")
 MODEL = os.environ.get("META_MODEL", "muse-spark-1.3")
 BASE_URL = os.environ.get("META_BASE_URL", "https://api.meta.ai/v1")
+REASONING_EXPLAIN = os.environ.get("REASONING_EXPLAIN", "low")
+REASONING_ASK = os.environ.get("REASONING_ASK", "minimal")
 port = int(os.environ.get("PORT", 5000))
 
 # Optional shared token for the AI endpoints. When LB_API_TOKEN is set,
@@ -206,16 +208,8 @@ def _budget_left(budget_start):
     return META_BUDGET - (time.monotonic() - budget_start)
 
 
-def _call_meta_api(payload, label="meta", budget_start=None):
-    """POST to the Meta chat API. Returns (ok, data_or_public_error).
-
-    Timeouts and 5xx replies are retried once, but only when at
-    least META_RETRY_MIN_LEFT seconds of the META_BUDGET total
-    budget are left, so the server always answers before the
-    browser's 90s timeout. 4xx replies are never retried. Callers
-    doing their own follow-up call pass budget_start to share it.
-    """
-    req = urllib.request.Request(
+def _meta_request(payload):
+    return urllib.request.Request(
         f"{BASE_URL}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
         headers={
@@ -224,9 +218,25 @@ def _call_meta_api(payload, label="meta", budget_start=None):
         },
         method="POST",
     )
+
+
+def _call_meta_api(payload, label="meta", budget_start=None):
+    """POST to the Meta chat API. Returns (ok, data_or_public_error).
+
+    Timeouts and 5xx replies are retried once, but only when at
+    least META_RETRY_MIN_LEFT seconds of the META_BUDGET total
+    budget are left, so the server always answers before the
+    browser's 90s timeout. Other 4xx replies are never retried,
+    except a 400 that complains about reasoning_effort, which is
+    retried once with the field removed. Callers doing their own
+    follow-up call pass budget_start to share it.
+    """
+    req = _meta_request(payload)
     if budget_start is None:
         budget_start = time.monotonic()
-    for attempt in range(META_MAX_ATTEMPTS):
+    attempt = 0
+    stripped = False
+    while attempt < META_MAX_ATTEMPTS:
         remaining = _budget_left(budget_start)
         per_attempt = min(META_TIMEOUT, max(remaining, 1))
         start = time.monotonic()
@@ -237,21 +247,33 @@ def _call_meta_api(payload, label="meta", budget_start=None):
                     print(f"{label} usage {data.get('usage')}", flush=True)
                 return True, data
         except urllib.error.HTTPError as e:
-            if (e.code is not None and e.code >= 500
-                    and attempt + 1 < META_MAX_ATTEMPTS
-                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
-                print(f"{label} retry", flush=True)
-                continue
             try:
                 detail = e.read().decode("utf-8", "replace")[:500]
             except Exception:
                 detail = ""
+            if (e.code == 400 and not stripped
+                    and "reasoning_effort" in payload
+                    and "reasoning_effort" in detail
+                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
+                stripped = True
+                payload = {k: v for k, v in payload.items()
+                           if k != "reasoning_effort"}
+                req = _meta_request(payload)
+                print(f"{label} reasoning_effort not supported", flush=True)
+                continue
+            if (e.code is not None and e.code >= 500
+                    and attempt + 1 < META_MAX_ATTEMPTS
+                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
+                print(f"{label} retry", flush=True)
+                attempt += 1
+                continue
             app.logger.warning("Meta API HTTP error %s: %s", e.code, detail)
             return False, "The AI service had a problem. Please try again."
         except TimeoutError:
             if (attempt + 1 < META_MAX_ATTEMPTS
                     and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
                 print(f"{label} retry", flush=True)
+                attempt += 1
                 continue
             app.logger.warning("Meta API request timed out")
             return False, "Could not reach the AI service. Please try again."
@@ -261,6 +283,7 @@ def _call_meta_api(payload, label="meta", budget_start=None):
                     and attempt + 1 < META_MAX_ATTEMPTS
                     and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
                 print(f"{label} retry", flush=True)
+                attempt += 1
                 continue
             app.logger.warning("Meta API request failed: %s", e)
             return False, "Could not reach the AI service. Please try again."
@@ -537,6 +560,7 @@ def explain():
 
     payload = {
         "model": MODEL,
+        "reasoning_effort": REASONING_EXPLAIN,
         "messages": [
             {
                 "role": "user",
@@ -567,6 +591,7 @@ def explain():
         print("explain retry", flush=True)
         retry_payload = {
             "model": MODEL,
+            "reasoning_effort": REASONING_EXPLAIN,
             "messages": [
                 {
                     "role": "user",
@@ -692,6 +717,7 @@ def ask():
 
     payload = {
         "model": MODEL,
+        "reasoning_effort": REASONING_ASK,
         "messages": messages,
     }
 
@@ -782,6 +808,7 @@ def spending_advice():
 
     payload = {
         "model": MODEL,
+        "reasoning_effort": REASONING_ASK,
         "messages": [{"role": "user", "content": prompt}],
     }
 

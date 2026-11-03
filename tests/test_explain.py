@@ -153,7 +153,24 @@ class ExplainPromptTest(unittest.TestCase):
             res = self._post_photo()
         self.assertEqual(res.status_code, 200)
         self.assertNotIn("max_tokens", seen["payload"])
+        self.assertEqual(seen["payload"]["reasoning_effort"], "low")
         self.assertEqual(seen["timeout"], 40)
+        prompt = seen["payload"]["messages"][0]["content"][0]["text"]
+        self.assertIn("at most 2 sentences", prompt)
+
+    def test_reasoning_effort_honours_env_override(self):
+        seen = {}
+
+        def fake_urlopen(req, timeout=None):
+            seen["payload"] = json.loads(req.data.decode("utf-8"))
+            return _api_reply("{}")
+
+        with mock.patch.object(server, "REASONING_EXPLAIN", "medium"), \
+                mock.patch.object(server.urllib.request, "urlopen",
+                                  side_effect=fake_urlopen):
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(seen["payload"]["reasoning_effort"], "medium")
         prompt = seen["payload"]["messages"][0]["content"][0]["text"]
         self.assertIn("at most 2 sentences", prompt)
 
@@ -203,6 +220,47 @@ class MetaRetryTest(unittest.TestCase):
         self.assertEqual(m.call_count, 1)
         self.assertNotIn("retry", buf.getvalue())
         self.assertIn("explain took", buf.getvalue())
+
+    def _reasoning_error(self):
+        return server.urllib.error.HTTPError(
+            "https://meta.test/chat", 400, "err", {},
+            io.BytesIO(b"unknown field: reasoning_effort"))
+
+    def test_400_mentioning_reasoning_retried_without_it(self):
+        payloads = []
+
+        def fake_urlopen(req, timeout=None):
+            payloads.append(json.loads(req.data.decode("utf-8")))
+            if len(payloads) == 1:
+                raise self._reasoning_error()
+            return _api_reply("{}")
+
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = fake_urlopen
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(m.call_count, 2)
+        self.assertEqual(len(payloads), 2)
+        self.assertEqual(payloads[0]["reasoning_effort"], "low")
+        self.assertNotIn("reasoning_effort", payloads[1])
+        self.assertIn("reasoning_effort not supported", buf.getvalue())
+        self.assertIn("explain took", buf.getvalue())
+
+    def test_reasoning_strip_happens_only_once(self):
+        def always_reasoning_error(req, timeout=None):
+            raise self._reasoning_error()
+
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = always_reasoning_error
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(m.call_count, 2)
+        self.assertEqual(
+            buf.getvalue().count("reasoning_effort not supported"), 1)
 
     def test_http_500_retried_once(self):
         reply = json.dumps({key: "line" for key in JSON_KEYS})

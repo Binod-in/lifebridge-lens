@@ -126,6 +126,14 @@ class AskHistoryTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         return captured["body"]
 
+    def test_reasoning_effort_is_minimal(self):
+        payload = self._posted_payload({
+            "question": "What if I am late?",
+            "language": "en",
+            "explanation": "This is a tax bill.",
+        })
+        self.assertEqual(payload["reasoning_effort"], "minimal")
+
     def test_valid_history(self):
         payload = self._posted_payload({
             "question": "What if I am late?",

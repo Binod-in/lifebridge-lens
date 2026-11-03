@@ -82,6 +82,10 @@ class Phase4ApiTest(unittest.TestCase):
         self.assertEqual(res.get_json(),
                          {"advice": "You spent less than you earned."})
 
+    def test_reasoning_effort_is_minimal(self):
+        _, payload = self._post_advice(self._valid_body())
+        self.assertEqual(payload["reasoning_effort"], "minimal")
+
     def test_prompt_uses_only_numbers(self):
         _, payload = self._post_advice(self._valid_body())
         prompt = payload["messages"][0]["content"]
