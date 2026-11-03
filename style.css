@@ -1242,6 +1242,15 @@ html.chat-open body {
     min-width: 0;
 }
 
+/* Save message takes no room until it has text. */
+#save-date-msg {
+    margin: 0;
+}
+
+#save-date-msg:empty {
+    display: none;
+}
+
 .summary-days-line {
     display: flex;
     align-items: center;

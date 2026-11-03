@@ -237,6 +237,12 @@ class ExplainDesignTest(unittest.TestCase):
         self.assertIn("getElementById(\"summary-era\").textContent = "
                       "toEraDate(lastDeadlineDate);", self.page)
 
+    def test_save_message_takes_no_room_when_empty(self):
+        css = _read("style.css")
+        self.assertRegex(css, r"#save-date-msg\s*\{[^}]*?margin: 0;")
+        self.assertRegex(css,
+                         r"#save-date-msg:empty\s*\{[^}]*?display: none;")
+
     def test_next_steps_checklist(self):
         self.assertIn('<ol id="result-next" class="check-list">', self.page)
         self.assertIn("function fillCard(id, text)", self.page)
