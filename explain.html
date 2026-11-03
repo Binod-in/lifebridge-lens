@@ -2044,6 +2044,10 @@
                 const call = await fetchWithTimeout("/explain", { method: "POST", body: data, headers: lbTokenHeaders() });
                 const res = call.res;
                 const json = call.json;
+                if (json && json.code === "long_letter") {
+                    setStatus("explain.longLetter", "This letter is long. Try a photo of just the top part, or try again.");
+                    return;
+                }
                 if (!res.ok || json.error) throw new Error(json.error || "Something went wrong");
                 const sections = parseExplainReply(json.text || "");
                 lastKind = "";

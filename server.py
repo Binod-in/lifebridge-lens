@@ -206,13 +206,14 @@ def _budget_left(budget_start):
     return META_BUDGET - (time.monotonic() - budget_start)
 
 
-def _call_meta_api(payload, label="meta"):
+def _call_meta_api(payload, label="meta", budget_start=None):
     """POST to the Meta chat API. Returns (ok, data_or_public_error).
 
     Timeouts and 5xx replies are retried once, but only when at
     least META_RETRY_MIN_LEFT seconds of the META_BUDGET total
     budget are left, so the server always answers before the
-    browser's 90s timeout. 4xx replies are never retried.
+    browser's 90s timeout. 4xx replies are never retried. Callers
+    doing their own follow-up call pass budget_start to share it.
     """
     req = urllib.request.Request(
         f"{BASE_URL}/chat/completions",
@@ -223,14 +224,18 @@ def _call_meta_api(payload, label="meta"):
         },
         method="POST",
     )
-    budget_start = time.monotonic()
+    if budget_start is None:
+        budget_start = time.monotonic()
     for attempt in range(META_MAX_ATTEMPTS):
         remaining = _budget_left(budget_start)
         per_attempt = min(META_TIMEOUT, max(remaining, 1))
         start = time.monotonic()
         try:
             with urllib.request.urlopen(req, timeout=per_attempt) as resp:
-                return True, json.loads(resp.read().decode("utf-8"))
+                data = json.loads(resp.read().decode("utf-8"))
+                if isinstance(data, dict) and data.get("usage") is not None:
+                    print(f"{label} usage {data.get('usage')}", flush=True)
+                return True, data
         except urllib.error.HTTPError as e:
             if (e.code is not None and e.code >= 500
                     and attempt + 1 < META_MAX_ATTEMPTS
@@ -265,6 +270,47 @@ def _call_meta_api(payload, label="meta"):
         finally:
             print(f"{label} took {time.monotonic() - start:.1f}s", flush=True)
     return False, "Could not reach the AI service. Please try again."
+
+
+# Extra prompt line for the length-cutoff retry on /explain.
+SHORT_ANSWER_LINE = ("Your last answer was too long. Use very short values, "
+                     "at most 1 sentence each.")
+# Friendly error when even the short retry cannot be parsed.
+LONG_LETTER_ERROR = ("This letter is long. Try a photo of just the top part, "
+                     "or try again.")
+
+
+def _answer_text(data):
+    """Extract (text, cut_off) from a Meta reply. Raises ValueError."""
+    try:
+        choice = data["choices"][0]
+        text = choice["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        raise ValueError("bad reply shape")
+    cut = isinstance(choice, dict) and choice.get("finish_reason") == "length"
+    return text, cut
+
+
+def _clean_answer_text(text):
+    """Strip code fences and any text outside the outer braces."""
+    cleaned = re.sub(r"^```[a-zA-Z]*\s*", "", str(text or "").strip())
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+    first = cleaned.find("{")
+    last = cleaned.rfind("}")
+    if first != -1 and last > first:
+        return cleaned[first:last + 1]
+    return cleaned
+
+
+def _answer_json_parses(text):
+    """True when the forgivingly cleaned answer parses as JSON."""
+    if not isinstance(text, str):
+        return False
+    try:
+        json.loads(_clean_answer_text(text))
+        return True
+    except ValueError:
+        return False
 
 
 LANG_NAMES = {"ne": "Nepali", "en": "English", "ja": "Japanese", "vi": "Vietnamese", "my": "Burmese"}
@@ -491,7 +537,6 @@ def explain():
 
     payload = {
         "model": MODEL,
-        "max_tokens": 2500,
         "messages": [
             {
                 "role": "user",
@@ -503,23 +548,48 @@ def explain():
         ],
     }
 
-    ok, data = _call_meta_api(payload, "explain")
+    budget_start = time.monotonic()
+    ok, data = _call_meta_api(payload, "explain", budget_start)
     if not ok:
         return jsonify({"error": data}), 502
 
     try:
-        choice = data["choices"][0]
-        text = choice["message"]["content"]
-    except (KeyError, IndexError, TypeError):
+        text, cut = _answer_text(data)
+    except ValueError:
         return jsonify({"error": "Unexpected reply from Meta API"}), 502
-    if isinstance(choice, dict) and choice.get("finish_reason") == "length":
+    if cut:
         print("explain cut off", flush=True)
-        try:
-            json.loads(text)
-        except (ValueError, TypeError):
-            return jsonify({"error": "Unexpected reply from Meta API"}), 502
-
-    return jsonify({"text": text})
+    if not cut or _answer_json_parses(text):
+        return jsonify({"text": text})
+    # Cut off mid-answer and unparsable: retry once with very short
+    # values, inside the same time budget.
+    if _budget_left(budget_start) >= META_RETRY_MIN_LEFT:
+        print("explain retry", flush=True)
+        retry_payload = {
+            "model": MODEL,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text",
+                         "text": prompt + "\n" + SHORT_ANSWER_LINE},
+                        {"type": "image_url",
+                         "image_url": {"url": data_uri}},
+                    ],
+                }
+            ],
+        }
+        ok, data = _call_meta_api(retry_payload, "explain", budget_start)
+        if ok:
+            try:
+                text, cut = _answer_text(data)
+            except ValueError:
+                text, cut = None, False
+            if text is not None and _answer_json_parses(text):
+                if cut:
+                    print("explain cut off", flush=True)
+                return jsonify({"text": text})
+    return jsonify({"error": LONG_LETTER_ERROR, "code": "long_letter"}), 502
 
 
 @app.post("/ask")

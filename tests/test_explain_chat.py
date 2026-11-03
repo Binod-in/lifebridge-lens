@@ -41,6 +41,7 @@ NEW_KEYS = (
     "explain.hankoOverdue",
     "explain.slowDown",
     "explain.tryAgain",
+    "explain.longLetter",
 )
 
 
@@ -576,6 +577,13 @@ class LoadingStateTest(unittest.TestCase):
                        "btn btn-prim lb-retry-btn",
                        'querySelectorAll(".lb-retry")',
                        ".lb-retry-btn {"):
+            self.assertIn(marker, self.page)
+
+    def test_long_letter_message_translated(self):
+        for marker in ('json.code === "long_letter"',
+                       '"explain.longLetter"',
+                       "This letter is long. Try a photo of just the top"
+                       " part, or try again."):
             self.assertIn(marker, self.page)
 
     def test_still_working_translated(self):

@@ -24,9 +24,12 @@ def _image_file(name="notice.jpg", size=1024):
     return (io.BytesIO(body), name, "image/jpeg")
 
 
-def _api_reply(text, finish_reason="stop"):
-    body = json.dumps({"choices": [{"message": {"content": text},
-                                    "finish_reason": finish_reason}]}).encode("utf-8")
+def _api_reply(text, finish_reason="stop", usage=None):
+    envelope = {"choices": [{"message": {"content": text},
+                             "finish_reason": finish_reason}]}
+    if usage is not None:
+        envelope["usage"] = usage
+    body = json.dumps(envelope).encode("utf-8")
     resp = mock.MagicMock()
     resp.read.return_value = body
     ctx = mock.MagicMock()
@@ -137,7 +140,7 @@ class ExplainPromptTest(unittest.TestCase):
             res = self._post_photo()
         self.assertEqual(res.status_code, 502)
 
-    def test_explain_payload_limits_tokens_and_timeout(self):
+    def test_explain_payload_timeout_and_brevity_rule(self):
         seen = {}
 
         def fake_urlopen(req, timeout=None):
@@ -149,7 +152,7 @@ class ExplainPromptTest(unittest.TestCase):
                                side_effect=fake_urlopen):
             res = self._post_photo()
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(seen["payload"]["max_tokens"], 2500)
+        self.assertNotIn("max_tokens", seen["payload"])
         self.assertEqual(seen["timeout"], 40)
         prompt = seen["payload"]["messages"][0]["content"][0]["text"]
         self.assertIn("at most 2 sentences", prompt)
@@ -283,7 +286,41 @@ class FinishCutoffTest(unittest.TestCase):
         self.assertEqual(res.get_json(), {"text": '{"what": "ok"}'})
         self.assertIn("explain cut off", buf.getvalue())
 
-    def test_length_finish_with_broken_json_is_friendly_502(self):
+    def test_fenced_answer_parses(self):
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = lambda req, timeout=None: _api_reply(
+                'Here is the letter:\n```json\n{"what": "ok"}\n```\nDone.',
+                "length")
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("explain cut off", buf.getvalue())
+        self.assertNotIn("explain retry", buf.getvalue())
+
+    def test_length_retry_adds_short_answer_line(self):
+        payloads = []
+
+        def fake_urlopen(req, timeout=None):
+            payloads.append(json.loads(req.data.decode("utf-8")))
+            if len(payloads) == 1:
+                return _api_reply('{"what": "ok"', "length")
+            return _api_reply('{"what": "ok"}', "stop")
+
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(io.StringIO()):
+            m.side_effect = fake_urlopen
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(m.call_count, 2)
+        self.assertEqual(len(payloads), 2)
+        first = payloads[0]["messages"][0]["content"][0]["text"]
+        second = payloads[1]["messages"][0]["content"][0]["text"]
+        self.assertNotIn("too long", first)
+        self.assertIn("Your last answer was too long. Use very short values,"
+                      " at most 1 sentence each.", second)
+
+    def test_double_failure_returns_long_letter_message(self):
         buf = io.StringIO()
         with mock.patch.object(server.urllib.request, "urlopen") as m, \
                 contextlib.redirect_stdout(buf):
@@ -291,9 +328,25 @@ class FinishCutoffTest(unittest.TestCase):
                 '{"what": "ok"', "length")
             res = self._post_photo()
         self.assertEqual(res.status_code, 502)
-        self.assertEqual(res.get_json(),
-                         {"error": "Unexpected reply from Meta API"})
+        self.assertEqual(m.call_count, 2)
+        self.assertEqual(res.get_json(), {
+            "error": "This letter is long. Try a photo of just the top part,"
+                     " or try again.",
+            "code": "long_letter",
+        })
         self.assertIn("explain cut off", buf.getvalue())
+        self.assertIn("explain retry", buf.getvalue())
+
+    def test_usage_logged_when_present(self):
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = lambda req, timeout=None: _api_reply(
+                '{"what": "ok"}', "stop",
+                {"prompt_tokens": 10, "completion_tokens": 5})
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("explain usage {'prompt_tokens': 10", buf.getvalue())
 
     def test_explain_returns_model_text_unchanged(self):
         reply = json.dumps({key: "line %s" % key for key in JSON_KEYS})
