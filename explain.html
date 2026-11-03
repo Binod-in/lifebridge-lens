@@ -865,6 +865,68 @@
             margin: 0;
         }
 
+        /* Slim LINE-style composer on phones: one 40px row, 52-60px
+         * total, no empty band above or below. Buttons are 40px with
+         * 2px padding, so the tap area stays at least 44px. */
+        @media (max-width: 759px) {
+            .chat-composer-bar {
+                padding: 0 8px;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+
+            .chat-composer {
+                padding: 6px 8px;
+                gap: 0;
+            }
+
+            #ask-form {
+                margin-bottom: 0;
+            }
+
+            #ask-input {
+                min-height: 0;
+            }
+
+            #attach-btn,
+            #ask-btn {
+                width: 40px;
+                height: 40px;
+                min-width: 0;
+                min-height: 0;
+                padding: 2px;
+                box-sizing: content-box;
+            }
+
+            #ask-btn {
+                border: none;
+            }
+
+            .photo-chip {
+                max-height: 40px;
+                padding: 2px 4px;
+                margin: 0 0 6px;
+            }
+
+            #preview {
+                width: 32px;
+                height: 32px;
+            }
+
+            #photo-remove {
+                min-width: 32px;
+                min-height: 32px;
+            }
+
+            /* Small header select, so the title keeps its room. */
+            .chat-top #language {
+                min-height: 0;
+                height: 36px;
+                max-width: 110px;
+                padding: 4px 6px;
+                font-size: 14px;
+            }
+        }
+
         /* Desktop: sidebar plus main header, no top or tab bar. */
         .chat-main-head {
             display: none;
@@ -1095,7 +1157,7 @@
         .chat-main {
             min-height: 0;
             overflow-y: auto;
-            /* Fallback until JS sets the real composer height + 16px. */
+            /* Fallback until JS sets the real composer height + 12px. */
             padding-bottom: 140px;
         }
 
@@ -1237,7 +1299,6 @@
                     <span class="summary-label" data-i18n="explain.hDeadline">Deadline</span>
                     <strong class="summary-big" id="summary-deadline"></strong>
                     <span class="summary-sub" id="summary-era"></span>
-                    <span class="summary-days" id="summary-days"></span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label" data-i18n="explain.hAmount">Amount</span>
@@ -1306,14 +1367,10 @@
 
         <section class="card" id="followup-card" style="display:none;">
             <div class="chip-row">
-                <button type="button" class="chip" data-i18n="explain.qDeadline">What happens if I miss the deadline?</button>
-                <button type="button" class="chip" data-i18n="explain.qWhere">Where do I pay or do this?</button>
-                <button type="button" class="chip" data-i18n="explain.qDocs">What documents do I need?</button>
-                <button type="button" class="chip" data-i18n="explain.qUrgent">Is this urgent?</button>
                 <button type="button" class="chip" id="step-chip" data-i18n="explain.qStepByStep">Show me step by step</button>
                 <button type="button" class="chip" data-i18n="explain.qHowPay">How do I pay?</button>
                 <button type="button" class="chip" data-i18n="explain.qIfNotPay">What if I don't pay?</button>
-                <button type="button" class="chip" data-i18n="explain.qMorePhrases">More phrases for the staff</button>
+                <button type="button" class="chip" data-i18n="explain.qWhere">Where do I pay or do this?</button>
             </div>
         </section>
 
@@ -1522,9 +1579,10 @@
         // textarea growth, status lines), so the last message never
         // hides under the fixed composer.
         const composerBar = document.querySelector(".chat-composer-bar");
+        let keyboardGap = 0; // Pixels the composer floats above the bottom.
         function syncThreadPadding() {
             const main = document.getElementById("main-content");
-            main.style.paddingBottom = (composerBar.offsetHeight + 16) + "px";
+            main.style.paddingBottom = (composerBar.offsetHeight + 12 + keyboardGap) + "px";
         }
         if (window.ResizeObserver) {
             new ResizeObserver(syncThreadPadding).observe(composerBar);
@@ -1536,7 +1594,9 @@
             const placeComposer = () => {
                 const vv = window.visualViewport;
                 const gap = window.innerHeight - vv.height - vv.offsetTop;
-                composerBar.style.bottom = Math.max(0, Math.round(gap)) + "px";
+                keyboardGap = Math.max(0, Math.round(gap));
+                composerBar.style.bottom = keyboardGap + "px";
+                syncThreadPadding();
             };
             window.visualViewport.addEventListener("resize", placeComposer);
             window.visualViewport.addEventListener("scroll", placeComposer);
@@ -1796,8 +1856,9 @@
             return out;
         }
 
-        // Fill the reading line and practice list. Empty practice
-        // hides the whole practice block.
+        // Fill the reading line and practice list. The reading line
+        // shows when there is a reading (empty hides via CSS); the
+        // "Practice these" title and list show only with an item.
         function fillStaffPractice(reading, variations) {
             document.getElementById("result-staff-reading").textContent = reading || "";
             const list = document.getElementById("result-variations");
@@ -1810,7 +1871,7 @@
                 list.appendChild(li);
             }
             document.getElementById("staff-practice").style.display =
-                (reading || list.children.length) ? "" : "none";
+                list.children.length ? "" : "none";
         }
 
         // Markers: numbered points from the AI reply. Every marker is
@@ -2102,7 +2163,9 @@
             }
         }
 
-        // Summary bar: big deadline + amount, plus the days left.
+        // Summary bar: big deadline date in the user's language, one
+        // small era line, amount. Days left live only in the hanko
+        // stamp, never as a second text line.
         function updateSummary() {
             const bar = document.getElementById("summary-bar");
             if (!isRealDate(lastDeadlineDate)) {
@@ -2110,39 +2173,28 @@
                 document.getElementById("summary-era").textContent = "";
                 return;
             }
-            document.getElementById("summary-deadline").textContent = lastDeadlineText;
+            document.getElementById("summary-deadline").textContent =
+                toLocaleDate(lastDeadlineDate) || lastDeadlineText;
             document.getElementById("summary-amount").textContent = lastAmountText;
             document.getElementById("summary-amount").classList.toggle("summary-muted", lastAmountMissing);
-            const era = toEraDate(lastDeadlineDate);
-            const eraText = era ? t("explain.eraLabel", "Japanese date") + ": " + era : "";
-            document.getElementById("summary-era").textContent = eraText;
+            document.getElementById("summary-era").textContent = toEraDate(lastDeadlineDate);
             const n = daysUntil(lastDeadlineDate);
-            const daysEl = document.getElementById("summary-days");
             const hanko = document.getElementById("summary-hanko");
             const hankoNum = document.getElementById("summary-hanko-num");
             const hankoSub = document.getElementById("summary-hanko-sub");
             bar.classList.remove("soon", "passed");
             if (n < 0) {
                 bar.classList.add("passed");
-                daysEl.textContent = t("explain.deadlinePassed", "Deadline passed");
                 hanko.classList.add("overdue");
                 hankoNum.textContent = "";
                 hankoSub.textContent = t("explain.hankoOverdue", "Overdue");
-            } else if (n <= 7) {
-                bar.classList.add("soon");
-                daysEl.textContent = n === 1
-                    ? t("explain.dayLeft", "1 day left")
-                    : t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
+            } else {
+                if (n <= 7) bar.classList.add("soon");
                 hanko.classList.remove("overdue");
                 hankoNum.textContent = String(n);
                 hankoSub.textContent = n === 1
                     ? t("explain.hankoDay", "day left")
                     : t("explain.hankoDays", "days left");
-            } else {
-                daysEl.textContent = t("explain.daysLeft", "{n} days left").replace("{n}", String(n));
-                hanko.classList.remove("overdue");
-                hankoNum.textContent = String(n);
-                hankoSub.textContent = t("explain.hankoDays", "days left");
             }
             bar.style.display = "";
         }
@@ -2181,16 +2233,32 @@
             document.getElementById("load-slow").style.display = "none";
         }
 
-        // Japanese era date: 2027-02-01 becomes "Reiwa 9 (2027)".
+        // Japanese era date: 2026-11-16 becomes "令和8年11月16日".
         // Reiwa started May 1 2019, Heisei Jan 8 1989, Showa Dec 25 1926.
         // YYYY-MM-DD strings compare in date order, so plain >= works.
         function toEraDate(dateStr) {
             if (!isRealDate(dateStr)) return "";
             const year = +dateStr.slice(0, 4);
-            if (dateStr >= "2019-05-01") return "Reiwa " + (year - 2018) + " (" + year + ")";
-            if (dateStr >= "1989-01-08") return "Heisei " + (year - 1988) + " (" + year + ")";
-            if (dateStr >= "1926-12-25") return "Showa " + (year - 1925) + " (" + year + ")";
+            const month = +dateStr.slice(5, 7);
+            const day = +dateStr.slice(8, 10);
+            if (dateStr >= "2019-05-01") return "令和" + (year - 2018) + "年" + month + "月" + day + "日";
+            if (dateStr >= "1989-01-08") return "平成" + (year - 1988) + "年" + month + "月" + day + "日";
+            if (dateStr >= "1926-12-25") return "昭和" + (year - 1925) + "年" + month + "月" + day + "日";
             return "";
+        }
+
+        // Big deadline date in the user's language: 2026-11-16 becomes
+        // "November 16, 2026" in English.
+        const LOCALE_BY_LANG = { en: "en-US", ne: "ne-NP", ja: "ja-JP", vi: "vi-VN", my: "my-MM" };
+        function toLocaleDate(dateStr) {
+            if (!isRealDate(dateStr)) return "";
+            let lang = "ne";
+            try {
+                const saved = window.localStorage.getItem("lb_lang");
+                if (saved && LOCALE_BY_LANG[saved]) lang = saved;
+            } catch (e) { /* keep default */ }
+            const d = new Date(+dateStr.slice(0, 4), +dateStr.slice(5, 7) - 1, +dateStr.slice(8, 10));
+            return d.toLocaleDateString(LOCALE_BY_LANG[lang], { year: "numeric", month: "long", day: "numeric" });
         }
 
         form.addEventListener("submit", (e) => {
@@ -2528,14 +2596,15 @@
         // The question box stays disabled until a result exists.
         function autoGrowAsk() {
             askInput.style.height = "auto";
-            askInput.style.height = Math.min(askInput.scrollHeight, 135) + "px";
+            const cap = window.matchMedia("(max-width: 759px)").matches ? 110 : 135;
+            askInput.style.height = Math.min(askInput.scrollHeight, cap) + "px";
         }
 
         function updateAskState() {
             askInput.disabled = false;
             askInput.placeholder = hasResult
                 ? t("explain.askComposer", "Ask about the letter…")
-                : t("explain.askNeedPhoto", "Add a photo, then Send");
+                : t("explain.askNeedPhoto", "Add a photo");
             autoGrowAsk();
         }
 

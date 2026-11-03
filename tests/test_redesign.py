@@ -127,7 +127,7 @@ class DeadlineMathTest(unittest.TestCase):
         self.assertIn('"2019-05-01"', text)
         self.assertIn('"1989-01-08"', text)
         self.assertIn('"1926-12-25"', text)
-        for name in ("Reiwa", "Heisei", "Showa"):
+        for name in ("令和", "平成", "昭和"):
             self.assertIn(name, text)
         self.assertIn("(year - 2018)", text)
         self.assertIn("(year - 1988)", text)
@@ -137,7 +137,8 @@ class DeadlineMathTest(unittest.TestCase):
         text = _read("explain.html")
         self.assertIn('id="summary-era"', text)
         self.assertNotIn('id="result-era"', text)
-        self.assertIn('"explain.eraLabel"', text)
+        # Only the era date itself, no "Japanese date:" label.
+        self.assertNotIn('"explain.eraLabel"', text)
 
 
 class EmptyCardTest(unittest.TestCase):

@@ -170,9 +170,20 @@ class HideMissingTest(unittest.TestCase):
                       self.page)
 
     def test_followup_chips_for_removed_info(self):
-        for marker in ('"explain.qHowPay"', '"explain.qIfNotPay"',
-                       '"explain.qMorePhrases"'):
+        for marker in ('"explain.qHowPay"', '"explain.qIfNotPay"'):
             self.assertIn(marker, self.page)
+
+    def test_only_four_followup_chips(self):
+        start = self.page.index('class="chip-row"')
+        end = self.page.index("</div>", start)
+        block = self.page[start:end]
+        self.assertEqual(block.count('class="chip"'), 4)
+        for marker in ('"explain.qStepByStep"', '"explain.qHowPay"',
+                       '"explain.qIfNotPay"', '"explain.qWhere"'):
+            self.assertIn(marker, block)
+        for marker in ('"explain.qDeadline"', '"explain.qDocs"',
+                       '"explain.qUrgent"', '"explain.qMorePhrases"'):
+            self.assertNotIn(marker, block)
 
 
 class SlimTranslationTest(unittest.TestCase):

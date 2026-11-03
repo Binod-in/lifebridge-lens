@@ -176,7 +176,8 @@ class ComposerTest(unittest.TestCase):
             self.assertIn(marker, self.page)
         self.assertIn('<textarea id="ask-input"', self.page)
         self.assertIn('e.key === "Enter" && !e.shiftKey', self.page)
-        self.assertIn("Math.min(askInput.scrollHeight, 135)", self.page)
+        self.assertIn("Math.min(askInput.scrollHeight, cap)", self.page)
+        self.assertIn('? 110 : 135;', self.page)
 
     def test_ask_always_enabled(self):
         self.assertIn("function updateAskState()", self.page)
@@ -488,11 +489,15 @@ class AppShellTest(unittest.TestCase):
         mains = re.findall(r"\.chat-main\s*\{[^}]*\}", self.page)
         self.assertTrue(any("overflow-y: auto" in m for m in mains))
         self.assertTrue(any("min-height: 0" in m for m in mains))
-        # Thread padding tracks the real composer height plus 16px
-        # through a ResizeObserver, not a fixed guess.
+        # Thread padding tracks the real composer height plus 12px
+        # through a ResizeObserver, not a fixed guess. The keyboard
+        # gap is added too, so the last message stays visible when
+        # the composer floats above the iPhone keyboard.
         self.assertIn("new ResizeObserver(syncThreadPadding)"
                       ".observe(composerBar);", self.page)
-        self.assertIn("offsetHeight + 16", self.page)
+        self.assertIn("offsetHeight + 12 + keyboardGap", self.page)
+        self.assertIn("keyboardGap = Math.max(0, Math.round(gap));",
+                      self.page)
         self.assertNotIn("padding-bottom: 260px", self.page)
         self.assertNotIn("padding-bottom: 190px", self.page)
 
@@ -668,11 +673,31 @@ class MobileChatTest(unittest.TestCase):
             self.page,
             r"\.chat-composer-bar\s*\{[^}]*?background: var\(--page\);")
 
+    def test_slim_mobile_composer(self):
+        # One 40px row: 40px buttons keep a 44px tap area through
+        # 2px padding; box padding 6px 8px; no empty bands.
+        start = self.page.index("@media (max-width: 759px)",
+                                self.page.index("#ask-btn {"))
+        block = self.page[start:start + 2500]
+        for marker in ("padding: 6px 8px;", "gap: 0;",
+                       "margin-bottom: 0;", "min-height: 0;",
+                       "width: 40px;", "height: 40px;",
+                       "padding: 2px;", "box-sizing: content-box;"):
+            self.assertIn(marker, block)
+        # Photo chip: 32px thumbnail, 40px max.
+        for marker in ("max-height: 40px;", "width: 32px;",
+                       "height: 32px;"):
+            self.assertIn(marker, block)
+        # Header select stays small so the title is not cut.
+        for marker in ("height: 36px;", "max-width: 110px;",
+                       "font-size: 14px;"):
+            self.assertIn(marker, block)
+
     def test_placeholders_are_short(self):
         block = _lang_block(_read("i18n.js"), "en")
         self.assertIn('"explain.askComposer": "Ask about the letter…"',
                       block)
-        self.assertIn('"explain.askNeedPhoto": "Add a photo, then Send"',
+        self.assertIn('"explain.askNeedPhoto": "Add a photo"',
                       block)
 
     def test_chip_cleared_on_send(self):

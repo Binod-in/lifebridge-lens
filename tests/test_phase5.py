@@ -116,6 +116,13 @@ class Phase5FrontendTest(unittest.TestCase):
         self.assertIn("data.staff_reading", self.page)
         self.assertIn("data.staff_variations", self.page)
 
+    def test_practice_title_needs_an_item(self):
+        # "Practice these" shows only with at least one item; a
+        # reading alone must not show an empty list.
+        self.assertIn("list.children.length ? \"\" : \"none\"",
+                      self.page)
+        self.assertNotIn("(reading || list.children.length)", self.page)
+
     def test_read_aloud_uses_japanese_voice(self):
         self.assertIn("speechSynthesis", self.page)
         self.assertIn('said.lang = "ja-JP"', self.page)

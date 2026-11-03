@@ -216,15 +216,26 @@ class ExplainDesignTest(unittest.TestCase):
         self.assertIn('id="summary-bar"', self.page)
         self.assertIn('id="summary-deadline"', self.page)
         self.assertIn('id="summary-amount"', self.page)
-        self.assertIn('id="summary-days"', self.page)
         self.assertIn("function updateSummary()", self.page)
         self.assertIn("function daysUntil(dateStr)", self.page)
-        for key in ("explain.daysLeft", "explain.dayLeft",
-                    "explain.deadlinePassed"):
-            self.assertIn('"%s"' % key, self.page)
         self.assertIn('add("soon")', self.page)
         self.assertIn('add("passed")', self.page)
-        self.assertIn('.replace("{n}", String(n))', self.page)
+
+    def test_summary_bar_single_days_count(self):
+        # Days left live only in the hanko stamp: no second text
+        # line, no era label prefix. The big date comes from
+        # deadline_date in the user's language.
+        self.assertNotIn('id="summary-days"', self.page)
+        self.assertNotIn('"explain.daysLeft"', self.page)
+        self.assertNotIn('"explain.dayLeft"', self.page)
+        self.assertNotIn('"explain.deadlinePassed"', self.page)
+        self.assertNotIn('"explain.eraLabel"', self.page)
+        self.assertNotIn('.replace("{n}", String(n))', self.page)
+        self.assertIn("function toLocaleDate(dateStr)", self.page)
+        self.assertIn("toLocaleDate(lastDeadlineDate) || lastDeadlineText",
+                      self.page)
+        self.assertIn("getElementById(\"summary-era\").textContent = "
+                      "toEraDate(lastDeadlineDate);", self.page)
 
     def test_next_steps_checklist(self):
         self.assertIn('<ol id="result-next" class="check-list">', self.page)

@@ -4,7 +4,7 @@
  * Rule: any change to a .js or .css file must bump CACHE, because the
  * service worker serves JS and CSS cache-first.
  */
-const CACHE = "lens-v25";
+const CACHE = "lens-v26";
 const CORE = [
     "/",
     "offline.html",
