@@ -42,8 +42,9 @@ class ReadmeTest(unittest.TestCase):
             self.assertIn(marker, self.readme)
 
     def test_links_screenshots_and_length(self):
-        self.assertIn("Demo video: TODO", self.readme)
-        self.assertIn("Live demo: TODO", self.readme)
+        self.assertIn("Demo video: <YOUTUBE LINK>", self.readme)
+        self.assertIn("Live demo: not hosted. Run it locally, see Run locally.",
+                      self.readme)
         self.assertNotIn("coming soon", self.readme)
         for shot in ("lens-sample-390-light.png",
                      "lens-sample-390-dark.png",

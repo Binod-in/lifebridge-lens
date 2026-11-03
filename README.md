@@ -11,7 +11,7 @@ Ticket machines, ATMs and paper forms are Japanese only too.
 
 ## What was built during the hackathon vs pre-existing
 
-- **Pre-existing (not judged):** the LIFEGO guide website — guide articles,
+- **Pre-existing (not judged):** my school project, the LifeBridge Japan (LIFEGO) guide website — guide articles,
   home, search, saved pages and settings. It is kept separately at
   https://github.com/Binod-in/lifebridge-japan and none of its code is in
   this repo.
@@ -139,8 +139,8 @@ Tests use mocked AI replies and need no API key.
 
 ## Links
 
-- Demo video: TODO
-- Live demo: TODO
+- Demo video: <YOUTUBE LINK>
+- Live demo: not hosted. Run it locally, see Run locally.
 
 ## Screenshots
 

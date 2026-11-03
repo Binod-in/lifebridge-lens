@@ -154,6 +154,9 @@ class Phase4FrontendTest(unittest.TestCase):
         self.assertIn("adviceHeaders()", self.block)
         self.assertIn('<script src="lb-config.js"></script>', self.page)
 
+    def test_advice_strips_markdown(self):
+        self.assertIn('.replace(/\\*\\*/g, "")', self.block)
+
 
 class Phase4TranslationTest(unittest.TestCase):
     @classmethod

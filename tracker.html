@@ -422,7 +422,7 @@
                 const json = await res.json();
                 if (!res.ok || !json.advice) throw new Error(json.error || "Something went wrong");
                 const text = document.createElement("p");
-                text.textContent = json.advice;
+                text.textContent = String(json.advice || "").replace(/\*\*/g, "");
                 result.appendChild(text);
                 status.textContent = "";
             } catch (err) {
