@@ -39,6 +39,8 @@ NEW_KEYS = (
     "explain.hankoDays",
     "explain.hankoDay",
     "explain.hankoOverdue",
+    "explain.slowDown",
+    "explain.tryAgain",
 )
 
 
@@ -559,6 +561,22 @@ class LoadingStateTest(unittest.TestCase):
         for key in ('"explain.hankoDays"', '"explain.hankoDay"',
                     '"explain.hankoOverdue"'):
             self.assertIn(key, self.page)
+
+    def test_timeout_retry_row(self):
+        # A scan timeout shows a LifeBridge message with a Try again
+        # button that resends the same photo and typed text.
+        for marker in ("function addRetryRow()",
+                       "addRetryRow();",
+                       "It is taking longer than usual.",
+                       '"explain.slowDown"',
+                       '"explain.tryAgain"',
+                       "lastRetryText = pendingQuestion",
+                       "pendingQuestion = lastRetryText;",
+                       "lb-msg lb-msg-bot lb-retry",
+                       "btn btn-prim lb-retry-btn",
+                       'querySelectorAll(".lb-retry")',
+                       ".lb-retry-btn {"):
+            self.assertIn(marker, self.page)
 
     def test_still_working_translated(self):
         src = _read("i18n.js")

@@ -3,6 +3,7 @@
 Run from the project root:
     python -m unittest tests.test_explain -v
 """
+import contextlib
 import io
 import json
 import os
@@ -135,6 +136,81 @@ class ExplainPromptTest(unittest.TestCase):
             res = self._post_photo()
         self.assertEqual(res.status_code, 502)
 
+    def test_explain_payload_limits_tokens_and_timeout(self):
+        seen = {}
+
+        def fake_urlopen(req, timeout=None):
+            seen["payload"] = json.loads(req.data.decode("utf-8"))
+            seen["timeout"] = timeout
+            return _api_reply("{}")
+
+        with mock.patch.object(server.urllib.request, "urlopen",
+                               side_effect=fake_urlopen):
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(seen["payload"]["max_tokens"], 1200)
+        self.assertEqual(seen["timeout"], 75)
+        prompt = seen["payload"]["messages"][0]["content"][0]["text"]
+        self.assertIn("at most 2 sentences", prompt)
+
+
+class MetaRetryTest(unittest.TestCase):
+    """Timeouts and 5xx are retried once; 4xx is not."""
+
+    def setUp(self):
+        server.app.testing = True
+        self.client = server.app.test_client()
+        self._key = server.API_KEY
+        server.API_KEY = "test-key"
+        server._reset_rate_limits()
+
+    def tearDown(self):
+        server.API_KEY = self._key
+        server._reset_rate_limits()
+
+    def _post_photo(self):
+        data = {"photo": _image_file(), "language": "en"}
+        return self.client.post("/explain", data=data,
+                               content_type="multipart/form-data")
+
+    def _http_error(self, code):
+        return server.urllib.error.HTTPError(
+            "https://meta.test/chat", code, "err", {}, io.BytesIO(b"nope"))
+
+    def test_timeout_retried_once(self):
+        reply = json.dumps({key: "line" for key in JSON_KEYS})
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = [TimeoutError("slow"), _api_reply(reply)]
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(m.call_count, 2)
+        self.assertIn("explain retry", buf.getvalue())
+        self.assertIn("explain took", buf.getvalue())
+
+    def test_http_400_not_retried(self):
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = self._http_error(400)
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(m.call_count, 1)
+        self.assertNotIn("retry", buf.getvalue())
+        self.assertIn("explain took", buf.getvalue())
+
+    def test_http_500_retried_once(self):
+        reply = json.dumps({key: "line" for key in JSON_KEYS})
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = [self._http_error(500), _api_reply(reply)]
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(m.call_count, 2)
+        self.assertIn("explain retry", buf.getvalue())
+
     def test_explain_returns_model_text_unchanged(self):
         reply = json.dumps({key: "line %s" % key for key in JSON_KEYS})
         with mock.patch.object(server.urllib.request, "urlopen",
@@ -166,7 +242,7 @@ class ExplainPageScriptTest(unittest.TestCase):
         self.assertIn("fillRect(0, 0, canvas.width, canvas.height)", self.page)
 
     def test_ai_fetches_use_timeout(self):
-        self.assertIn("AI_TIMEOUT_MS = 45000", self.page)
+        self.assertIn("AI_TIMEOUT_MS = 90000", self.page)
         self.assertIn("new AbortController()", self.page)
         self.assertIn('fetchWithTimeout("/explain"', self.page)
         self.assertIn('fetchWithTimeout("/ask"', self.page)

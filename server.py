@@ -195,8 +195,15 @@ def _image_kind(raw):
     return ""
 
 
+META_TIMEOUT = 75
+META_MAX_ATTEMPTS = 2
+
+
 def _call_meta_api(payload, label="meta"):
-    """POST to the Meta chat API. Returns (ok, data_or_public_error)."""
+    """POST to the Meta chat API. Returns (ok, data_or_public_error).
+
+    Timeouts and 5xx replies are retried once; 4xx replies are not.
+    """
     req = urllib.request.Request(
         f"{BASE_URL}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
@@ -206,22 +213,42 @@ def _call_meta_api(payload, label="meta"):
         },
         method="POST",
     )
-    start = time.monotonic()
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            return True, json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
+    for attempt in range(META_MAX_ATTEMPTS):
+        start = time.monotonic()
         try:
-            detail = e.read().decode("utf-8", "replace")[:500]
-        except Exception:
-            detail = ""
-        app.logger.warning("Meta API HTTP error %s: %s", e.code, detail)
-        return False, "The AI service had a problem. Please try again."
-    except Exception as e:  # network, timeout, etc.
-        app.logger.warning("Meta API request failed: %s", e)
-        return False, "Could not reach the AI service. Please try again."
-    finally:
-        print(f"{label} took {time.monotonic() - start:.1f}s", flush=True)
+            with urllib.request.urlopen(req, timeout=META_TIMEOUT) as resp:
+                return True, json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if (e.code is not None and e.code >= 500
+                    and attempt + 1 < META_MAX_ATTEMPTS):
+                print(f"{label} retry", flush=True)
+                continue
+            try:
+                detail = e.read().decode("utf-8", "replace")[:500]
+            except Exception:
+                detail = ""
+            app.logger.warning("Meta API HTTP error %s: %s", e.code, detail)
+            return False, "The AI service had a problem. Please try again."
+        except TimeoutError:
+            if attempt + 1 < META_MAX_ATTEMPTS:
+                print(f"{label} retry", flush=True)
+                continue
+            app.logger.warning("Meta API request timed out")
+            return False, "Could not reach the AI service. Please try again."
+        except urllib.error.URLError as e:
+            # urlopen wraps socket timeouts in URLError.
+            if (isinstance(e.reason, TimeoutError)
+                    and attempt + 1 < META_MAX_ATTEMPTS):
+                print(f"{label} retry", flush=True)
+                continue
+            app.logger.warning("Meta API request failed: %s", e)
+            return False, "Could not reach the AI service. Please try again."
+        except Exception as e:  # network, etc.
+            app.logger.warning("Meta API request failed: %s", e)
+            return False, "Could not reach the AI service. Please try again."
+        finally:
+            print(f"{label} took {time.monotonic() - start:.1f}s", flush=True)
+    return False, "Could not reach the AI service. Please try again."
 
 
 LANG_NAMES = {"ne": "Nepali", "en": "English", "ja": "Japanese", "vi": "Vietnamese", "my": "Burmese"}
@@ -448,6 +475,7 @@ def explain():
 
     payload = {
         "model": MODEL,
+        "max_tokens": 1200,
         "messages": [
             {
                 "role": "user",

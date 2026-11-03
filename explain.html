@@ -611,6 +611,11 @@
             text-align: right;
         }
 
+        /* Timeout row: space between the message and Try again. */
+        .lb-retry-btn {
+            margin-top: 8px;
+        }
+
         /* Hidden file inputs (opened via buttons). */
         #photo,
         #photo-gallery {
@@ -1341,8 +1346,9 @@
             return headers;
         }
 
-        // The AI usually answers in a few seconds; stop waiting after 45.
-        const AI_TIMEOUT_MS = 45000;
+        // The AI usually answers in a few seconds. The server gives up
+        // after 75s and retries once, so the browser always waits longer.
+        const AI_TIMEOUT_MS = 90000;
 
         // fetch() plus JSON read under one timeout: the timer keeps running
         // until the body is fully read and parsed, so a stalled body also
@@ -1384,6 +1390,7 @@
         let scanEpoch = 0; // Rises on every successful scan; late follow-up replies check it.
         let hasResult = false; // True once a scan or sample produced a result.
         let pendingQuestion = ""; // Typed text sent as the first follow-up after a scan.
+        let lastRetryText = ""; // Typed text kept for the timeout Try again button.
         let currentTurnBody = null; // Body of the latest LifeBridge turn.
         let lastDeadlineDate = "";
         let lastKind = "";
@@ -2006,6 +2013,7 @@
 
         // One Send button runs the scan when a photo is attached.
         async function runScan() {
+            document.querySelectorAll(".lb-retry").forEach((el) => el.remove());
             if (typeof navigator !== "undefined" && navigator.onLine === false) {
                 setStatus("net.offline", "You are offline. Connect to the internet and try again.");
                 return;
@@ -2092,7 +2100,8 @@
                 lastStatusKey = null; status.textContent = "";
             } catch (err) {
                 if (err && err.name === "AbortError") {
-                    setStatus("explain.tooSlow", "The AI took too long. Please try again.");
+                    lastRetryText = pendingQuestion || "";
+                    addRetryRow();
                 } else if (err && err.lbServerError) {
                     setStatus("explain.serverError", "Server error. Please try again.");
                 } else {
@@ -2142,6 +2151,43 @@
                 time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
             } catch (e) { time.textContent = ""; }
             main.append(name, body, time);
+            row.append(avatar, main);
+            thread.appendChild(row);
+            row.scrollIntoView({ block: "nearest" });
+        }
+
+        // Timeout row: a LifeBridge message plus a Try again button
+        // that resends the same photo and typed text. The photo chip
+        // stays, so the photo is still attached.
+        function addRetryRow() {
+            document.querySelectorAll(".lb-retry").forEach((el) => el.remove());
+            const row = document.createElement("div");
+            row.className = "lb-msg lb-msg-bot lb-retry";
+            const avatar = document.createElement("span");
+            avatar.className = "lb-msg-avatar";
+            avatar.setAttribute("aria-hidden", "true");
+            avatar.innerHTML = LB_AVATAR_SVG;
+            const main = document.createElement("div");
+            main.className = "lb-msg-main";
+            const name = document.createElement("div");
+            name.className = "lb-msg-name";
+            name.textContent = t("chat.botName", "LifeBridge");
+            const body = document.createElement("div");
+            body.className = "lb-msg-text";
+            body.textContent = t("explain.slowDown", "It is taking longer than usual.");
+            const wrap = document.createElement("div");
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn btn-prim lb-retry-btn";
+            btn.textContent = t("explain.tryAgain", "Try again");
+            btn.addEventListener("click", () => {
+                row.remove();
+                pendingQuestion = lastRetryText;
+                runScan();
+            });
+            wrap.appendChild(btn);
+            body.appendChild(wrap);
+            main.append(name, body);
             row.append(avatar, main);
             thread.appendChild(row);
             row.scrollIntoView({ block: "nearest" });
