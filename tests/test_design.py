@@ -237,6 +237,24 @@ class ExplainDesignTest(unittest.TestCase):
         self.assertIn("getElementById(\"summary-era\").textContent = "
                       "toEraDate(lastDeadlineDate);", self.page)
 
+    def test_summary_uses_request_language(self):
+        # Date and hanko follow the language sent with that scan's
+        # own request, never the site UI language; the box stores it.
+        self.assertIn('let lastRequestLang = "ne";', self.page)
+        self.assertIn("const requestLang = document.getElementById("
+                      "\"language\").value;", self.page)
+        self.assertIn("lastRequestLang = requestLang;", self.page)
+        self.assertIn("function tLang(lang, key, fallback)", self.page)
+        self.assertIn("tLang(lastRequestLang,", self.page)
+        self.assertIn("bar.dataset.lang = lastRequestLang;", self.page)
+        start = self.page.index("function toLocaleDate(dateStr)")
+        end = self.page.index("function tLang(lang, key, fallback)")
+        self.assertNotIn('localStorage.getItem("lb_lang")',
+                         self.page[start:end])
+        i18n = _read("i18n.js")
+        self.assertIn("function tIn(lang, key)", i18n)
+        self.assertIn("tIn: tIn,", i18n)
+
     def test_save_message_takes_no_room_when_empty(self):
         css = _read("style.css")
         self.assertRegex(css, r"#save-date-msg\s*\{[^}]*?margin: 0;")

@@ -1603,6 +1603,7 @@
         }
         let currentTurnBody = null; // Body of the latest LifeBridge turn.
         let lastDeadlineDate = "";
+        let lastRequestLang = "ne"; // Language sent with the latest /explain request.
         let lastKind = "";
         let lastDeadlineText = "";
         let lastAmountText = "";
@@ -2220,9 +2221,10 @@
             }
         }
 
-        // Summary bar: big deadline date in the user's language, one
-        // small era line, amount. Days left live only in the hanko
-        // stamp, never as a second text line.
+        // Summary bar: big deadline date in the language of that
+        // scan's request, one small era line, amount. Days left live
+        // only in the hanko stamp, never as a second text line. The
+        // box keeps its language even when the site language changes.
         function updateSummary() {
             const bar = document.getElementById("summary-bar");
             if (!isRealDate(lastDeadlineDate)) {
@@ -2244,16 +2246,17 @@
                 bar.classList.add("passed");
                 hanko.classList.add("overdue");
                 hankoNum.textContent = "";
-                hankoSub.textContent = t("explain.hankoOverdue", "Overdue");
+                hankoSub.textContent = tLang(lastRequestLang, "explain.hankoOverdue", "Overdue");
             } else {
                 if (n <= 7) bar.classList.add("soon");
                 hanko.classList.remove("overdue");
                 hankoNum.textContent = String(n);
                 hankoSub.textContent = n === 1
-                    ? t("explain.hankoDay", "day left")
-                    : t("explain.hankoDays", "days left");
+                    ? tLang(lastRequestLang, "explain.hankoDay", "day left")
+                    : tLang(lastRequestLang, "explain.hankoDays", "days left");
             }
             bar.style.display = "";
+            bar.dataset.lang = lastRequestLang;
         }
 
         // Loading steps: exactly one step is "current" at a time;
@@ -2309,13 +2312,21 @@
         const LOCALE_BY_LANG = { en: "en-US", ne: "ne-NP", ja: "ja-JP", vi: "vi-VN", my: "my-MM" };
         function toLocaleDate(dateStr) {
             if (!isRealDate(dateStr)) return "";
-            let lang = "ne";
-            try {
-                const saved = window.localStorage.getItem("lb_lang");
-                if (saved && LOCALE_BY_LANG[saved]) lang = saved;
-            } catch (e) { /* keep default */ }
+            const lang = LOCALE_BY_LANG[lastRequestLang] ? lastRequestLang : "ne";
             const d = new Date(+dateStr.slice(0, 4), +dateStr.slice(5, 7) - 1, +dateStr.slice(8, 10));
             return d.toLocaleDateString(LOCALE_BY_LANG[lang], { year: "numeric", month: "long", day: "numeric" });
+        }
+
+        // Translate one key into a result's own request language, not
+        // the current site language, so older turns keep their wording.
+        function tLang(lang, key, fallback) {
+            try {
+                if (window.LBT && typeof window.LBT.tIn === "function") {
+                    const v = window.LBT.tIn(lang, key);
+                    if (typeof v === "string" && v !== "" && v !== key) return v;
+                }
+            } catch (e) { /* fall through */ }
+            return t(key, fallback);
         }
 
         form.addEventListener("submit", (e) => {
@@ -2362,7 +2373,8 @@
             const newPhotoMime = smallPhoto.type || "image/jpeg";
             const data = new FormData();
             data.append("photo", smallPhoto, photoInput.files[0].name || "photo.jpg");
-            data.append("language", document.getElementById("language").value);
+            const requestLang = document.getElementById("language").value;
+            data.append("language", requestLang);
             data.append("mode", document.getElementById("mode").value);
             try {
                 if (stopRequested) {
@@ -2405,6 +2417,7 @@
                 lastPhotoB64 = newPhotoB64;
                 lastPhotoMime = newPhotoMime;
                 lastExplanation = json.text || "";
+                lastRequestLang = requestLang;
                 chatHistory = [];
                 scanEpoch++;
                 lastDeadlineDate = "";
@@ -2835,6 +2848,7 @@
             document.getElementById("sample-tag").style.display = "";
             lastDeadlineDate = "2027-02-01";
             lastKind = "";
+            lastRequestLang = document.getElementById("language").value;
             updateSaveButton();
             updateSummary();
             updateKindLabel();

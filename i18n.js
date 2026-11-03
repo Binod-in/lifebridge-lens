@@ -1041,6 +1041,16 @@
         return key;
     }
 
+    // Fixed-language lookup for results rendered in their own request
+    // language, with English fallback. Never throws.
+    function tIn(lang, key) {
+        try {
+            var value = lookup(lang, key);
+            if (value !== undefined) return value;
+        } catch (e) { /* fall through to the key itself */ }
+        return key;
+    }
+
     function apply(lang) {
         if (SUPPORTED.indexOf(lang) === -1) lang = "en";
         document.documentElement.setAttribute("lang", lang);
@@ -1296,6 +1306,7 @@
     window.LifeBridgeI18n = { apply: apply, set: setLang, get: getLang, t: t };
     window.LBT = {
         t: t,
+        tIn: tIn,
         lang: getLang,
         onChange: function (fn) {
             try {
