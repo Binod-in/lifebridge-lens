@@ -42,6 +42,9 @@ NEW_KEYS = (
     "explain.slowDown",
     "explain.tryAgain",
     "explain.longLetter",
+    "explain.stop",
+    "explain.stopped",
+    "explain.jumpLatest",
 )
 
 
@@ -219,8 +222,8 @@ class ComposerTest(unittest.TestCase):
                          r"#ask-btn\s*\{[^}]*?min-height: 44px;")
 
     def test_composer_one_row(self):
-        # Paperclip, textarea, square Send in one row; language
-        # and hint in the small row under it.
+        # Paperclip, textarea, square Send in one row; hint in the
+        # small row under it; language select up in the chat header.
         main_at = self.page.index('class="composer-main"')
         attach_at = self.page.index('id="attach-btn"', main_at)
         input_at = self.page.index('id="ask-input"', main_at)
@@ -229,8 +232,12 @@ class ComposerTest(unittest.TestCase):
         self.assertLess(attach_at, input_at)
         self.assertLess(input_at, send_at)
         self.assertLess(send_at, row_at)
-        self.assertIn('id="language"', self.page[row_at:row_at + 1200])
+        self.assertNotIn('id="language"', self.page[row_at:row_at + 1200])
         self.assertIn("chat-hint", self.page[row_at:row_at + 1200])
+        head_at = self.page.index('class="chat-top"')
+        self.assertIn('id="language"', self.page[head_at:head_at + 2500])
+        self.assertIn('id="lang-slot-desktop"', self.page)
+        self.assertIn("placeLanguageSelect();", self.page)
         self.assertRegex(self.page,
                          r"\.composer-main\s*\{[^}]*?display: flex;")
         self.assertRegex(self.page,
@@ -448,8 +455,12 @@ class LayoutFixesTest(unittest.TestCase):
                          r"\.site-header\s*\{\s*display: none;\s*\}")
         self.assertRegex(self.page,
                          r"\.chat-fab\s*\{\s*display: none;\s*\}")
+        self.assertRegex(self.page,
+                         r"\.bottom-nav\s*\{\s*display: none;\s*\}")
         bars = re.findall(r"\.chat-composer-bar\s*\{[^}]*\}", self.page)
-        self.assertTrue(any("bottom: 72px;" in b for b in bars))
+        self.assertTrue(any("bottom: 0;" in b for b in bars))
+        self.assertFalse(any("bottom: 72px;" in b for b in bars))
+        self.assertIn("env(safe-area-inset-bottom", self.page)
 
     def test_dark_fixes_use_tokens(self):
         css = _read("style.css")
@@ -477,10 +488,13 @@ class AppShellTest(unittest.TestCase):
         mains = re.findall(r"\.chat-main\s*\{[^}]*\}", self.page)
         self.assertTrue(any("overflow-y: auto" in m for m in mains))
         self.assertTrue(any("min-height: 0" in m for m in mains))
-        self.assertTrue(any("padding-bottom: 260px" in m for m in mains))
-        start = self.page.index("@media (min-width: 1024px)")
-        self.assertIn("padding-bottom: 190px",
-                      self.page[start:start + 1200])
+        # Thread padding tracks the real composer height plus 16px
+        # through a ResizeObserver, not a fixed guess.
+        self.assertIn("new ResizeObserver(syncThreadPadding)"
+                      ".observe(composerBar);", self.page)
+        self.assertIn("offsetHeight + 16", self.page)
+        self.assertNotIn("padding-bottom: 260px", self.page)
+        self.assertNotIn("padding-bottom: 190px", self.page)
 
     def test_amount_muted_when_missing(self):
         self.assertIn("lastAmountMissing", self.page)
@@ -566,7 +580,7 @@ class LoadingStateTest(unittest.TestCase):
     def test_timeout_retry_row(self):
         # A scan timeout shows a LifeBridge message with a Try again
         # button that resends the same photo and typed text.
-        for marker in ("function addRetryRow()",
+        for marker in ("function addRetryRow(key, fb, mode)",
                        "addRetryRow();",
                        "It is taking longer than usual.",
                        '"explain.slowDown"',
@@ -585,6 +599,94 @@ class LoadingStateTest(unittest.TestCase):
                        "This letter is long. Try a photo of just the top"
                        " part, or try again."):
             self.assertIn(marker, self.page)
+
+
+class MobileChatTest(unittest.TestCase):
+    """iPhone chat layout: compact composer, stop mode, auto-scroll."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = _read("explain.html")
+
+    def test_stop_mode(self):
+        for marker in ("function setSendMode(mode)",
+                       'setSendMode("stop")',
+                       'setSendMode("send")',
+                       "STOP_SVG",
+                       '<rect x="7" y="7"',
+                       'setAttribute("aria-label"',
+                       "function stopRequest()",
+                       "stopRequested = true",
+                       "activeAbort.abort()",
+                       "if (requestRunning)",
+                       '"explain.stop"',
+                       '"explain.stopped"',
+                       "Stopped.",
+                       "lastRetryAsk",
+                       'mode === "ask"',
+                       "askQuestion(lastRetryAsk)"):
+            self.assertIn(marker, self.page)
+
+    def test_jump_to_latest(self):
+        for marker in ('id="jump-latest"',
+                       ".jump-latest {",
+                       '"explain.jumpLatest"',
+                       "Jump to latest",
+                       "function scrollThreadToBottom()",
+                       "function threadScrolledUp()",
+                       "stickToBottom",
+                       "> 150",
+                       "prefers-reduced-motion",
+                       'behavior: reducedMotion() ? "auto" : "smooth"'):
+            self.assertIn(marker, self.page)
+        self.assertRegex(self.page,
+                         r"\.jump-latest\s*\{[^}]*?min-height: 44px;")
+        self.assertRegex(self.page,
+                         r"\.jump-latest\s*\{[^}]*?position: absolute;")
+
+    def test_keyboard_and_padding_wiring(self):
+        for marker in ("window.visualViewport",
+                       "innerHeight - vv.height - vv.offsetTop",
+                       'addEventListener("resize", placeComposer)',
+                       "syncThreadPadding()",
+                       "main.style.paddingBottom"):
+            self.assertIn(marker, self.page)
+
+    def test_compact_mobile_composer(self):
+        self.assertIn("@media (max-width: 759px)", self.page)
+        start = self.page.index("@media (max-width: 759px)")
+        block = self.page[start:start + 600]
+        for marker in (".composer-row", ".composer-note", ".result-note"):
+            self.assertIn(marker, block)
+        self.assertIn("display: none;", block)
+        self.assertIn("display: block;", block)
+        self.assertRegex(self.page,
+                         r"#ask-input\s*\{[^}]*?font-size: 16px;")
+        self.assertIn("max-height: 52px;", self.page)
+        self.assertEqual(self.page.count('data-i18n="index.note"'), 2)
+        self.assertRegex(
+            self.page,
+            r"\.chat-composer-bar\s*\{[^}]*?background: var\(--page\);")
+
+    def test_placeholders_are_short(self):
+        block = _lang_block(_read("i18n.js"), "en")
+        self.assertIn('"explain.askComposer": "Ask about the letter…"',
+                      block)
+        self.assertIn('"explain.askNeedPhoto": "Add a photo, then Send"',
+                      block)
+
+    def test_chip_cleared_on_send(self):
+        self.assertIn("function hidePhotoChip()", self.page)
+        self.assertIn("hidePhotoChip();", self.page)
+        self.assertIn("showPhotoChip(photoInput);", self.page)
+
+    def test_failed_scan_keeps_live_cards(self):
+        # The live cards move into each turn: removing an empty turn
+        # must rescue them first, or later scans find nothing to fill.
+        rescue_at = self.page.index("thread.appendChild(result);")
+        remove_at = self.page.index("emptyTurn.remove();")
+        self.assertLess(rescue_at, remove_at)
+        self.assertIn("thread.appendChild(loading);", self.page)
 
     def test_still_working_translated(self):
         src = _read("i18n.js")

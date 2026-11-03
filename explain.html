@@ -450,7 +450,7 @@
             width: 100%;
             max-width: 820px;
             margin: 0 auto;
-            padding: 16px 16px 320px;
+            padding: 16px 16px 140px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -640,11 +640,30 @@
             position: fixed;
             left: 0;
             right: 0;
-            bottom: 72px;
+            bottom: 0;
             z-index: 35;
             padding: 8px 12px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
             background: var(--page);
             border-top: 1px solid var(--line);
+        }
+
+        /* Jump-to-latest floats just above the composer. */
+        .jump-latest {
+            position: absolute;
+            right: 16px;
+            bottom: calc(100% + 8px);
+            min-height: 44px;
+            padding: 8px 14px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            color: var(--accent);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 36;
         }
 
         .chat-composer {
@@ -671,7 +690,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 8px;
+            max-height: 52px;
+            padding: 4px 6px;
             background: var(--soft);
             border: 1px solid var(--line);
             border-radius: 4px;
@@ -745,7 +765,7 @@
             background: transparent;
             color: var(--text);
             font: inherit;
-            font-size: 15px;
+            font-size: 16px;
             line-height: 1.6;
             resize: none;
         }
@@ -770,15 +790,58 @@
             gap: 8px;
         }
 
-        .composer-row #language {
-            width: auto;
-            min-height: 44px;
-            padding: 8px 10px;
-            font-size: 14px;
-        }
-
         .composer-row .chat-hint {
             flex: 1;
+        }
+
+        /* Language select lives in the headers, not the composer. */
+        .chat-top #language {
+            width: auto;
+            flex-shrink: 0;
+            min-height: 44px;
+            padding: 8px 6px;
+            font-size: 16px;
+        }
+
+        .chat-main-head #language {
+            width: auto;
+            flex-shrink: 0;
+            min-height: 44px;
+            font-size: 16px;
+        }
+
+        #lang-slot-mobile,
+        #lang-slot-desktop {
+            display: flex;
+            flex-shrink: 0;
+        }
+
+        #lang-slot-desktop:empty {
+            display: none;
+        }
+
+        /* Small screens: hint row and composer note hide; the note
+         * shows once under each result instead. */
+        .result-note {
+            display: none;
+            margin: 12px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 759px) {
+            .composer-row {
+                display: none;
+            }
+
+            .composer-note {
+                display: none;
+            }
+
+            .result-note {
+                display: block;
+            }
         }
 
         #ask-btn {
@@ -862,10 +925,6 @@
             .chat-composer-bar {
                 left: 270px;
                 bottom: 0;
-            }
-
-            .chat-main {
-                padding-bottom: 190px;
             }
         }
 
@@ -992,6 +1051,11 @@
             display: none;
         }
 
+        /* No bottom tab bar on this page: the header has a back arrow. */
+        .bottom-nav {
+            display: none;
+        }
+
         #result-card > h2 {
             display: none;
         }
@@ -1031,7 +1095,8 @@
         .chat-main {
             min-height: 0;
             overflow-y: auto;
-            padding-bottom: 260px;
+            /* Fallback until JS sets the real composer height + 16px. */
+            padding-bottom: 140px;
         }
 
         /* Missing amount: one small muted line, not a big error. */
@@ -1099,6 +1164,13 @@
         <header class="chat-top">
             <a class="chat-back" href="index.html" data-i18n-aria-label="nav.home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
             <span class="chat-top-name">LifeBridge Lens</span>
+            <span id="lang-slot-mobile"><select id="language" name="language" data-i18n-aria-label="doc.langAria" aria-label="Language">
+                <option value="ne" data-i18n="explain.optNepali">Nepali</option>
+                <option value="en" data-i18n="explain.optEnglish">English</option>
+                <option value="ja" data-i18n="topic.japanese.title">Japanese</option>
+                <option value="vi">Tiếng Việt</option>
+                <option value="my">မြန်မာ</option>
+            </select></span>
             <span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span class="status-text">Online</span></span>
         </header>
 
@@ -1107,6 +1179,7 @@
             <p class="chat-eyebrow" data-i18n="explain.chatEyebrow">JAPANESE, IN YOUR LANGUAGE</p>
             <h1 class="chat-title" data-i18n="explain.chatTitle">Send a photo, I will explain it.</h1>
         </div>
+        <span id="lang-slot-desktop"></span>
         <span class="status-badge"><span class="status-dot" aria-hidden="true"></span><span class="status-text">Online</span></span>
     </header>
 
@@ -1226,6 +1299,7 @@
                     <p id="result-check"></p>
                 </article>
             </div>
+            <p class="result-note" data-i18n="index.note">AI can make mistakes. Check the amount and date against the letter before paying.</p>
         </section>
 
         </div>
@@ -1246,6 +1320,7 @@
         <div class="chat-composer-bar">
             <p id="status" role="status"></p>
             <p id="ask-status" role="status"></p>
+            <button type="button" id="jump-latest" class="jump-latest" style="display:none;" data-i18n="explain.jumpLatest">Jump to latest</button>
             <div class="chat-composer">
                 <form id="explain-form">
                     <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
@@ -1264,13 +1339,6 @@
                         <button type="submit" class="btn btn-prim" id="ask-btn"><span id="ask-label" class="visually-hidden" data-i18n="explain.ask">Send</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
                     </div>
                     <div class="composer-row">
-                        <select id="language" name="language">
-                            <option value="ne" data-i18n="explain.optNepali">Nepali</option>
-                            <option value="en" data-i18n="explain.optEnglish">English</option>
-                            <option value="ja" data-i18n="topic.japanese.title">Japanese</option>
-                            <option value="vi">Tiếng Việt</option>
-                            <option value="my">မြန်မာ</option>
-                        </select>
                         <span class="chat-hint" data-i18n="chat.sendHint">Enter to send · Shift + Enter for a new line</span>
                     </div>
                 </form>
@@ -1353,8 +1421,13 @@
         // fetch() plus JSON read under one timeout: the timer keeps running
         // until the body is fully read and parsed, so a stalled body also
         // gives up instead of hanging forever.
+        let activeAbort = null;
+        let stopRequested = false;
+        let requestRunning = false;
+
         async function fetchWithTimeout(url, options) {
             const ctrl = new AbortController();
+            activeAbort = ctrl;
             const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);
             const opts = Object.assign({}, options, { signal: ctrl.signal });
             try {
@@ -1363,6 +1436,7 @@
                 return { res: res, json: json };
             } finally {
                 clearTimeout(timer);
+                if (activeAbort === ctrl) activeAbort = null;
             }
         }
 
@@ -1391,6 +1465,82 @@
         let hasResult = false; // True once a scan or sample produced a result.
         let pendingQuestion = ""; // Typed text sent as the first follow-up after a scan.
         let lastRetryText = ""; // Typed text kept for the timeout Try again button.
+        let lastRetryAsk = ""; // Follow-up question kept for Stop then Try again.
+
+        // Language select lives in the mobile header, or the desktop
+        // header on wide screens. One select, moved between the two.
+        const langMedia = window.matchMedia("(min-width: 1024px)");
+        function placeLanguageSelect() {
+            const from = document.getElementById("lang-slot-mobile");
+            const to = langMedia.matches
+                ? document.getElementById("lang-slot-desktop")
+                : from;
+            const sel = document.getElementById("language");
+            if (sel && sel.parentElement !== to) to.appendChild(sel);
+        }
+        langMedia.addEventListener("change", placeLanguageSelect);
+        placeLanguageSelect();
+
+        // Auto-scroll: new rows scroll the thread to the bottom,
+        // smoothly unless the user prefers reduced motion. When the
+        // user has scrolled up, show Jump to latest instead.
+        let stickToBottom = true;
+        let programScrollUntil = 0;
+        function reducedMotion() {
+            return window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+        function threadScrolledUp() {
+            const main = document.getElementById("main-content");
+            return main.scrollHeight - main.scrollTop - main.clientHeight > 150;
+        }
+        function scrollThreadToBottom() {
+            const main = document.getElementById("main-content");
+            const jump = document.getElementById("jump-latest");
+            if (!stickToBottom) {
+                jump.style.display = "";
+                return;
+            }
+            jump.style.display = "none";
+            programScrollUntil = Date.now() + 600;
+            main.scrollTo({ top: main.scrollHeight, behavior: reducedMotion() ? "auto" : "smooth" });
+        }
+        document.getElementById("main-content").addEventListener("scroll", () => {
+            if (Date.now() < programScrollUntil) return;
+            stickToBottom = !threadScrolledUp();
+            if (stickToBottom) document.getElementById("jump-latest").style.display = "none";
+        });
+        document.getElementById("jump-latest").addEventListener("click", () => {
+            document.getElementById("jump-latest").style.display = "none";
+            stickToBottom = true;
+            programScrollUntil = Date.now() + 600;
+            const main = document.getElementById("main-content");
+            main.scrollTo({ top: main.scrollHeight, behavior: reducedMotion() ? "auto" : "smooth" });
+        });
+
+        // Thread padding tracks the real composer height (photo chip,
+        // textarea growth, status lines), so the last message never
+        // hides under the fixed composer.
+        const composerBar = document.querySelector(".chat-composer-bar");
+        function syncThreadPadding() {
+            const main = document.getElementById("main-content");
+            main.style.paddingBottom = (composerBar.offsetHeight + 16) + "px";
+        }
+        if (window.ResizeObserver) {
+            new ResizeObserver(syncThreadPadding).observe(composerBar);
+        }
+        syncThreadPadding();
+
+        // Keep the fixed composer above the iPhone keyboard.
+        if (window.visualViewport) {
+            const placeComposer = () => {
+                const vv = window.visualViewport;
+                const gap = window.innerHeight - vv.height - vv.offsetTop;
+                composerBar.style.bottom = Math.max(0, Math.round(gap)) + "px";
+            };
+            window.visualViewport.addEventListener("resize", placeComposer);
+            window.visualViewport.addEventListener("scroll", placeComposer);
+        }
         let currentTurnBody = null; // Body of the latest LifeBridge turn.
         let lastDeadlineDate = "";
         let lastKind = "";
@@ -1407,6 +1557,29 @@
         const askStatus = document.getElementById("ask-status");
         let asking = false;
 
+        // While a request runs, Send becomes a Stop button that
+        // aborts the fetch.
+        const sendSvgHtml = askBtn.querySelector("svg").outerHTML;
+        const STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/></svg>';
+        function setSendMode(mode) {
+            if (mode === "stop") {
+                askBtn.setAttribute("aria-label", t("explain.stop", "Stop"));
+                askLabel.removeAttribute("data-i18n");
+                askLabel.textContent = t("explain.stop", "Stop");
+                askBtn.querySelector("svg").outerHTML = STOP_SVG;
+            } else {
+                askBtn.removeAttribute("aria-label");
+                askLabel.setAttribute("data-i18n", "explain.ask");
+                askLabel.textContent = t("explain.ask", "Send");
+                askBtn.querySelector("svg").outerHTML = sendSvgHtml;
+            }
+        }
+
+        function stopRequest() {
+            stopRequested = true;
+            if (activeAbort) activeAbort.abort();
+        }
+
         function clearPhotoChip() {
             photoInput.value = "";
             galleryInput.value = "";
@@ -1414,6 +1587,12 @@
             preview.style.display = "none";
             document.getElementById("photo-chip").style.display = "none";
             document.getElementById("photo-name").textContent = "";
+        }
+
+        // Hide the chip box but keep the attached files, so the
+        // upload and a later Try again still have the photo.
+        function hidePhotoChip() {
+            document.getElementById("photo-chip").style.display = "none";
         }
 
         function showPhotoChip(input) {
@@ -1975,6 +2154,7 @@
             slowTimer = setTimeout(() => {
                 document.getElementById("load-slow").style.display = "";
             }, 20000);
+            scrollThreadToBottom();
         }
         function stopScanSteps() {
             if (scanStepTimer) clearInterval(scanStepTimer);
@@ -2025,12 +2205,15 @@
             hideWelcome();
             freezeResult();
             addYouPhotoRow(preview.src, pendingQuestion);
+            hidePhotoChip();
             currentTurnBody = newTurn().querySelector(".lb-turn-body");
             document.getElementById("followup-card").style.display = "none";
             let scanOk = false;
+            let scanAborted = false;
             sampleBtn.disabled = true;
             askInput.disabled = true;
-            askBtn.disabled = true;
+            requestRunning = true;
+            setSendMode("stop");
             document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
             startScanSteps();
             const smallPhoto = await shrinkPhoto(photoInput.files[0]);
@@ -2041,6 +2224,12 @@
             data.append("language", document.getElementById("language").value);
             data.append("mode", document.getElementById("mode").value);
             try {
+                if (stopRequested) {
+                    lastRetryText = pendingQuestion || "";
+                    scanAborted = true;
+                    addRetryRow("explain.stopped", "Stopped.");
+                    return;
+                }
                 const call = await fetchWithTimeout("/explain", { method: "POST", body: data, headers: lbTokenHeaders() });
                 const res = call.res;
                 const json = call.json;
@@ -2102,10 +2291,13 @@
                     askQuestion(firstQ);
                 }
                 lastStatusKey = null; status.textContent = "";
+                scrollThreadToBottom();
             } catch (err) {
                 if (err && err.name === "AbortError") {
                     lastRetryText = pendingQuestion || "";
-                    addRetryRow();
+                    scanAborted = true;
+                    if (stopRequested) addRetryRow("explain.stopped", "Stopped.");
+                    else addRetryRow();
                 } else if (err && err.lbServerError) {
                     setStatus("explain.serverError", "Server error. Please try again.");
                 } else {
@@ -2115,14 +2307,25 @@
                 stopScanSteps();
                 if (!scanOk && currentTurnBody) {
                     const emptyTurn = currentTurnBody.closest(".lb-turn");
-                    if (emptyTurn) emptyTurn.remove();
+                    if (emptyTurn) {
+                        // The live cards move with the turn: rescue them
+                        // first, or later scans find nothing to fill.
+                        const loading = document.getElementById("loading-card");
+                        const result = document.getElementById("result-card");
+                        if (loading) thread.appendChild(loading);
+                        if (result) thread.appendChild(result);
+                        emptyTurn.remove();
+                    }
                     currentTurnBody = null;
                 }
                 if (!scanOk) pendingQuestion = "";
+                if (!scanOk && !scanAborted) showPhotoChip(photoInput);
                 sampleBtn.disabled = false;
                 askInput.disabled = false;
                 updateAskState();
-                askBtn.disabled = false;
+                requestRunning = false;
+                setSendMode("send");
+                stopRequested = false;
                 document.querySelectorAll(".chip").forEach((c) => { c.disabled = false; });
             }
         }
@@ -2157,13 +2360,13 @@
             main.append(name, body, time);
             row.append(avatar, main);
             thread.appendChild(row);
-            row.scrollIntoView({ block: "nearest" });
+            scrollThreadToBottom();
         }
 
-        // Timeout row: a LifeBridge message plus a Try again button
-        // that resends the same photo and typed text. The photo chip
-        // stays, so the photo is still attached.
-        function addRetryRow() {
+        // Timeout/stopped row: a LifeBridge message plus a Try again
+        // button that resends the same photo and typed text (or the
+        // same follow-up question for mode "ask").
+        function addRetryRow(key, fb, mode) {
             document.querySelectorAll(".lb-retry").forEach((el) => el.remove());
             const row = document.createElement("div");
             row.className = "lb-msg lb-msg-bot lb-retry";
@@ -2178,7 +2381,7 @@
             name.textContent = t("chat.botName", "LifeBridge");
             const body = document.createElement("div");
             body.className = "lb-msg-text";
-            body.textContent = t("explain.slowDown", "It is taking longer than usual.");
+            body.textContent = t(key || "explain.slowDown", fb || "It is taking longer than usual.");
             const wrap = document.createElement("div");
             const btn = document.createElement("button");
             btn.type = "button";
@@ -2186,15 +2389,18 @@
             btn.textContent = t("explain.tryAgain", "Try again");
             btn.addEventListener("click", () => {
                 row.remove();
-                pendingQuestion = lastRetryText;
-                runScan();
+                if (mode === "ask") askQuestion(lastRetryAsk);
+                else {
+                    pendingQuestion = lastRetryText;
+                    runScan();
+                }
             });
             wrap.appendChild(btn);
             body.appendChild(wrap);
             main.append(name, body);
             row.append(avatar, main);
             thread.appendChild(row);
-            row.scrollIntoView({ block: "nearest" });
+            scrollThreadToBottom();
         }
 
         // "LifeBridge is thinking…" line shown while /ask runs.
@@ -2211,7 +2417,7 @@
             for (let i = 0; i < 3; i++) dots.appendChild(document.createElement("span"));
             thinkingEl.append(label, dots);
             thread.appendChild(thinkingEl);
-            thinkingEl.scrollIntoView({ block: "nearest" });
+            scrollThreadToBottom();
         }
         function hideThinking() {
             if (thinkingEl) {
@@ -2260,7 +2466,7 @@
             main.append(name, body, time);
             row.append(avatar, main);
             thread.appendChild(row);
-            row.scrollIntoView({ block: "nearest" });
+            scrollThreadToBottom();
         }
 
         // One LifeBridge turn: header plus a body holding the live
@@ -2312,8 +2518,8 @@
         function updateAskState() {
             askInput.disabled = false;
             askInput.placeholder = hasResult
-                ? t("explain.askComposer", "Add a photo or ask about the letter…")
-                : t("explain.askNeedPhoto", "Add a photo, then press Send");
+                ? t("explain.askComposer", "Ask about the letter…")
+                : t("explain.askNeedPhoto", "Add a photo, then Send");
             autoGrowAsk();
         }
 
@@ -2365,9 +2571,9 @@
             question = (question || "").trim();
             if (!question || asking || !lastExplanation) return;
             asking = true;
-            askBtn.disabled = true;
-            const askLabelText = askLabel.textContent;
-            askLabel.textContent = t("explain.asking", "Sending...");
+            lastRetryAsk = question;
+            requestRunning = true;
+            setSendMode("stop");
             document.querySelectorAll(".chip").forEach((c) => { c.disabled = true; });
             askStatus.textContent = "";
             addMsg("chat-q", question);
@@ -2398,15 +2604,17 @@
             } catch (err) {
                 hideThinking();
                 if (err && err.name === "AbortError") {
-                    askStatus.textContent = t("explain.tooSlow", "The AI took too long. Please try again.");
+                    if (stopRequested) addRetryRow("explain.stopped", "Stopped.", "ask");
+                    else askStatus.textContent = t("explain.tooSlow", "The AI took too long. Please try again.");
                 } else if (err && err.lbServerError) {
                     askStatus.textContent = t("explain.serverError", "Server error. Please try again.");
                 } else {
                     askStatus.textContent = t("explain.failed", "Sorry, it did not work: {msg}").replace("{msg}", err.message);
                 }
             } finally {
-                askLabel.textContent = askLabelText;
-                askBtn.disabled = false;
+                requestRunning = false;
+                setSendMode("send");
+                stopRequested = false;
                 document.querySelectorAll(".chip").forEach((c) => { c.disabled = false; });
                 asking = false;
             }
@@ -2416,6 +2624,10 @@
         // result, or hint when there is nothing to send yet.
         function sendComposer() {
             askStatus.textContent = "";
+            if (requestRunning) {
+                stopRequest();
+                return;
+            }
             if (photoInput.files[0]) {
                 pendingQuestion = askInput.value.trim();
                 askInput.value = "";
@@ -2493,6 +2705,7 @@
             updateAskState();
             sampleShowing = true;
             lastStatusKey = null; status.textContent = "";
+            scrollThreadToBottom();
         });
 
         document.getElementById("helper-btn").addEventListener("click", () => {

@@ -528,15 +528,17 @@ class ExplainPageScriptTest(unittest.TestCase):
                         self.page.index("lastPhotoB64 = newPhotoB64;"))
 
     def test_scan_disables_followup_ui(self):
-        # The question box, Ask button and chips are all disabled while a
-        # scan is in flight (askQuestion already disables the latter two,
-        # so each appears twice) and re-enabled when it finishes.
+        # The question box and chips are disabled while a scan is in
+        # flight and re-enabled when it finishes. The Send button
+        # stays enabled: it becomes a Stop button instead.
         self.assertIn("askInput.disabled = true;", self.page)
         self.assertIn("askInput.disabled = false;", self.page)
-        self.assertEqual(self.page.count("askBtn.disabled = true;"), 2)
-        self.assertEqual(self.page.count("askBtn.disabled = false;"), 2)
+        self.assertNotIn("askBtn.disabled = true;", self.page)
+        self.assertNotIn("askBtn.disabled = false;", self.page)
         self.assertEqual(self.page.count("c.disabled = true;"), 2)
         self.assertEqual(self.page.count("c.disabled = false;"), 2)
+        self.assertIn('setSendMode("stop");', self.page)
+        self.assertIn('setSendMode("send");', self.page)
 
 
 class CalendarDownloadTest(unittest.TestCase):
