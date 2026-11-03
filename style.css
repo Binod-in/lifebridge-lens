@@ -186,6 +186,93 @@ img {
     color: var(--text);
 }
 
+/* --- Theme switch (built by i18n.js) --- */
+.theme-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.theme-icon {
+    display: inline-flex;
+    color: var(--muted);
+}
+
+.theme-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.theme-switch select {
+    padding: 8px 10px;
+    min-height: 48px;
+    max-width: 130px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font: inherit;
+    background: var(--card);
+    color: var(--text);
+}
+
+/* In the menu only while it is open (phones). */
+.main-nav .theme-switch {
+    display: none;
+}
+
+.main-nav.open .theme-switch {
+    display: flex;
+    padding: 8px 10px;
+}
+
+.main-nav.open .theme-switch select {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+}
+
+/* Desktop header only. */
+.header-act .theme-switch {
+    display: none;
+}
+
+/* Small menu on the Lens chat header (phones). */
+.chat-menu {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.chat-menu summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+}
+
+.chat-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.chat-menu summary svg {
+    width: 20px;
+    height: 20px;
+}
+
+.chat-menu-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 36;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 10px 12px;
+}
+
 /* --- Page content --- */
 .content-page {
     max-width: 960px;
@@ -1709,6 +1796,21 @@ html[data-theme="dark"] .del-btn {
 @media (min-width: 720px) {
     .menu-btn {
         display: none;
+    }
+
+    .main-nav .theme-switch,
+    .main-nav.open .theme-switch {
+        display: none;
+    }
+
+    .header-act {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .header-act .theme-switch {
+        display: inline-flex;
     }
 
     .main-nav {

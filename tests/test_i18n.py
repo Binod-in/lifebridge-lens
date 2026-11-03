@@ -79,7 +79,9 @@ class KeyParityTest(unittest.TestCase):
                         "app.noDates", "app.remove", "app.removeDate",
                         "doc.menu", "doc.mobileNav",
                         "nav.home", "nav.explainShort",
-                        "tracker.saveFailed"):
+                        "tracker.saveFailed",
+                        "theme.label", "theme.light", "theme.dark",
+                        "theme.auto"):
                 self.assertIn(key, self.keys[lang], lang)
 
 
@@ -164,6 +166,56 @@ class ServiceWorkerTest(unittest.TestCase):
                 continue
             self.assertTrue(os.path.isfile(os.path.join(ROOT, entry)), entry)
 
+
+
+class ThemeSwitchTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.js = _read("i18n.js")
+        cls.css = _read("style.css")
+        cls.lens = _read("explain.html")
+
+    def test_builder_wires_existing_api(self):
+        for marker in ("function attachThemeSwitch(container)",
+                       "attachThemeSwitches();",
+                       'querySelector(".main-nav")',
+                       'querySelector(".header-act")',
+                       'getElementById("theme-slot-desktop")',
+                       'getElementById("theme-slot-mobile")',
+                       "select[data-theme-select]",
+                       '"theme.light"', '"theme.dark"', '"theme.auto"',
+                       '"theme.label"',
+                       "select.value = themeStored();",
+                       'window.LBTheme.set(value === "auto" ? "system" : value);'):
+            self.assertIn(marker, self.js)
+
+    def test_line_icons_only(self):
+        self.assertIn("THEME_ICONS", self.js)
+        self.assertIn('stroke="currentColor"', self.js)
+        self.assertNotIn('fill="currentColor"', self.js)
+
+    def test_lens_slots(self):
+        head = self.lens.index('class="chat-main-head"')
+        self.assertLess(head, self.lens.index('id="theme-slot-desktop"'))
+        self.assertLess(self.lens.index('id="lang-slot-desktop"'),
+                        self.lens.index('id="theme-slot-desktop"'))
+        top = self.lens.index('class="chat-top"')
+        menu_at = self.lens.index('class="chat-menu"', top)
+        self.assertLess(menu_at, self.lens.index('id="theme-slot-mobile"'))
+        self.assertLess(self.lens.index('id="theme-slot-mobile"'),
+                        self.lens.index('class="chat-main-head"'))
+
+    def test_switch_visibility(self):
+        self.assertRegex(self.css,
+                         r"\.main-nav \.theme-switch\s*\{[^}]*?display: none;")
+        self.assertRegex(self.css,
+                         r"\.main-nav\.open \.theme-switch\s*\{[^}]*?display: flex;")
+        self.assertRegex(self.css,
+                         r"\.header-act \.theme-switch\s*\{[^}]*?display: none;")
+        self.assertRegex(self.css,
+                         r"\.header-act \.theme-switch\s*\{[^}]*?display: inline-flex;")
+        self.assertRegex(self.css,
+                         r"\.chat-menu summary\s*\{[^}]*?width: 44px;")
 
 
 class TaglineTest(unittest.TestCase):

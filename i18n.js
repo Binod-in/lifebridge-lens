@@ -103,6 +103,10 @@
             "footer.disclaimer": "LifeBridge Lens is an independent student project and is not affiliated with any Japanese government agency. Information is summarized from official sources; always confirm with the office involved.",
             "doc.mobileNav": "Mobile",
             "doc.menu": "Menu",
+            "theme.label": "Theme",
+            "theme.light": "Light",
+            "theme.dark": "Dark",
+            "theme.auto": "Auto",
             "nav.explainShort": "Lens",
             "explain.uploadTitle": "Tap to take or choose a photo",
             "explain.uploadHint": "A clear photo of the whole notice works best",
@@ -353,6 +357,10 @@
             "footer.disclaimer": "LifeBridge Lens स्वतन्त्र विद्यार्थी परियोजना हो र कुनै पनि जापानी सरकारी निकायसँग आबद्ध छैन। जानकारी आधिकारिक स्रोतहरूबाट सारांश गरिएको हो; सधैं सम्बन्धित कार्यालयसँग पक्का गर्नुहोस्।",
             "doc.mobileNav": "मोबाइल",
             "doc.menu": "मेनु",
+            "theme.label": "थिम",
+            "theme.light": "उज्यालो",
+            "theme.dark": "अँध्यारो",
+            "theme.auto": "अटो",
             "nav.explainShort": "Lens",
             "explain.uploadTitle": "फोटो खिच्न वा छान्न ट्याप गर्नुहोस्",
             "explain.uploadHint": "पूरै सूचनाको स्पष्ट फोटो राम्रो हुन्छ",
@@ -603,6 +611,10 @@
             "footer.disclaimer": "LifeBridge Lens là một dự án sinh viên độc lập và không liên kết với bất kỳ cơ quan chính phủ Nhật Bản nào. Thông tin được tóm tắt từ các nguồn chính thức; hãy luôn xác nhận với cơ quan liên quan.",
             "doc.mobileNav": "Di động",
             "doc.menu": "Menu",
+            "theme.label": "Giao diện",
+            "theme.light": "Sáng",
+            "theme.dark": "Tối",
+            "theme.auto": "Tự động",
             "nav.explainShort": "Lens",
             "explain.uploadTitle": "Chạm để chụp hoặc chọn ảnh",
             "explain.uploadHint": "Ảnh rõ nét toàn bộ thông báo sẽ cho kết quả tốt nhất",
@@ -853,6 +865,10 @@
             "footer.disclaimer": "LifeBridge Lens သည် လွတ်လပ်သော ကျောင်းသားပရောဂျက် ဖြစ်ပြီး ဂျပန်အစိုးရအေဂျင်စီတစ်ခုခုနှင့် ဆက်စပ်မှုမရှိပါ။ အချက်အလက်များကို တရားဝင်ရင်းမြစ်များမှ အကျဉ်းချုပ်ထားပါသည်။ သက်ဆိုင်ရာရုံးနှင့် အမြဲအတည်ပြုပါ။",
             "doc.mobileNav": "မိုဘိုင်း",
             "doc.menu": "မီနူး",
+            "theme.label": "အပြင်အဆင်",
+            "theme.light": "အလင်း",
+            "theme.dark": "အမှောင်",
+            "theme.auto": "အလိုအလျောက်",
             "nav.explainShort": "Lens",
             "explain.uploadTitle": "ဓာတ်ပုံရိုက်ရန် သို့မဟုတ် ရွေးရန် တို့ပါ",
             "explain.uploadHint": "အကြောင်းကြားစာတစ်ခုလုံးကို ရှင်းလင်းစွာရိုက်ထားသော ဓာတ်ပုံ အကောင်းဆုံးပါ",
@@ -1240,6 +1256,85 @@
         }
     };
 
+    var THEME_ICONS = {
+        light: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+        dark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+        auto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/></svg>'
+    };
+
+    function themeStored() {
+        try {
+            var saved = window.localStorage.getItem(THEME_KEY);
+            if (saved === "light" || saved === "dark") return saved;
+        } catch (e) { /* fall through to auto */ }
+        return "auto";
+    }
+
+    function paintThemeIcon(select) {
+        var wrap = select.parentNode;
+        var icon = wrap ? wrap.querySelector(".theme-icon") : null;
+        if (icon) icon.innerHTML = THEME_ICONS[select.value] || THEME_ICONS.auto;
+    }
+
+    function syncThemeSwitches(value) {
+        var selects = document.querySelectorAll("select[data-theme-select]");
+        for (var i = 0; i < selects.length; i++) {
+            selects[i].value = value;
+            paintThemeIcon(selects[i]);
+        }
+    }
+
+    function onThemeChange(event) {
+        var value = event.target.value;
+        window.LBTheme.set(value === "auto" ? "system" : value);
+        syncThemeSwitches(value);
+        var panel = null;
+        try { panel = event.target.closest("details"); } catch (e) { /* old browser */ }
+        if (panel) panel.open = false;
+    }
+
+    // Small Light/Dark/Auto switch. Built into the mobile menu, the
+    // desktop header, and the Lens page slots below.
+    function attachThemeSwitch(container) {
+        if (!container || container.querySelector("select[data-theme-select]")) return;
+        var wrap = document.createElement("span");
+        wrap.className = "theme-switch";
+        var icon = document.createElement("span");
+        icon.className = "theme-icon";
+        icon.setAttribute("aria-hidden", "true");
+        var select = document.createElement("select");
+        select.setAttribute("data-theme-select", "true");
+        select.setAttribute("data-i18n-aria-label", "theme.label");
+        select.setAttribute("aria-label", "Theme");
+        var modes = [["light", "theme.light", "Light"],
+                     ["dark", "theme.dark", "Dark"],
+                     ["auto", "theme.auto", "Auto"]];
+        for (var i = 0; i < modes.length; i++) {
+            var opt = document.createElement("option");
+            opt.value = modes[i][0];
+            opt.setAttribute("data-i18n", modes[i][1]);
+            opt.textContent = modes[i][2];
+            select.appendChild(opt);
+        }
+        select.value = themeStored();
+        select.addEventListener("change", onThemeChange);
+        wrap.appendChild(icon);
+        wrap.appendChild(select);
+        container.appendChild(wrap);
+        paintThemeIcon(select);
+    }
+
+    function attachThemeSwitches() {
+        var nav = document.querySelector(".main-nav");
+        if (nav) attachThemeSwitch(nav);
+        var act = document.querySelector(".header-act");
+        if (act) attachThemeSwitch(act);
+        var desk = document.getElementById("theme-slot-desktop");
+        if (desk) attachThemeSwitch(desk);
+        var mob = document.getElementById("theme-slot-mobile");
+        if (mob) attachThemeSwitch(mob);
+    }
+
     function registerWorker() {
         try {
             if ("serviceWorker" in navigator && window.location.protocol.indexOf("http") === 0) {
@@ -1285,6 +1380,7 @@
         var page = currentPageName();
         try { markCurrentNav(page); } catch (e) { /* ignore */ }
         try { addMenuButton(); } catch (e) { /* ignore */ }
+        try { attachThemeSwitches(); } catch (e) { /* ignore */ }
         try { addBottomNav(page); } catch (e) { /* ignore */ }
         try { addOfflineBanner(); } catch (e) { /* ignore */ }
         try { applyTheme(); } catch (e) { /* ignore */ }
