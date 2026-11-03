@@ -73,7 +73,7 @@ class TranslationTest(unittest.TestCase):
             match = re.search(r'"index\.hero": "(.*?)"', self.blocks[lang])
             self.assertTrue(match, lang)
             self.assertTrue(match.group(1).strip(), lang)
-        self.assertIn("Got a Japanese letter", self.blocks["en"])
+        self.assertIn("Can't read something in Japanese?", self.blocks["en"])
 
 
 class CalendarFileTest(unittest.TestCase):

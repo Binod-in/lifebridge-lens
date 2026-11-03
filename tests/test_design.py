@@ -92,6 +92,21 @@ class ShapeColorTest(unittest.TestCase):
                      "--ok: #1f9d55;"):
             self.assertIn(line, block)
 
+    def test_fab_clears_tab_bar(self):
+        css = _read("style.css")
+        self.assertRegex(css, r"\.chat-fab\s*\{[^}]*?bottom: 84px;")
+        self.assertRegex(css,
+                         r"\.content-page\s*\{[^}]*?padding: 16px 16px 80px;")
+
+    def test_back_to_top_tap_target(self):
+        css = _read("style.css")
+        self.assertRegex(css,
+                         r"\.footer-bottom a\s*\{[^}]*?min-height: 44px;")
+        self.assertRegex(css,
+                         r"\.footer-bottom a\s*\{[^}]*?display: inline-flex;")
+        self.assertRegex(css,
+                         r"\.footer-bottom a\s*\{[^}]*?align-items: center;")
+
     def test_dark_theme_is_var_based(self):
         css = _read("style.css")
         start = css.index('html[data-theme="dark"] {')
@@ -185,7 +200,7 @@ class IndexPageTest(unittest.TestCase):
 
     def test_hero_and_example(self):
         self.assertIn('"index.hero"', self.page)
-        self.assertIn("Got a Japanese letter", self.page)
+        self.assertIn("Can't read something in Japanese?", self.page)
         self.assertIn('"index.exampleLabel"', self.page)
         self.assertIn("\u56fd\u6c11\u5065\u5eb7\u4fdd\u967a\u6599", self.page)
         self.assertIn("12,340\u5186", self.page)

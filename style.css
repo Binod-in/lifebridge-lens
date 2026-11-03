@@ -190,7 +190,8 @@ img {
 .content-page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 16px 16px 96px;
+    /* Bottom clearance for the floating button: 56px height + 24px. */
+    padding: 16px 16px 80px;
 }
 
 .page-lead {
@@ -569,6 +570,9 @@ input, select, textarea {
 }
 
 .footer-bottom a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--accent);
 }
 
@@ -637,10 +641,12 @@ input, select, textarea {
 }
 
 /* --- Chatbot (UI built by chatbot.js) --- */
+/* Floating helper button: 12px above the 72px tab bar. Hidden on
+ * the Lens page, which has its own composer and helper button. */
 .chat-fab {
     position: fixed;
     right: 16px;
-    bottom: 76px;
+    bottom: 84px;
     width: 56px;
     height: 56px;
     border: none;
