@@ -27,6 +27,20 @@ class ReadmeTest(unittest.TestCase):
         self.assertIn("# LifeBridge Lens", self.readme)
         self.assertNotIn("# lifebridge-lens", self.readme)
 
+    def test_accuracy_and_speed_results(self):
+        for marker in (
+                "## Accuracy check",
+                "| Water and sewer bill (Shiki City) | Real letter | Yes | Yes | Nov 16, 2026 / 2,304 yen |",
+                '| Road repair notice | Real letter | N/A (information only) | N/A | Date and time correct, said "not a payment" |',
+                "| National Health Insurance payment slip | Synthetic sample | Yes | Yes | Did not confuse the barcode expiry date with the deadline |",
+                "| National Pension exemption rejected | Synthetic sample | N/A | N/A | Said the exemption was rejected, payment is still needed, and the 3-month appeal window |",
+                "| Water bill auto-debit failed | Synthetic sample | Yes | Yes | Nov 25, 2026 / 3,520 yen |",
+                "## Speed (real iPhone tests on home Wi-Fi)",
+                "- Scan: about 11–27 s (most 11–21 s). Before tuning reasoning_effort: 28–37 s.",
+                "- Follow-up answer: 6–8 s. Before: about 19 s.",
+                "never a real letter"):
+            self.assertIn(marker, self.readme)
+
 
 if __name__ == "__main__":
     unittest.main()

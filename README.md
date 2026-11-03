@@ -34,6 +34,20 @@ get a plain-language explanation, follow-up answers, and saved deadlines.
 - The prompt forbids guessing: unclear amounts and dates come back empty with a note to check, never invented.
 - Answers come in 5 languages: English, Nepali, Vietnamese, Burmese and Japanese.
 
+## Accuracy check
+| Letter | Type | Deadline correct | Amount correct | Notes |
+|---|---|---|---|---|
+| Water and sewer bill (Shiki City) | Real letter | Yes | Yes | Nov 16, 2026 / 2,304 yen |
+| Road repair notice | Real letter | N/A (information only) | N/A | Date and time correct, said "not a payment" |
+| National Health Insurance payment slip | Synthetic sample | Yes | Yes | Did not confuse the barcode expiry date with the deadline |
+| National Pension exemption rejected | Synthetic sample | N/A | N/A | Said the exemption was rejected, payment is still needed, and the 3-month appeal window |
+| Water bill auto-debit failed | Synthetic sample | Yes | Yes | Nov 25, 2026 / 3,520 yen |
+Real letters were tested with personal details covered. Synthetic samples are fictional (見本市, 見本 太郎) and labeled 見本.
+
+## Speed (real iPhone tests on home Wi-Fi)
+- Scan: about 11–27 s (most 11–21 s). Before tuning reasoning_effort: 28–37 s.
+- Follow-up answer: 6–8 s. Before: about 19 s.
+
 ## Run locally
 
 ```powershell
@@ -62,6 +76,6 @@ Tests use mocked AI replies and need no API key.
 
 ## Project status
 
-- Screenshots: *coming soon*
+- Screenshots: *coming soon* (synthetic samples or the built-in sample notice only, never a real letter)
 - Demo video: *coming soon*
 - Live demo: *coming soon*
