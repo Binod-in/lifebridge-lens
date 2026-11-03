@@ -22,6 +22,7 @@ Ticket machines, ATMs and paper forms are Japanese only too.
   (`chatbot.js`), translations (`i18n.js`), the service worker (`sw.js`),
   the stylesheet (`style.css`), the PWA manifest and icons, the icon
   script (`scripts/`), and the test suite (`tests/`).
+- Coding help: I used Muse (AI coding agent) during the hackathon; all code was written this week in this repo.
 
 ## How it works
 
@@ -37,7 +38,7 @@ Ticket machines, ATMs and paper forms are Japanese only too.
 - Chat-style Lens page with one composer for photos and questions
 - Auto detect for letters, machines, forms, signs and other photos
 - Step-by-step guides for machines, payments and how-to questions
-- Staff phrase with hiragana reading, Listen and practice sentences
+- Staff phrase with hiragana reading and Listen
 - My Deadlines page with days left, saved in the browser
 - Money tracker with income, spending, goals and AI advice on totals
 - Offline helper and offline pages for transport, payments and emergencies
@@ -95,6 +96,7 @@ Ticket machines, ATMs and paper forms are Japanese only too.
   browser, so it is NOT a secret and NOT real authentication.
 
 ## Accuracy check
+
 | Letter | Type | Deadline correct | Amount correct | Notes |
 |---|---|---|---|---|
 | Water and sewer bill (Shiki City) | Real letter | Yes | Yes | Nov 16, 2026 / 2,304 yen |
@@ -102,6 +104,7 @@ Ticket machines, ATMs and paper forms are Japanese only too.
 | National Health Insurance payment slip | Synthetic sample | Yes | Yes | Did not confuse the barcode expiry date with the deadline |
 | National Pension exemption rejected | Synthetic sample | N/A | N/A | Said the exemption was rejected, payment is still needed, and the 3-month appeal window |
 | Water bill auto-debit failed | Synthetic sample | Yes | Yes | Nov 25, 2026 / 3,520 yen |
+
 Real letters were tested with personal details covered. Synthetic samples are fictional (見本市, 見本 太郎) and labeled 見本.
 
 ## Speed (real iPhone tests on home Wi-Fi)
