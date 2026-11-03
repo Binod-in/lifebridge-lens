@@ -2086,17 +2086,74 @@
         // Step markers in every supported numeral system: ASCII (1.),
         // Devanagari (१.), Burmese (၁.), full-width (１．) with a . ) ．
         // or ） separator, plus bare circled numbers (①②③).
-        const STEP_MARK = "(?:[0-9\u0966-\u096F\u1040-\u1049\uFF10-\uFF19]+[.)\uFF0E\uFF09]+(?=\\s|$)|[①-⑳])";
+        const STEP_NUM = "[0-9\u0966-\u096F\u1040-\u1049\uFF10-\uFF19]{1,2}";
+        const STEP_SEP = "[.)\uFF0E\uFF09]+";
+        // Digit markers sit at the start or after a sentence end plus
+        // whitespace; circled numbers stand alone. Values and brackets
+        // are checked while scanning.
+        const STEP_MARK = "(?:(?:^|[\u3002\u0964\u104B.!?]\\s+|\\n\\s*)(" + STEP_NUM + ")(" + STEP_SEP + ")(?=\\s|$)|([\u2460-\u2473]))";
 
-        // Split answer text into steps on those markers. Digit markers
-        // need whitespace or the string end after them, so years like
-        // 令和8年 and decimals like 3.5 never split; circled numbers,
-        // which are never ambiguous, split anywhere.
+        // Numeric value of 1-2 marker digits in any supported script.
+        function stepNumValue(digits) {
+            let n = 0;
+            for (const ch of digits) {
+                const c = ch.codePointAt(0);
+                let d = -1;
+                if (c >= 0x30 && c <= 0x39) d = c - 0x30;
+                else if (c >= 0x966 && c <= 0x96F) d = c - 0x966;
+                else if (c >= 0x1040 && c <= 0x1049) d = c - 0x1040;
+                else if (c >= 0xFF10 && c <= 0xFF19) d = c - 0xFF10;
+                if (d < 0) return 0;
+                n = n * 10 + d;
+            }
+            return n;
+        }
+
+        // True when more ( or full-width （ than closers stand before index.
+        function insideBrackets(src, index) {
+            let depth = 0;
+            for (let i = 0; i < index; i++) {
+                const ch = src[i];
+                if (ch === "(" || ch === "\uFF08") depth++;
+                else if (ch === ")" || ch === "\uFF09") depth--;
+            }
+            return depth > 0;
+        }
+
+        // Split answer text into steps. A digit marker is a number
+        // from 1 to 20 at the start of the text or right after
+        // whitespace that follows a sentence end, never inside
+        // brackets, so years like (2026) never split. Circled numbers
+        // split anywhere except inside brackets.
         function splitSteps(text) {
-            return String(text || "")
-                .split(new RegExp("\\s*" + STEP_MARK + "\\s*", "g"))
-                .map((s) => s.trim())
-                .filter((s) => s !== "");
+            const src = String(text || "");
+            const re = new RegExp(STEP_MARK, "g");
+            const cuts = [];
+            let m;
+            while ((m = re.exec(src)) !== null) {
+                // Rescan from inside this match: its sentence end may
+                // be the prefix of the next marker ("1. 2. x").
+                re.lastIndex = m.index + 1;
+                if (m[1] === undefined) {
+                    if (!insideBrackets(src, m.index) && m.index !== cuts[cuts.length - 1]) cuts.push(m.index);
+                    continue;
+                }
+                const value = stepNumValue(m[1]);
+                if (value < 1 || value > 20) continue;
+                const at = m.index + m[0].length - m[1].length - m[2].length;
+                if (insideBrackets(src, at)) continue;
+                if (at !== cuts[cuts.length - 1]) cuts.push(at);
+            }
+            const strip = new RegExp("^(?:" + STEP_NUM + STEP_SEP + "|[\u2460-\u2473])\\s*");
+            const out = [];
+            for (let i = 0; i <= cuts.length; i++) {
+                const from = i === 0 ? 0 : cuts[i - 1];
+                let part = src.slice(from, i < cuts.length ? cuts[i] : undefined);
+                if (i > 0 || cuts[0] === 0) part = part.replace(strip, "");
+                part = part.trim();
+                if (part !== "") out.push(part);
+            }
+            return out;
         }
 
         // Fill one result card. Next steps become a numbered list.

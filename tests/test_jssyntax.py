@@ -73,12 +73,11 @@ class JsSyntaxTest(unittest.TestCase):
 
 
 def _split_steps_source():
-    """Extract STEP_MARK plus the self-contained splitSteps function."""
+    """Extract STEP consts and helpers plus splitSteps (one block)."""
     with open(os.path.join(ROOT, "explain.html"), encoding="utf-8") as f:
         text = f.read()
-    mark_at = text.index("const STEP_MARK =")
-    mark_end = text.index(";", mark_at) + 1
-    fn_at = text.index("function splitSteps(text)", mark_end)
+    start = text.index("const STEP_NUM =")
+    fn_at = text.index("function splitSteps(text)", start)
     i = text.index("{", fn_at)
     depth = 0
     in_str = None
@@ -98,7 +97,7 @@ def _split_steps_source():
             if depth == 0:
                 break
         i += 1
-    return text[mark_at:mark_end] + "\n" + text[fn_at:i + 1]
+    return text[start:i + 1]
 
 
 class StepsSplitWiredTest(unittest.TestCase):
@@ -119,14 +118,19 @@ class StepsSplitBehaviorTest(unittest.TestCase):
             "१. 令和8年... बाटो बन्द हुन्छ। २. सो दिन अर्को बाटो "
             "प्रयोग गर्नुहोस्। ३. पानी परेमा मिति सर्न सक्छ।",
             "1. Read the letter. 2. Pay at the bank.",
-            "१. पहिलो २) दोस्रो ३.) तेस्रो",
-            "၁. first ၂. second",
+            "१. पहिलो। २) दोस्रो। ३.) तेस्रो",
+            "၁. first။ ၂. second",
             "①first②second③third",
-            "１． first ２． second",
+            "１． first。 ２． second",
             "令和8年X",
             "Costs 3.5 percent",
             "No markers here",
             "1. a\n2. b",
+            "Reiwa 8 (2026) नोभेम्बर २५ भित्र तिर्नुहोस्।",
+            "令和8年（2026）11月",
+            "21. foo",
+            "(A. 2. x)",
+            "(①)",
         ]
         code = (_split_steps_source()
                 + "\nconst CASES = " + json.dumps(cases) + ";"
@@ -164,6 +168,14 @@ class StepsSplitBehaviorTest(unittest.TestCase):
         self.assertEqual(self.got[7], ["Costs 3.5 percent"])
         self.assertEqual(self.got[8], ["No markers here"])
         self.assertEqual(self.got[9], ["a", "b"])
+
+    def test_years_brackets_and_big_numbers_do_not_split(self):
+        self.assertEqual(self.got[10],
+                         ["Reiwa 8 (2026) नोभेम्बर २५ भित्र तिर्नुहोस्।"])
+        self.assertEqual(self.got[11], ["令和8年（2026）11月"])
+        self.assertEqual(self.got[12], ["21. foo"])
+        self.assertEqual(self.got[13], ["(A. 2. x)"])
+        self.assertEqual(self.got[14], ["(①)"])
 
 
 if __name__ == "__main__":
