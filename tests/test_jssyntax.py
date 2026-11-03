@@ -6,6 +6,7 @@ honestly when no node is available.
 Run from the project root:
     python -m unittest tests.test_jssyntax -v
 """
+import json
 import os
 import re
 import shutil
@@ -69,6 +70,100 @@ class JsSyntaxTest(unittest.TestCase):
         for name in SCRIPTS:
             with open(os.path.join(ROOT, name), encoding="utf-8") as f:
                 self._check(f.read(), name)
+
+
+def _split_steps_source():
+    """Extract STEP_MARK plus the self-contained splitSteps function."""
+    with open(os.path.join(ROOT, "explain.html"), encoding="utf-8") as f:
+        text = f.read()
+    mark_at = text.index("const STEP_MARK =")
+    mark_end = text.index(";", mark_at) + 1
+    fn_at = text.index("function splitSteps(text)", mark_end)
+    i = text.index("{", fn_at)
+    depth = 0
+    in_str = None
+    while True:
+        ch = text[i]
+        if in_str:
+            if ch == "\\":
+                i += 1
+            elif ch == in_str:
+                in_str = None
+        elif ch in ("'", '"'):
+            in_str = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                break
+        i += 1
+    return text[mark_at:mark_end] + "\n" + text[fn_at:i + 1]
+
+
+class StepsSplitWiredTest(unittest.TestCase):
+    def test_fill_card_uses_split_steps(self):
+        with open(os.path.join(ROOT, "explain.html"), encoding="utf-8") as f:
+            text = f.read()
+        self.assertIn("const STEP_MARK =", text)
+        self.assertIn("function splitSteps(text)", text)
+        self.assertIn("for (const step of splitSteps(text))", text)
+
+
+@unittest.skipUnless(NODE, "node not available")
+class StepsSplitBehaviorTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cases = [
+            # Real Nepali answer: one line, Devanagari numbers.
+            "१. 令和8年... बाटो बन्द हुन्छ। २. सो दिन अर्को बाटो "
+            "प्रयोग गर्नुहोस्। ३. पानी परेमा मिति सर्न सक्छ।",
+            "1. Read the letter. 2. Pay at the bank.",
+            "१. पहिलो २) दोस्रो ३.) तेस्रो",
+            "၁. first ၂. second",
+            "①first②second③third",
+            "１． first ２． second",
+            "令和8年X",
+            "Costs 3.5 percent",
+            "No markers here",
+            "1. a\n2. b",
+        ]
+        code = (_split_steps_source()
+                + "\nconst CASES = " + json.dumps(cases) + ";"
+                + "\nconsole.log(JSON.stringify(CASES.map(splitSteps)));")
+        with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False,
+                                         encoding="utf-8") as f:
+            f.write(code)
+            path = f.name
+        try:
+            proc = subprocess.run([NODE, path], capture_output=True,
+                                  text=True, encoding="utf-8", timeout=60,
+                                  errors="strict")
+        finally:
+            os.unlink(path)
+        assert proc.returncode == 0, proc.stderr
+        cls.got = json.loads(proc.stdout)
+
+    def test_nepali_answer_is_three_steps(self):
+        steps = self.got[0]
+        self.assertEqual(len(steps), 3)
+        self.assertTrue(steps[0].startswith("令和8年"), steps)
+        self.assertIn("अर्को बाटो", steps[1])
+        self.assertIn("पानी परेमा", steps[2])
+
+    def test_each_numeral_system_splits(self):
+        self.assertEqual(len(self.got[1]), 2)
+        self.assertEqual(len(self.got[2]), 3)
+        self.assertEqual(len(self.got[3]), 2)
+        self.assertEqual(len(self.got[4]), 3)
+        self.assertEqual(len(self.got[5]), 2)
+        self.assertEqual(self.got[4], ["first", "second", "third"])
+
+    def test_years_decimals_and_plain_text_do_not_split(self):
+        self.assertEqual(self.got[6], ["令和8年X"])
+        self.assertEqual(self.got[7], ["Costs 3.5 percent"])
+        self.assertEqual(self.got[8], ["No markers here"])
+        self.assertEqual(self.got[9], ["a", "b"])
 
 
 if __name__ == "__main__":

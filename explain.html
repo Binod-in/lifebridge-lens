@@ -2022,6 +2022,22 @@
             }
         });
 
+        // Step markers in every supported numeral system: ASCII (1.),
+        // Devanagari (१.), Burmese (၁.), full-width (１．) with a . ) ．
+        // or ） separator, plus bare circled numbers (①②③).
+        const STEP_MARK = "(?:[0-9\u0966-\u096F\u1040-\u1049\uFF10-\uFF19]+[.)\uFF0E\uFF09]+(?=\\s|$)|[①-⑳])";
+
+        // Split answer text into steps on those markers. Digit markers
+        // need whitespace or the string end after them, so years like
+        // 令和8年 and decimals like 3.5 never split; circled numbers,
+        // which are never ambiguous, split anywhere.
+        function splitSteps(text) {
+            return String(text || "")
+                .split(new RegExp("\\s*" + STEP_MARK + "\\s*", "g"))
+                .map((s) => s.trim())
+                .filter((s) => s !== "");
+        }
+
         // Fill one result card. Next steps become a numbered list.
         function fillCard(id, text) {
             const el = document.getElementById(id);
@@ -2030,8 +2046,8 @@
                 return;
             }
             el.replaceChildren();
-            for (const line of String(text || "").split(/\n+/)) {
-                const clean = line.replace(/^\s*(?:\d+[.)]|[-*\u2022])\s*/, "").trim();
+            for (const step of splitSteps(text)) {
+                const clean = step.replace(/^\s*[-*\u2022]\s*/, "").trim();
                 if (!clean) continue;
                 const li = document.createElement("li");
                 li.textContent = clean;
