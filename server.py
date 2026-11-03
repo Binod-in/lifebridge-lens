@@ -197,7 +197,7 @@ def _image_kind(raw):
     return ""
 
 
-META_TIMEOUT = 40
+META_TIMEOUT = 60
 META_MAX_ATTEMPTS = 2
 META_BUDGET = 85
 META_RETRY_MIN_LEFT = 30

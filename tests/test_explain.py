@@ -154,7 +154,7 @@ class ExplainPromptTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertNotIn("max_tokens", seen["payload"])
         self.assertEqual(seen["payload"]["reasoning_effort"], "low")
-        self.assertEqual(seen["timeout"], 40)
+        self.assertEqual(seen["timeout"], 60)
         prompt = seen["payload"]["messages"][0]["content"][0]["text"]
         self.assertIn("at most 2 sentences", prompt)
 
@@ -274,7 +274,7 @@ class MetaRetryTest(unittest.TestCase):
         self.assertIn("explain retry", buf.getvalue())
 
     def test_budget_constants_leave_headroom(self):
-        self.assertEqual(server.META_TIMEOUT, 40)
+        self.assertEqual(server.META_TIMEOUT, 60)
         self.assertEqual(server.META_BUDGET, 85)
         self.assertEqual(server.META_RETRY_MIN_LEFT, 30)
         self.assertLess(server.META_BUDGET, 90)
@@ -294,7 +294,26 @@ class MetaRetryTest(unittest.TestCase):
                                   side_effect=fake_urlopen):
             res = self._post_photo()
         self.assertEqual(res.status_code, 502)
-        self.assertEqual(seen, [40, 40])
+        # A full 60s first attempt leaves too little budget to retry.
+        self.assertEqual(seen, [60])
+        self.assertLess(now[0], 90)
+
+    def test_fast_failure_still_retries(self):
+        now = [0.0]
+        seen = []
+
+        def fake_urlopen(req, timeout=None):
+            seen.append(timeout)
+            now[0] += 5  # fast 5xx-style failures
+            raise TimeoutError("fast")
+
+        with mock.patch.object(server.time, "monotonic",
+                               side_effect=lambda: now[0]), \
+                mock.patch.object(server.urllib.request, "urlopen",
+                                  side_effect=fake_urlopen):
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(len(seen), 2)
         self.assertLess(now[0], 90)
 
     def test_no_retry_when_budget_nearly_spent(self):

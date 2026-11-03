@@ -1414,8 +1414,8 @@
             return headers;
         }
 
-        // The AI usually answers in a few seconds. The server gives up
-        // after 75s and retries once, so the browser always waits longer.
+        // The AI usually answers in a few seconds. The server always
+        // answers within its 85s budget, so the browser waits longer.
         const AI_TIMEOUT_MS = 90000;
 
         // fetch() plus JSON read under one timeout: the timer keeps running
