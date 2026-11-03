@@ -41,6 +41,20 @@ class ReadmeTest(unittest.TestCase):
                 "never a real letter"):
             self.assertIn(marker, self.readme)
 
+    def test_links_screenshots_and_length(self):
+        self.assertIn("Demo video: TODO", self.readme)
+        self.assertIn("Live demo: TODO", self.readme)
+        self.assertNotIn("coming soon", self.readme)
+        for shot in ("lens-sample-390-light.png",
+                     "lens-sample-390-dark.png",
+                     "lens-sample-1280-light.png"):
+            self.assertIn(shot, self.readme)
+            path = os.path.join(ROOT, "deliverables", "screenshots", shot)
+            self.assertTrue(os.path.isfile(path), shot)
+        lines = self.readme.splitlines()
+        self.assertGreaterEqual(len(lines), 120)
+        self.assertLessEqual(len(lines), 160)
+
 
 if __name__ == "__main__":
     unittest.main()
