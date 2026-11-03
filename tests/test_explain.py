@@ -24,8 +24,9 @@ def _image_file(name="notice.jpg", size=1024):
     return (io.BytesIO(body), name, "image/jpeg")
 
 
-def _api_reply(text):
-    body = json.dumps({"choices": [{"message": {"content": text}}]}).encode("utf-8")
+def _api_reply(text, finish_reason="stop"):
+    body = json.dumps({"choices": [{"message": {"content": text},
+                                    "finish_reason": finish_reason}]}).encode("utf-8")
     resp = mock.MagicMock()
     resp.read.return_value = body
     ctx = mock.MagicMock()
@@ -148,8 +149,8 @@ class ExplainPromptTest(unittest.TestCase):
                                side_effect=fake_urlopen):
             res = self._post_photo()
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(seen["payload"]["max_tokens"], 1200)
-        self.assertEqual(seen["timeout"], 75)
+        self.assertEqual(seen["payload"]["max_tokens"], 2500)
+        self.assertEqual(seen["timeout"], 40)
         prompt = seen["payload"]["messages"][0]["content"][0]["text"]
         self.assertIn("at most 2 sentences", prompt)
 
@@ -210,6 +211,89 @@ class MetaRetryTest(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(m.call_count, 2)
         self.assertIn("explain retry", buf.getvalue())
+
+    def test_budget_constants_leave_headroom(self):
+        self.assertEqual(server.META_TIMEOUT, 40)
+        self.assertEqual(server.META_BUDGET, 85)
+        self.assertEqual(server.META_RETRY_MIN_LEFT, 30)
+        self.assertLess(server.META_BUDGET, 90)
+
+    def test_worst_case_stays_under_browser_timeout(self):
+        now = [0.0]
+        seen = []
+
+        def fake_urlopen(req, timeout=None):
+            seen.append(timeout)
+            now[0] += timeout  # each attempt burns its full timeout
+            raise TimeoutError("slow")
+
+        with mock.patch.object(server.time, "monotonic",
+                               side_effect=lambda: now[0]), \
+                mock.patch.object(server.urllib.request, "urlopen",
+                                  side_effect=fake_urlopen):
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(seen, [40, 40])
+        self.assertLess(now[0], 90)
+
+    def test_no_retry_when_budget_nearly_spent(self):
+        now = [0.0]
+        burns = [60, 40]
+
+        def fake_urlopen(req, timeout=None):
+            now[0] += burns.pop(0)
+            raise TimeoutError("slow")
+
+        with mock.patch.object(server.time, "monotonic",
+                               side_effect=lambda: now[0]), \
+                mock.patch.object(server.urllib.request, "urlopen",
+                                  side_effect=fake_urlopen):
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(len(burns), 1)
+
+
+class FinishCutoffTest(unittest.TestCase):
+    """finish_reason length: log it, keep valid JSON, friendly error if cut."""
+
+    def setUp(self):
+        server.app.testing = True
+        self.client = server.app.test_client()
+        self._key = server.API_KEY
+        server.API_KEY = "test-key"
+        server._reset_rate_limits()
+
+    def tearDown(self):
+        server.API_KEY = self._key
+        server._reset_rate_limits()
+
+    def _post_photo(self):
+        data = {"photo": _image_file(), "language": "en"}
+        return self.client.post("/explain", data=data,
+                               content_type="multipart/form-data")
+
+    def test_length_finish_logs_but_keeps_valid_json(self):
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = lambda req, timeout=None: _api_reply(
+                '{"what": "ok"}', "length")
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json(), {"text": '{"what": "ok"}'})
+        self.assertIn("explain cut off", buf.getvalue())
+
+    def test_length_finish_with_broken_json_is_friendly_502(self):
+        buf = io.StringIO()
+        with mock.patch.object(server.urllib.request, "urlopen") as m, \
+                contextlib.redirect_stdout(buf):
+            m.side_effect = lambda req, timeout=None: _api_reply(
+                '{"what": "ok"', "length")
+            res = self._post_photo()
+        self.assertEqual(res.status_code, 502)
+        self.assertEqual(res.get_json(),
+                         {"error": "Unexpected reply from Meta API"})
+        self.assertIn("explain cut off", buf.getvalue())
 
     def test_explain_returns_model_text_unchanged(self):
         reply = json.dumps({key: "line %s" % key for key in JSON_KEYS})

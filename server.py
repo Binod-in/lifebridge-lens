@@ -195,14 +195,24 @@ def _image_kind(raw):
     return ""
 
 
-META_TIMEOUT = 75
+META_TIMEOUT = 40
 META_MAX_ATTEMPTS = 2
+META_BUDGET = 85
+META_RETRY_MIN_LEFT = 30
+
+
+def _budget_left(budget_start):
+    """Seconds left of the total Meta time budget."""
+    return META_BUDGET - (time.monotonic() - budget_start)
 
 
 def _call_meta_api(payload, label="meta"):
     """POST to the Meta chat API. Returns (ok, data_or_public_error).
 
-    Timeouts and 5xx replies are retried once; 4xx replies are not.
+    Timeouts and 5xx replies are retried once, but only when at
+    least META_RETRY_MIN_LEFT seconds of the META_BUDGET total
+    budget are left, so the server always answers before the
+    browser's 90s timeout. 4xx replies are never retried.
     """
     req = urllib.request.Request(
         f"{BASE_URL}/chat/completions",
@@ -213,14 +223,18 @@ def _call_meta_api(payload, label="meta"):
         },
         method="POST",
     )
+    budget_start = time.monotonic()
     for attempt in range(META_MAX_ATTEMPTS):
+        remaining = _budget_left(budget_start)
+        per_attempt = min(META_TIMEOUT, max(remaining, 1))
         start = time.monotonic()
         try:
-            with urllib.request.urlopen(req, timeout=META_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=per_attempt) as resp:
                 return True, json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if (e.code is not None and e.code >= 500
-                    and attempt + 1 < META_MAX_ATTEMPTS):
+                    and attempt + 1 < META_MAX_ATTEMPTS
+                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
                 print(f"{label} retry", flush=True)
                 continue
             try:
@@ -230,7 +244,8 @@ def _call_meta_api(payload, label="meta"):
             app.logger.warning("Meta API HTTP error %s: %s", e.code, detail)
             return False, "The AI service had a problem. Please try again."
         except TimeoutError:
-            if attempt + 1 < META_MAX_ATTEMPTS:
+            if (attempt + 1 < META_MAX_ATTEMPTS
+                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
                 print(f"{label} retry", flush=True)
                 continue
             app.logger.warning("Meta API request timed out")
@@ -238,7 +253,8 @@ def _call_meta_api(payload, label="meta"):
         except urllib.error.URLError as e:
             # urlopen wraps socket timeouts in URLError.
             if (isinstance(e.reason, TimeoutError)
-                    and attempt + 1 < META_MAX_ATTEMPTS):
+                    and attempt + 1 < META_MAX_ATTEMPTS
+                    and _budget_left(budget_start) >= META_RETRY_MIN_LEFT):
                 print(f"{label} retry", flush=True)
                 continue
             app.logger.warning("Meta API request failed: %s", e)
@@ -475,7 +491,7 @@ def explain():
 
     payload = {
         "model": MODEL,
-        "max_tokens": 1200,
+        "max_tokens": 2500,
         "messages": [
             {
                 "role": "user",
@@ -492,9 +508,16 @@ def explain():
         return jsonify({"error": data}), 502
 
     try:
-        text = data["choices"][0]["message"]["content"]
+        choice = data["choices"][0]
+        text = choice["message"]["content"]
     except (KeyError, IndexError, TypeError):
         return jsonify({"error": "Unexpected reply from Meta API"}), 502
+    if isinstance(choice, dict) and choice.get("finish_reason") == "length":
+        print("explain cut off", flush=True)
+        try:
+            json.loads(text)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Unexpected reply from Meta API"}), 502
 
     return jsonify({"text": text})
 

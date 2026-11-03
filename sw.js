@@ -1,8 +1,10 @@
 /* LifeBridge Lens service worker: offline pages + offline fallback page.
  * Registered on every page by i18n.js. Version the CACHE name to update.
  * Every CORE entry must exist, or the whole install fails.
+ * Rule: any change to a .js or .css file must bump CACHE, because the
+ * service worker serves JS and CSS cache-first.
  */
-const CACHE = "lens-v22";
+const CACHE = "lens-v23";
 const CORE = [
     "/",
     "offline.html",
